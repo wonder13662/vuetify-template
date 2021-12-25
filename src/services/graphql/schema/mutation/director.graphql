@@ -1,0 +1,15 @@
+mutation approveDirectors ($directorIds: [ID!]!) {
+  approveDirectors(directorIds: $directorIds) {
+    serviceUserId
+    approveStatus
+    memo
+  }
+}
+
+mutation rejectDirectors ($input: DirectorRejectInputData) {
+  rejectDirectors(input: $input) {
+    serviceUserId
+    approveStatus
+    memo
+  }
+}

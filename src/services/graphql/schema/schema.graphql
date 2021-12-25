@@ -1,0 +1,1328 @@
+input BasePhysicalGroupCreateData {
+  directorGroupIds: [ID!]!
+  h3PolygonIndexes: [ID]
+  maxNormalDriverCount: Int
+  name: String!
+}
+
+input BasePhysicalGroupUpdateData {
+  directorGroupIds: [ID!]!
+  h3PolygonIndexes: [ID]
+  name: String
+}
+
+# The `BigInt` scalar type represents non-fractional signed whole numeric values.
+scalar BigInt
+
+# The `Byte` scalar type represents byte value as a Buffer
+scalar Byte
+
+# A field whose value is a Currency: https://en.wikipedia.org/wiki/ISO_4217.
+scalar Currency
+
+type CustomerServiceTicket {
+  SubDelivery: SubDelivery
+
+  # ticket 처리 수락 시간
+  assignedAt: DateTime
+
+  # 티켓을 처리하는 director의 serviceUserId
+  assignedDirectorId: ID
+
+  # 티켓의 카테고리
+  category: CustomerServiceTicketCategoryEnum
+
+  # 티켓관련 코멘트
+  comment: String
+
+  # customerServiceTicket 생성 시간
+  createdAt: DateTime!
+
+  # row-based unique ID
+  customerServiceTicketId: ID!
+
+  # ticket 완료 시간
+  doneAt: DateTime
+
+  # 티켓의 사유
+  reason: CustomerServiceTicketReasonEnum
+
+  # 티켓 생성 시 티켓 생성자의 코멘트
+  requestMessage: String
+
+  # 티켓 상태
+  status: CustomerServiceTicketStatusEnum
+
+  # 세부배송 id
+  subDeliveryId: ID
+
+  # 티켓 생성자의 serviceUserId
+  ticketOwnerId: ID
+
+  # 티켓 생성자의 Role
+  ticketOwnerRole: CustomerServiceTicketTicketOwnerRoleEnum
+
+  # 티켓의 타입
+  type: CustomerServiceTicketTypeEnum
+}
+
+enum CustomerServiceTicketCategoryEnum {
+  delivery
+  normal
+}
+
+enum CustomerServiceTicketReasonEnum {
+  canceledDelivery
+  changeFeeAdjustAccount
+  changeSubDeliveryStatus
+  closePickupPoint
+  crossDelivery
+  custom
+  damagedProductByDriver
+  damagedProductByPickupPoint
+  delayGrab
+  dropDelay
+  dropPointDistance
+  giveUpDeliveryFee
+  impossibleDeliveryProduct
+  invalidAddress
+  lostProduct
+  missPackingProduct
+  missingProductByDriver
+  missingProductByPickupPoint
+  notExistCustomerAtDropPoint
+  overload
+  pickupDelay
+  pickupDelayByPickupPoint
+  pickupPointDistance
+  requestAccountWithdrawalDate
+  requestCompletedFeeAdjust
+  trafficAccident
+  trafficJam
+  transportationProblem
+  withholdingTaxReceipt
+  wrongDropPointAddress
+}
+
+enum CustomerServiceTicketStatusEnum {
+  assign
+  done
+  register
+}
+
+enum CustomerServiceTicketTicketOwnerRoleEnum {
+  director
+  driver
+  requester
+  system
+}
+
+enum CustomerServiceTicketTypeEnum {
+  accountRegister
+  accountWithdrawal
+  askCancelGrab
+  canceledDelivery
+  crossDelivery
+  custom
+  delayGrab
+  document
+  dropDelay
+  feeAdjust
+  grade
+  insurance
+  mistakeByDriver
+  mistakeByPickupPoint
+  notExistCustomerAtDropPoint
+  physicalGroup
+  pickupDelay
+  transportation
+  wrongDropPointAddress
+}
+
+# A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+scalar Date
+
+# A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+scalar DateTime
+
+type Delivery {
+  Store: Store
+  SubDeliveries: [SubDelivery]
+
+  # 주문자 실제 결제 금액 (할인 금액을 제외한 주문자의 최종 결제 금액)
+  actualPayPrice: Int
+
+  # delivery 생성 시간
+  createdAt: DateTime!
+
+  # 라이더가 수령해야 할 금액 (카드+현금의 합)
+  deferredPrice: Int
+
+  # row-based unique ID
+  deliveryId: ID!
+
+  # 허브 관리자가 작성한 메모
+  directorMemo: String
+
+  # 도착지 도로명 주소
+  dropPointAddress: String
+
+  # 도착지 상세 주소
+  dropPointAddressDetail: String
+
+  # 도착지 지번 주소
+  dropPointJibunAddress: String
+
+  # 도착지 위도
+  dropPointLatitude: Float
+
+  # 도착지 경도
+  dropPointLongitude: Float
+
+  # 본사 운영진이 작성한 메모
+  hqMemo: String
+
+  # 상품 정보
+  itemSummary: String
+
+  # 주문 id
+  orderId: ID!
+
+  # 주문자가 작성한 메모
+  ordererMemo: String
+
+  # 주문자 전화번호
+  ordererPhoneNumber: String
+
+  # 고객에게 카드로 받을 금액
+  paymentCardPrice: Int
+
+  # 고객에게 현금으로 받을 금액
+  paymentCashPrice: Int
+
+  # 결제 방식
+  paymentMethod: DeliveryPaymentMethodEnum
+
+  # 상점이 작성한 메모
+  pickUpPointMemo: String
+
+  # Leo에서생각한 pickup 예상(기대) 일시
+  pickupExpectedAt: DateTime!
+
+  # 픽업지 도로명 주소
+  pickupPointAddress: String
+
+  # 픽업지 상세 주소
+  pickupPointAddressDetail: String
+
+  # 픽업지 지번 주소
+  pickupPointJibunAddress: String
+
+  # 픽업지 위도
+  pickupPointLatitude: Float
+
+  # 픽업지 경도
+  pickupPointLongitude: Float
+
+  # 픽업지 이름
+  pickupPointName: String
+
+  # 픽업지 전화번호
+  pickupPointPhoneNumber: String
+
+  # 픽업 희망 일시
+  pickupWishAt: DateTime!
+
+  # (고객) 선결제 금액
+  prepaidPrice: Int
+
+  # 수령자 전화번호
+  receiverPhoneNumber: String!
+
+  # 배송 상태
+  status: DeliveryStatusEnum
+
+  # 상점 id
+  storeId: ID!
+
+  # 총 거리(m)
+  totalDistance: Float
+
+  # Requester가 내는 총 배송료
+  totalFeeWithRequester: Int
+
+  # 주문자 총 결제 금액 (주문 상품의 총 합계, 옵션 및 배달팁 포함)
+  totalPayPrice: Int
+
+  # 배송 유형
+  type: DeliveryTypeEnum
+}
+
+enum DeliveryPaymentMethodEnum {
+  card
+  cash
+  multipay
+  prepay
+}
+
+enum DeliveryStatusEnum {
+  arrivedDropPoint
+  arrivedPickupPoint
+  canceled
+  canceledGrab
+  created
+  doneDrop
+  goingToDrop
+  goingToPickup
+  readyGrab
+}
+
+enum DeliveryTypeEnum {
+  exchange
+  normal
+}
+
+type Director {
+  DirectorGroupDirectors: [DirectorGroupDirector]
+
+  # 계좌번호
+  accountNumber: String
+
+  # 디렉터 가입 승인 상태
+  approveStatus: DirectorApproveStatusEnum!
+
+  # 이메일
+  email: String
+
+  # 거절 사유
+  memo: String
+
+  # 이름
+  name: String
+
+  # 디렉터 번호
+  phoneNumber: String
+
+  # director role user ID
+  serviceUserId: ID!
+
+  # 지갑ID
+  walletId: String
+}
+
+enum DirectorApproveStatusEnum {
+  approve
+  reject
+  wait
+}
+
+type DirectorGroup {
+  DirectorGroupDirectors: [DirectorGroupDirector]
+  DirectorGroupPhysicalGroups: [DirectorGroupPhysicalGroup]
+
+  # directorGroup logicalGroupId
+  directorGroupId: ID!
+
+  # directorGroup 이름
+  name: String!
+}
+
+input DirectorGroupCreateData {
+  basePhysicalGroupIds: [ID]
+  directorIds: [ID]
+  name: String!
+}
+
+type DirectorGroupDirector {
+  Director: Director
+  DirectorGroup: DirectorGroup
+
+  # row-based unique ID (not referred)
+  directorGroupDirectorId: ID!
+
+  # 디렉터 그룹 id
+  directorGroupId: ID!
+
+  # director id
+  directorServiceUserId: ID!
+}
+
+type DirectorGroupPhysicalGroup {
+  DirectorGroup: DirectorGroup
+  PhysicalGroup: PhysicalGroup
+
+  # 디렉터 그룹 id
+  directorGroupId: ID!
+
+  # row-based unique ID (not referred)
+  directorGroupPhysicalGroupId: ID!
+
+  # 관제하려는 physical 그룹 id
+  physicalGroupId: ID!
+}
+
+input DirectorGroupUpdateData {
+  basePhysicalGroupIds: [ID]
+  directorIds: [ID]
+  name: String
+}
+
+input DirectorGroupsQuery {
+  name: String
+}
+
+input DirectorRejectInputData {
+  directorIds: [ID!]!
+  memo: String!
+}
+
+input DirectorsQuery {
+  approveStatus: DirectorApproveStatusEnum
+  email: String
+  name: String
+}
+
+type DirectorsResponse {
+  count: Int
+  rows: [Director]
+}
+
+type DispatchNote {
+  # 배차 종류
+  dispatchType: DispatchNoteDispatchTypeEnum!
+
+  # 마지막 dispatch 실행 시간
+  lastDispatchTime: DateTime!
+
+  # 픽업예정시간
+  pickupExpectedAt: DateTime!
+
+  # subDelivery Id
+  subDeliveryId: ID!
+}
+
+enum DispatchNoteDispatchTypeEnum {
+  race
+  recommend
+}
+
+type DispatchRoom {
+  blackDriverCount: Int
+
+  # 입장가능한 최대 일반 드라이버수(넘을수도있음 - 최대치 초과 특정상황에서 가능)
+  maxNormalDriverCount: Int!
+
+  # dispatchRoom 이름
+  name: String!
+  normalDriverCount: Int
+}
+
+type DispatchRoomDriver {
+  # 블랙 드라이버 여부
+  blackDriverFlag: Boolean!
+
+  # 그룹 id
+  dispatchRoomId: ID!
+
+  # driver id
+  driverServiceUserId: ID!
+}
+
+type Driver {
+  DriverGroupDrivers: [DriverGroupDriver]
+  SubDeliveries: [SubDelivery]
+  WalletStatement: WalletStatement
+
+  # 드라이버 상태
+  approveStatus: DriverApproveStatusEnum!
+
+  # 운전면허 등록 여부
+  driverLicense: Boolean
+
+  # 운전면허 image id
+  driverLicenseImage: ID
+
+  # 이메일
+  email: String
+
+  # 보험 정보
+  insurance: DriverInsuranceEnum!
+
+  # 거절 사유
+  memo: String
+
+  # 드라이버 이름
+  name: String
+
+  # 드라이버 번호
+  phoneNumber: String
+
+  # driver role user ID
+  serviceUserId: ID!
+
+  # 운송 수단
+  transportation: DriverTransportationEnum!
+
+  # 지갑ID
+  walletId: ID
+
+  # 근무 상태
+  workingStatus: DriverWorkingStatusEnum!
+}
+
+enum DriverApproveStatusEnum {
+  approve
+  reject
+  wait
+}
+
+type DriverGroup {
+  # driverGroup logicalGroupId
+  driverGroupId: ID!
+
+  # driverGroup 이름
+  name: String!
+
+  # 드라이버 그룹 종류
+  type: DriverGroupTypeEnum!
+}
+
+type DriverGroupDriver {
+  DriverGroup: DriverGroup
+
+  # row-based unique ID (not referred)
+  driverGroupDriverId: ID!
+
+  # 드라이버 그룹 id
+  driverGroupId: ID
+
+  # driver id
+  driverServiceUserId: ID
+}
+
+enum DriverGroupTypeEnum {
+  custom
+  grade
+  management
+  transportation
+}
+
+enum DriverInsuranceEnum {
+  one
+  two
+}
+
+type DriverPolicyOptionFeeType {
+  # row-based unique ID
+  driverPolicyOptionFeeTypeId: ID
+
+  # 요금이름
+  name: String!
+
+  # Driver 정책에서 사용할 수 있는 요금의 타입
+  type: DriverPolicyOptionFeeTypeTypeEnum!
+}
+
+enum DriverPolicyOptionFeeTypeTypeEnum {
+  chuseok
+  coldWave
+  custom
+  distance
+  heavyRain
+  heavySnow
+  hot
+  lunarNewYearsDay
+  midNight
+  newYearsDay
+  outOfBoundary
+  overPrice
+  overVolume
+  promotion
+  strongWind
+}
+
+input DriverRejectInputData {
+  driverIds: [ID!]!
+  memo: String!
+}
+
+enum DriverTransportationEnum {
+  car
+  motorcycle
+  walk
+}
+
+enum DriverWorkingStatusEnum {
+  off
+  on
+  rest
+}
+
+input DriversQuery {
+  approveStatus: DriverApproveStatusEnum
+  name: String
+}
+
+type DriversResponse {
+  count: Int
+  rows: [Driver]
+}
+
+# A field whose value conforms to the standard internet email address format as specified in RFC822: https://www.w3.org/Protocols/rfc822/.
+scalar EmailAddress
+
+# A field whose value is a generic Globally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier.
+scalar GUID
+
+type GpsData {
+  altitude: Float
+  latitude: Float
+  longitude: Float
+}
+
+type GpsHistory {
+  Driver: Driver
+  DriverGroups: [DriverGroup]
+
+  # 고도
+  altitude: Float
+  distance: Float
+
+  # row-based unique ID
+  gpsHistoryId: ID!
+
+  # 위도
+  latitude: Float
+
+  # 경도
+  longitude: Float
+
+  # serviceUser id
+  serviceUserId: ID!
+
+  # 근무 상태
+  workingStatus: GpsHistoryWorkingStatusEnum!
+}
+
+enum GpsHistoryWorkingStatusEnum {
+  off
+  on
+  rest
+}
+
+type H3Polygon {
+  H3PolygonStores: [H3PolygonStore]
+  PhysicalGroupH3Polygons: [PhysicalGroupH3Polygon]
+
+  # Index in h3
+  h3Index: ID!
+
+  # row-based autoincrement ID
+  h3PolygonId: Int!
+
+  # 해상도 0~15
+  resolution: Int
+}
+
+type H3PolygonStore {
+  Store: Store
+
+  # 폴리곤 id
+  h3PolygonId: Int!
+
+  # row-based unique ID (not referred)
+  h3PolygonStoreId: Int!
+
+  # store id
+  storeId: ID!
+}
+
+input H3PolygonsQuery {
+  h3Indexes: [ID]!
+}
+
+# A field whose value is a CSS HSL color: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#hsl()_and_hsla().
+scalar HSL
+
+# A field whose value is a CSS HSLA color: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#hsl()_and_hsla().
+scalar HSLA
+
+# A field whose value is a hex color code: https://en.wikipedia.org/wiki/Web_colors.
+scalar HexColorCode
+
+# A field whose value is a hexadecimal: https://en.wikipedia.org/wiki/Hexadecimal.
+scalar Hexadecimal
+
+# A field whose value is an International Bank Account Number (IBAN): https://en.wikipedia.org/wiki/International_Bank_Account_Number.
+scalar IBAN
+
+# A field whose value is a IPv4 address: https://en.wikipedia.org/wiki/IPv4.
+scalar IPv4
+
+# A field whose value is a IPv6 address: https://en.wikipedia.org/wiki/IPv6.
+scalar IPv6
+
+# A field whose value is a ISBN-10 or ISBN-13 number: https://en.wikipedia.org/wiki/International_Standard_Book_Number.
+scalar ISBN
+
+input InvalidPhysicalGroupData {
+  h3PolygonIndexes: [ID]
+  name: String!
+}
+
+# The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+scalar JSON
+
+# The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+scalar JSONObject
+
+# The `BigInt` scalar type represents non-fractional signed whole numeric values.
+scalar Long
+
+# A field whose value is a IEEE 802 48-bit MAC address: https://en.wikipedia.org/wiki/MAC_address.
+scalar MAC
+
+type Mutation {
+  approveBlackDrivers(input: blackDriverInput!): [Driver]
+  approveDirectors(directorIds: [ID!]!): [Director]
+  approveDrivers(driverIds: [ID!]!): [Driver]
+  createBasePhysicalGroup(input: BasePhysicalGroupCreateData!): PhysicalGroup
+  createDirectorGroup(input: DirectorGroupCreateData!): DirectorGroup
+  createInvalidAreaPhysicalGroup(input: InvalidPhysicalGroupData!): PhysicalGroup
+  createRequester(input: RequesterInputData!): Requester
+  createStores(input: [StoreInputData]!): [Store]
+  disapproveBlackDrivers(input: blackDriverInput!): [Driver]
+  rejectDirectors(input: DirectorRejectInputData): [Director]
+  rejectDrivers(input: DriverRejectInputData): [Driver]
+  updateBasePhysicalGroup(id: GUID!, input: BasePhysicalGroupUpdateData): PhysicalGroup
+  updateDirectorGroup(id: GUID!, input: DirectorGroupUpdateData): DirectorGroup
+  updateInvalidAreaPhysicalGroup(id: GUID!, input: InvalidPhysicalGroupData): PhysicalGroup
+}
+
+# Floats that will have a value less than 0.
+scalar NegativeFloat
+
+# Integers that will have a value less than 0.
+scalar NegativeInt
+
+# Floats that will have a value of 0 or more.
+scalar NonNegativeFloat
+
+# Integers that will have a value of 0 or more.
+scalar NonNegativeInt
+
+# Floats that will have a value of 0 or less.
+scalar NonPositiveFloat
+
+# Integers that will have a value of 0 or less.
+scalar NonPositiveInt
+
+# A field whose value conforms with the standard mongodb object ID as described here: https://docs.mongodb.com/manual/reference/method/ObjectId/#ObjectId. Example: 5e5677d71bdc2ae76344968c
+scalar ObjectID
+
+type OptionFeeWithDriver {
+  DriverPolicyOptionFeeType: DriverPolicyOptionFeeType
+
+  # optionFee 금액
+  amount: Int!
+
+  # 요금 사유 관련 메모
+  memo: String
+
+  # row-based unique ID
+  optionFeeWithDriverId: ID!
+
+  # OptionFee 상태
+  status: OptionFeeWithDriverStatusEnum
+
+  # 옵션 요금을 적용받는 subDeliveryId
+  subDeliveryId: Int!
+}
+
+enum OptionFeeWithDriverStatusEnum {
+  canceledWarrant
+  keeping
+  settled
+  warrant
+}
+
+type OptionFeeWithRequester {
+  # optionFee 금액
+  amount: Int!
+
+  # 요금 사유 관련 메모
+  memo: String
+
+  # row-based unique ID
+  optionFeeWithRequesterId: ID!
+
+  # OptionFee 상태
+  status: OptionFeeWithRequesterStatusEnum
+
+  # 옵션 요금을 적용받는 subDeliveryId
+  subDeliveryId: Int!
+}
+
+enum OptionFeeWithRequesterStatusEnum {
+  canceledWarrant
+  keeping
+  settled
+  warrant
+}
+
+input Pagination {
+  currentPage: Int!
+  limit: Int!
+}
+
+type PeriodOptionFeeType {
+  PeriodOptionFeeTypePhysicalGroups: [PeriodOptionFeeTypePhysicalGroup]
+
+  # 요금이 시작되는 시간. recurringEventsEndsAt보다 반드시 이전 시각이어야 한다. 00:00, 23:59의 시간 포맷을 가짐
+  eventBeginsAtHHmm: String
+
+  # 요금이 유지되는 시간. recurringEventsEndsAt의 이후 기간은 유지되지 않는다. 단위는 분 - Minutes
+  eventDurationInMinutes: Int
+
+  # row-based unique ID
+  periodOptionFeeTypeId: ID!
+
+  # 요금이 시작되는 시각
+  recurringEventsBeginsAt: DateTime
+
+  # 요금이 끝나는 시각
+  recurringEventsEndsAt: DateTime
+
+  # 드라이버 정책의 상태
+  status: PeriodOptionFeeTypeStatusEnum
+
+  # 지정된 기간 동안의 대상 배송에 적용되는 요금의 타입
+  type: PeriodOptionFeeTypeTypeEnum
+}
+
+type PeriodOptionFeeTypePhysicalGroup {
+  PeriodOptionFeeType: PeriodOptionFeeType
+
+  # 현재 만들어져있는 할증(periodOptionFeeType) id
+  periodOptionFeeTypeId: ID!
+
+  # row-based unique ID
+  periodOptionFeeTypePhysicalGroupId: ID!
+
+  # 그룹 id
+  physicalGroupId: String
+}
+
+enum PeriodOptionFeeTypeStatusEnum {
+  activated
+  deactivated
+  terminated
+}
+
+enum PeriodOptionFeeTypeTypeEnum {
+  chuseok
+  coldWave
+  heavyRain
+  heavySnow
+  hot
+  lunarNewYearsDay
+  midNight
+  newYearsDay
+  promotion
+  strongWind
+}
+
+# A field whose value conforms to the standard E.164 format as specified in: https://en.wikipedia.org/wiki/E.164. Basically this is +17895551234.
+scalar PhoneNumber
+
+type PhysicalGroup {
+  DirectorGroupPhysicalGroups: [DirectorGroupPhysicalGroup]
+  DispatchRoom: DispatchRoom
+  PeriodOptionFeeTypePhysicalGroups: [PeriodOptionFeeTypePhysicalGroup]
+  PhysicalGroupH3Polygons: [PhysicalGroupH3Polygon]
+
+  # 배송량
+  deliveryVolume: PhysicalGroupDeliveryVolumeEnum
+
+  # 그룹 명
+  name: String!
+
+  # row-based unique ID
+  physicalGroupId: ID!
+
+  # 트래픽
+  traffic: PhysicalGroupTrafficEnum
+
+  # 그룹 종류
+  type: PhysicalGroupTypeEnum!
+
+  # 날씨 상황
+  weather: PhysicalGroupWeatherEnum
+}
+
+enum PhysicalGroupDeliveryVolumeEnum {
+  few
+  many
+  normal
+}
+
+type PhysicalGroupH3Polygon {
+  H3Polygon: H3Polygon
+
+  # 해당 그룹에서 라인을 형성하고있는 폴리곤인지 여부
+  edgePolygonFlag: Boolean
+
+  # h3Polygon id
+  h3PolygonId: ID!
+
+  # 그룹 id
+  physicalGroupId: ID!
+}
+
+enum PhysicalGroupTrafficEnum {
+  heavy
+  light
+  normal
+}
+
+enum PhysicalGroupTypeEnum {
+  base
+  invalidArea
+}
+
+enum PhysicalGroupWeatherEnum {
+  bad
+  good
+  normal
+}
+
+input PhysicalGroupsQuery {
+  name: String
+  type: PhysicalGroupTypeEnum!
+}
+
+# A field whose value is a valid TCP port within the range of 0 to 65535: https://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_ports
+scalar Port
+
+# Floats that will have a value greater than 0.
+scalar PositiveFloat
+
+# Integers that will have a value greater than 0.
+scalar PositiveInt
+
+# A field whose value conforms to the standard postal code formats for United States, United Kingdom, Germany, Canada, France, Italy, Australia, Netherlands, Spain, Denmark, Sweden, Belgium, India, Austria, Portugal, Switzerland or Luxembourg.
+scalar PostalCode
+
+type Query {
+  director(id: GUID!): Director
+  directorGroup(id: GUID!): DirectorGroup
+  directorGroups(pagination: Pagination, query: DirectorGroupsQuery!): [DirectorGroup]
+  directors(pagination: Pagination, query: DirectorsQuery!): DirectorsResponse
+  driver(id: GUID!): Driver
+  drivers(pagination: Pagination, query: DriversQuery!): DriversResponse
+  h3Polygons(query: H3PolygonsQuery!): [H3Polygon]
+  physicalGroup(id: GUID!): PhysicalGroup
+  physicalGroups(pagination: Pagination, query: PhysicalGroupsQuery!): [PhysicalGroup]
+  requester(id: GUID!): Requester
+  requesters(pagination: Pagination, query: RequestersQuery!): [Requester]
+  store(id: GUID!): Store
+  stores(pagination: Pagination, query: StoresQuery!): [Store]
+}
+
+# A field whose value is a CSS RGB color: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb()_and_rgba().
+scalar RGB
+
+# A field whose value is a CSS RGBA color: https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb()_and_rgba().
+scalar RGBA
+
+type Requester {
+  # 강제 생성 여부(email, password 존재하지 않음)
+  isGenerated: Boolean
+
+  # 배송 요청자 이름
+  name: String!
+
+  # 배송 요청자 번호
+  phoneNumber: String!
+
+  # Requester role user ID
+  serviceUserId: ID!
+
+  # 지갑ID
+  walletId: ID
+}
+
+type RequesterContractOptionFeeType {
+  # 요금이름
+  name: String!
+
+  # row-based unique ID
+  requesterContractOptionFeeTypeId: ID!
+
+  # Requester 계약을 기반으로 한 요금의 타입
+  type: RequesterContractOptionFeeTypeTypeEnum
+}
+
+enum RequesterContractOptionFeeTypeTypeEnum {
+  chuseok
+  coldWave
+  custom
+  distance
+  heavyRain
+  heavySnow
+  hot
+  lunarNewYearsDay
+  midNight
+  newYearsDay
+  outOfBoundary
+  overPrice
+  overVolume
+  promotion
+  strongWind
+}
+
+input RequesterInputData {
+  accountNumber: String!
+  email: String
+  isGenerated: Boolean!
+  name: String!
+  password: String
+  phoneNumber: String!
+}
+
+input RequestersQuery {
+  isGenerated: Boolean!
+  name: String
+}
+
+# The `SafeInt` scalar type represents non-fractional signed whole numeric values that are considered safe as defined by the ECMAScript specification.
+scalar SafeInt
+
+type ServiceUser {
+  # user role
+  role: ServiceUserRoleEnum!
+
+  # row-based unique ID
+  serviceUserId: ID!
+}
+
+enum ServiceUserRoleEnum {
+  director
+  driver
+  requester
+}
+
+enum SortWayEnum {
+  # 오름차순
+  asc
+
+  # 내림차순
+  desc
+}
+
+type Store {
+  # 상점 도로명주소
+  address: String
+
+  # 상점 상세주소
+  addressDetail: String
+
+  # 사업자 등록 번호
+  businessNumber: String
+
+  # 상점 지번주소
+  jibunAddress: String
+
+  # 상점 위도
+  latitude: Float
+
+  # 상점 경도
+  longitude: Float
+
+  # 상점 명
+  name: String
+
+  # 상점 주인 user id
+  ownerServiceUserId: ID
+
+  # 상점 전화번호
+  phoneNumber: String
+
+  # row-based unique ID
+  storeId: ID!
+}
+
+input StoreInputData {
+  address: String!
+  addressDetail: String!
+  brokerStoreId: String
+  businessNumber: String!
+  jibunAddress: String!
+  latitude: Float!
+  longitude: Float!
+  name: String!
+  ownerServiceUserId: GUID!
+  phoneNumber: String!
+}
+
+input StoresQuery {
+  businessNumber: String
+  name: String
+  ownerServiceUserId: GUID
+  phoneNumber: String
+}
+
+type SubDelivery {
+  CustomerServiceTickets: [CustomerServiceTicket]
+  Driver: Driver
+  OptionFeeWithDrivers: [OptionFeeWithDriver]
+  RequesterContractOptionFeeTypes: [RequesterContractOptionFeeType]
+  SubDeliveryEvents: [SubDeliveryEvent]
+
+  # requester 또는 store 중 어디 계약을 적용할 것인지 설정
+  bindContractType: SubDeliveryBindContractTypeEnum!
+
+  # subDelivery 생성 시간
+  createdAt: DateTime!
+
+  # Driver가 수령해야 할 금액 (카드+현금의 합)
+  deferredPrice: Int!
+
+  # 배송 id
+  deliveryId: ID!
+
+  # 허브 관리자가 작성한 메모
+  directorMemo: String
+
+  # 거리(m)
+  distance: Float
+
+  # 배송 수행 driver id
+  driverServiceUserId: ID
+
+  # 도착지 도로명 주소
+  dropPointAddress: String
+
+  # 도착지 상세 주소
+  dropPointAddressDetail: String
+
+  # 도착지 지번 주소
+  dropPointJibunAddress: String
+
+  # 도착지 위도
+  dropPointLatitude: Float
+
+  # 도착지 경도
+  dropPointLongitude: Float
+
+  # 본사 운영진이 작성한 메모
+  hqMemo: String
+
+  # 배차지연 플래그
+  isDelay: Boolean
+
+  # 전달 방식
+  isUntact: Boolean
+
+  # 상품 내역 정보
+  itemSummary: String
+
+  # 주문자가 작성한 메모
+  ordererMemo: String
+
+  # 주문자 전화번호
+  ordererPhoneNumber: String
+
+  # 고객에게 카드로 받을 금액
+  paymentCardPrice: Int!
+
+  # 고객에게 현금으로 받을 금액
+  paymentCashPrice: Int!
+
+  # 결제 방식
+  paymentMethod: SubDeliveryPaymentMethodEnum!
+
+  # 배송 수행 지역 그룹 id
+  physicalGroupId: ID
+
+  # 상점이 작성한 메모
+  pickUpPointMemo: String
+
+  # Leo에서생각한 pickup 예상(기대) 일시
+  pickupExpectedAt: DateTime!
+
+  # 픽업지 도로명 주소
+  pickupPointAddress: String
+
+  # 픽업지 상세 주소
+  pickupPointAddressDetail: String
+
+  # 픽업지 지번 주소
+  pickupPointJibunAddress: String
+
+  # 픽업지 위도
+  pickupPointLatitude: Float
+
+  # 픽업지 경도
+  pickupPointLongitude: Float
+
+  # 픽업지 이름
+  pickupPointName: String
+
+  # 픽업지 전화번호
+  pickupPointPhoneNumber: String
+
+  # 픽업 희망 일시
+  pickupWishAt: DateTime!
+
+  # 수령자 전화번호
+  receiverPhoneNumber: String!
+
+  # 배송 상태
+  status: SubDeliveryStatusEnum
+
+  # row-based unique ID
+  subDeliveryId: ID!
+
+  # 지연 요청 시간. 단위는 분
+  totalDelayTime: Int
+
+  # Driver가 받을 총 배송료
+  totalFeeWithDriver: Int
+
+  # 상품 총액
+  totalPayPrice: Int!
+}
+
+enum SubDeliveryBindContractTypeEnum {
+  requester
+  store
+}
+
+type SubDeliveryEvent {
+  # 해당 이벤트를 발생시킨 서비스 유저
+  actionServiceUserId: ID!
+
+  # 이벤트 사유 및 코멘트
+  comment: String
+
+  # 이벤트 종류
+  event: SubDeliveryEventEventEnum!
+
+  # 이벤트 발생 시간
+  eventTime: DateTime!
+
+  # 해당 이벤트를 발생시킨 서비스 유저의 역할
+  role: SubDeliveryEventRoleEnum!
+
+  # row-based unique ID
+  subDeliveryEventId: ID!
+
+  # subDelivery Id
+  subDeliveryId: ID!
+}
+
+enum SubDeliveryEventEventEnum {
+  addDriverOptionFee
+  addRequesterOptionFee
+  cancelDelivery
+  cancelSubDelivery
+  create
+  dispatchSubDelivery
+  dropPointChange
+  grab
+  grabCancel
+  memoChange
+  paymentChange
+  phoneChange
+  pickupDelay
+  pickupDelayPending
+  pickupDelayReject
+  pickupWishAtChange
+  statusChange
+}
+
+enum SubDeliveryEventRoleEnum {
+  director
+  driver
+  requester
+  system
+}
+
+enum SubDeliveryPaymentMethodEnum {
+  card
+  cash
+  multipay
+  prepay
+}
+
+enum SubDeliveryStatusEnum {
+  arrivedDropPoint
+  arrivedPickupPoint
+  canceled
+  canceledGrab
+  completedFeeAdjust
+  created
+  doneDrop
+  feeAdjusting
+  goingToDrop
+  goingToPickup
+  readyGrab
+}
+
+type TempDispatchMap {
+  SubDelivery: SubDelivery
+
+  # dipatch된 driver id
+  driverServiceUserId: ID!
+
+  # subDelivery Id
+  subDeliveryId: ID!
+}
+
+input TermDateTime {
+  # 종료 날짜 시간(포함- 작거나 같다)
+  end: DateTime!
+
+  # 시작 날짜 시간(포함- 크거나 같다)
+  start: DateTime!
+}
+
+# A time string at UTC, such as 10:15:30Z, compliant with the `full-time` format outlined in section 5.6 of the RFC 3339profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+scalar Time
+
+# The javascript `Date` as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+scalar Timestamp
+
+# A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+scalar URL
+
+# A currency string, such as $21.25
+scalar USCurrency
+
+# Floats that will have a value of 0 or more.
+scalar UnsignedFloat
+
+# Integers that will have a value of 0 or more.
+scalar UnsignedInt
+
+# A field whose value is a UTC Offset: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+scalar UtcOffset
+
+# Represents NULL values
+scalar Void
+
+type WalletStatement {
+  # 소유 금액
+  balance: Int!
+
+  # 홀드금액
+  holdAmount: Int!
+
+  # 지갑ID
+  walletId: ID!
+}
+
+input blackDriverInput {
+  driverIds: [ID!]!
+}

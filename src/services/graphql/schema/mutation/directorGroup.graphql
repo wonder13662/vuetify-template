@@ -1,0 +1,13 @@
+#import "../fragment/directorGroupFragment.graphql"
+
+mutation createDirectorGroup ($input: DirectorGroupCreateData!) {
+  createDirectorGroup(input: $input) {
+    ...directorGroupSummary
+  }
+}
+
+mutation updateDirectorGroup ($input: DirectorGroupUpdateData, $id: GUID!) {
+  updateDirectorGroup(input: $input, id: $id) {
+    ...directorGroupSummary
+  }
+}

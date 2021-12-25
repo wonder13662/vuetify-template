@@ -1,0 +1,10 @@
+#import "../fragment/directorGroupFragment.graphql"
+
+query directorGroups ($query: DirectorGroupsQuery!, $pagination: Pagination) {
+  directorGroups(query: $query, pagination: $pagination) {
+    count
+    rows{
+      ...directorGroupSummary
+    }    
+  }
+}

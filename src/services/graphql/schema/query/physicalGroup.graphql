@@ -1,0 +1,71 @@
+query physicalGroups ($query: PhysicalGroupsQuery!, $pagination: Pagination) {
+  physicalGroups(query: $query, pagination: $pagination) {
+    physicalGroupId
+    type
+    name
+    h3PolygonCount
+    PhysicalGroupH3Polygons {
+      physicalGroupId
+      h3PolygonId
+      edgePolygonFlag
+      H3Polygon {
+        h3PolygonId
+        h3Index
+        resolution
+      }
+    }
+    DirectorGroupPhysicalGroups {
+      directorGroupPhysicalGroupId
+      physicalGroupId
+      directorGroupId
+      DirectorGroup {
+        directorGroupId
+        name
+      }
+    }
+    DispatchRoom {
+      name
+      maxNormalDriverCount
+      normalDriverCount
+      blackDriverCount
+    }
+    PeriodOptionFeeTypePhysicalGroups {
+      periodOptionFeeTypePhysicalGroupId
+      PeriodOptionFeeType {
+        periodOptionFeeTypeId
+        type
+        status
+        recurringEventsBeginsAt
+        recurringEventsEndsAt
+        eventBeginsAtHHmm
+        eventDurationInMinutes
+      }
+    }    
+  }
+}
+
+query physicalGroupsInDirectorGroupList ($query: PhysicalGroupsQuery!, $pagination: Pagination) {
+  physicalGroups(query: $query, pagination: $pagination) {
+    physicalGroupId
+    type
+    name
+    h3PolygonCount
+    DispatchRoom {
+      maxNormalDriverCount
+    }
+    PhysicalGroupH3Polygons {
+      edgePolygonFlag
+      H3Polygon {
+        h3PolygonId
+        h3Index
+        resolution
+      }
+    }
+    DirectorGroupPhysicalGroups {
+      DirectorGroup {
+        directorGroupId
+        name
+      }
+    }    
+  }
+}

@@ -1,0 +1,17 @@
+fragment directorGroupSummary on DirectorGroup {
+  name
+  directorCount
+  directorGroupId
+  DirectorGroupPhysicalGroups{
+    PhysicalGroup{
+      physicalGroupId
+      name
+    }
+  }
+  DirectorGroupDirectors{
+    Director{
+      serviceUserId
+      name
+    }
+  }
+}

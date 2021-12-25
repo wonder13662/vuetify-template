@@ -1,0 +1,15 @@
+query directors ($query: DirectorsQuery!, $pagination: Pagination) {
+  directors(query: $query, pagination: $pagination) {
+    count
+    rows {
+      serviceUserId
+      email
+      name
+      accountNumber
+      walletId
+      approveStatus
+      memo
+      phoneNumber
+    }
+  }
+}

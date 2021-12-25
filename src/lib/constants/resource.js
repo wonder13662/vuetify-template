@@ -1,0 +1,5 @@
+export default {
+  DELIVERY: 'DELIVERY',
+  SUBDELIVERY: 'SUBDELIVERY',
+  CSTICKET: 'CSTICKET',
+};

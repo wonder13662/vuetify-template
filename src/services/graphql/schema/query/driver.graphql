@@ -1,0 +1,27 @@
+query drivers ($query: DriversQuery!, $pagination: Pagination) {
+  drivers(query: $query, pagination: $pagination) {
+    count
+    rows {
+      serviceUserId
+      email
+      workingStatus
+      transportation
+      walletId
+      insurance
+      driverLicense
+      driverLicenseImage
+      phoneNumber
+      name
+      approveStatus
+      memo
+      DriverGroupDrivers {
+        driverGroupDriverId
+        DriverGroup {
+          driverGroupId
+          name
+          type
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+export default {
+  links: {
+    dashboard: '대시보드',
+    notice: '공지사항',
+    physicalGroup: '지역그룹',
+    physicalGroupList: '지역그룹 리스트',
+    physicalGroupOutOfBound: '배송불가지역',
+    physicalGroupExtraCharge: '배송할증지역',
+    director: '디렉터',
+    directorApprove: '가입 승인 대기',
+    directorList: '디렉터 관리',
+    directorGroupList: '디렉터 그룹 관리',
+    driver: '드라이버',
+    driverApprove: '가입 승인 대기',
+    blackDriverApprove: '블랙드라이버 승인 대기',
+    driverList: '드라이버 관리',
+    driverGroupList: '드라이버 그룹 관리',
+    csTicket: '일반 CS 티켓',
+    feeAdjust: '정산',
+    stats: '통계',
+  },
+};

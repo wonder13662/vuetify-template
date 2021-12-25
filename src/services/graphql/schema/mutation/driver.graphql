@@ -1,0 +1,14 @@
+mutation approveDrivers ($driverIds: [ID!]!) {
+  approveDrivers(driverIds: $driverIds) {
+    serviceUserId
+    approveStatus
+  }
+}
+
+mutation rejectDrivers ($input: DriverRejectInputData) {
+  rejectDrivers(input: $input) {
+    serviceUserId
+    approveStatus
+    memo
+  }
+}
