@@ -19,9 +19,10 @@
   - 서비스 유지보수
   - 채팅 컴포넌트
 4. 각 페이지별 Router 구성
+  - url에 pagination을 query string으로 넘겨줘서 이를 바로 표현할 수 있어야 함
 5. 레이아웃 템플릿들을 로컬 내의 서버를 띄워서 재현할 수 있도록 구성
 6. 로컬에 띄울 수 있는 Api 서버들
-  - Rest: Axios(Auth Api)
+  - Rest: Express(Auth Api) [참고 소스:Token-Based Authentication](https://github.com/Code-Pop/authentication_course/releases/tag/lesson7_FINISH)
   - Rest: Graphql(Service Api) [참고 소스:Vuemastery-graphql-server](https://gitlab.com/ntepluhina/vuemastery-graphql-server)
   - Socket: Socket.io(Push & Chatting) [참고 소스](https://socket.io/get-started/chat)
 7. 테스트 코드 범위
@@ -34,10 +35,10 @@
 ```bash
 $ cd server/graphql
 $ yarn
-$ yarn apollo
+$ yarn serve
 ```
-`http://localhost:4000/graphql`로 확인해주세요.
-### Rest(JSON-server)
+`http://localhost:50001/graphql`로 확인해주세요.
+### Rest(express server)
 ```bash
 $ cd server/rest
 $ yarn

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "apollo": "vue-cli-service apollo:start"
+    "serve": "vue-cli-service apollo:start"
   },
   "dependencies": {
     "core-js": "^3.6.5",

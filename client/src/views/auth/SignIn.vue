@@ -65,9 +65,6 @@ export default {
       this.$router.push('/auth/sign-up');
     },
     async onClickSignIn() {
-      // TODO Hot reloaded 평가해보기(쓸만한가?)
-      // https://vuex.vuejs.org/guide/hot-reload.html
-
       const credentials = {
         v: 1,
         email: this.email,
@@ -76,8 +73,7 @@ export default {
       };
 
       try {
-        // TODO 로그인 예외 상황에 대한 처리는 안되어있음. 기획하여 추가 필요.
-        /* eslint-disable no-console */
+        // TODO 예외처리 필요 - 패스워드 오류, 존재하지 않는 ID등
         await store.dispatch('auth/signIn', credentials);
         const loggedIn = store.getters['auth/loggedIn'];
         if (loggedIn) {
@@ -86,9 +82,7 @@ export default {
           auth.postProcessSignIn(accessToken, refreshToken);
           await this.$router.push({ path: '/admin/dashboard' });
         }
-        // TODO 예외처리 필요 - 패스워드 오류, 존재하지 않는 ID등
       } catch (error) {
-        // catch 안에서 에러 객체를 수집, store에 저장
         store.dispatch('error/addError', error);
       }
     },
