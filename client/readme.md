@@ -1,7 +1,6 @@
-# Leo Admin web
-레오 서비스의 어드민 유저가 사용하는 지역그룹 관리, 정산관리, 드라이버, 디렉터 승인 기능등을 제공하는 웹 클라이언트입니다.
+# Vuetify template
+Vuetify에서 사용하는 컴포넌트와 레이아웃 규칙을 실제 프로젝트에서 사용하기 편리하도록 구성한 웹 클라어인트 템플릿 프로젝트입니다.
 ## 가이드
-[R&D 코딩 컨벤션 - Client seed conding convention](https://www.notion.so/barogohq/Coding-Convention-f411b58d5e81443fb764658abaef3b2d#bb37484a7d514594838b46dbb48231e3)
 [공식 Vue2 가이드](https://vuejs.org/v2/guide/index.html)
 [공식 Vue Router 가이드 - 한글](https://router.vuejs.org/kr/guide/)
 [공식 Vuex 가이드 - 한글](https://vuex.vuejs.org/kr/)
@@ -10,10 +9,8 @@
 [공식 Vue Apollo 가이드](https://apollo.vuejs.org/)
 [공식 Apollo Client(React) 가이드](https://www.apollographql.com/docs/react/)
 [R&D 공식 UI Framework - Vuetify 홈](https://vuetifyjs.com/en/)
-[Vue 교육자료 - Vuemastery 사내교육](https://www.notion.so/barogohq/VueMastery-685fd879fabb4683bd4fd2a6338907a2)
 [Vue i18n(Localization)](https://kazupon.github.io/vue-i18n/introduction.html)
 ## 디렉토리 구조
-[R&D 프론트개발 공통 컨벤션](https://www.notion.so/barogohq/1074-R-D-9a71bef1eea54723a7b42b4011a632a1)을 토대로 작성
 ```
 admin/
 |- build (vue-cli에서 참조하는 webpack 설정파일. 각 스테이지마다 설정을 다르게 할 수 있음.)
