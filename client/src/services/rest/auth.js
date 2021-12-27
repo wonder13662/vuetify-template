@@ -2,24 +2,35 @@ import { authClient } from '@/lib/axios';
 
 export default {
   async postSignIn({ email, password }) {
-    const result = await authClient.getInstance().post('/signin', { email, password });
-    return result;
+    const {
+      data: {
+        accessToken,
+        refreshToken,
+      },
+    } = await authClient.getInstance().post('/signin', { email, password });
+    return {
+      accessToken,
+      refreshToken,
+    };
   },
-  async verifyTokenInLocalStorage() {
-    const accessToken = localStorage.getItem(process.env.VUE_APP_AUTH_ACCESS_TOKEN);
+  async verifyTokenInLocalStorage(accessToken) {
     if (!accessToken) {
-      return false;
+      return {
+        isVerified: false,
+      };
     }
 
-    const { data: result } = await authClient.getInstance().post('/verify', {
+    const {
+      status,
+      data: {
+        success,
+      },
+    } = await authClient.getInstance().post('/verify', {
       token: accessToken,
     });
 
-    const isVerified = result && result.statusCode === 200;
     return {
-      isVerified,
-      accessToken,
-      refreshToken: localStorage.getItem(process.env.VUE_APP_AUTH_REFRESH_TOKEN),
+      isVerified: status === 200 && success,
     };
   },
 };

@@ -30,7 +30,7 @@ export default {
       auth.postProcessSignIn(accessToken, refreshToken);
       // 2-2-3. Driver 화면으로 이동한다.
       // TODO 사용자가 웹 브라우저를 새로고침한 것이라면 새로고침하기 직전의 페이지 주소로 이동해야 한다.
-      await this.$router.push({ path: '/admin/dashboard' });
+      await this.$router.push({ path: '/book' });
     }
   },
 };

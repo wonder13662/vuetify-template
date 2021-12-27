@@ -6,13 +6,12 @@ export default {
       accessToken, refreshToken,
     } = payload;
     const decoded = jwt.decode(accessToken);
-    const { serviceUserId, permissions, role } = decoded;
+    const { serviceUserId, role } = decoded; // TODO 이 정보는 받도록 해주자.
 
     state.user = {
       accessToken,
       refreshToken,
       serviceUserId,
-      permissions,
       role,
     };
   },
@@ -21,7 +20,6 @@ export default {
       accessToken: null,
       refreshToken: null,
       serviceUserId: null,
-      permissions: null,
       role: null,
     };
   },

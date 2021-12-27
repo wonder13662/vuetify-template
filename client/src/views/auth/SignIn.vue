@@ -76,7 +76,7 @@ export default {
           const accessToken = store.getters['auth/accessToken'];
           const refreshToken = store.getters['auth/refreshToken'];
           auth.postProcessSignIn(accessToken, refreshToken);
-          // await this.$router.push({ path: '/admin/dashboard' });
+          await this.$router.push({ path: '/book' });
         }
       } catch (error) {
         store.dispatch('error/addError', error);

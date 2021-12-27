@@ -7,36 +7,9 @@ import {
 } from '@/lib/constants';
 import i18n from '@/plugins/vueI18n';
 
-const directorGroupNameRuleMap = {
-  required: {
-    rule: (v) => !!v,
-    message: i18n.t('common.error.directorGroupList.required'),
-  },
-  mustGreaterThanOrEqual2Letters: {
-    rule: (v) => v && v.length >= 2,
-    message: i18n.t('common.error.directorGroupList.mustGreaterThanOrEqual2Letters'),
-  },
-  mustLessThanOrEqual10Letters: {
-    rule: (v) => v && v.length <= 10,
-    message: i18n.t('common.error.directorGroupList.mustLessThanOrEqual10Letters'),
-  },
-};
-
-const convertRuleMapToRules = (ruleMap) => {
-  const values = Object.values(ruleMap);
-  return values.map(({ rule, message }) => ((v) => rule(v) || message));
-};
-
-const checkRules = (ruleMap, v) => Object.values(ruleMap).find(({ rule }) => !rule(v));
+export { default as rules } from './rules';
 
 export default {
-  getDirectorGroupNameRules() {
-    return convertRuleMapToRules(directorGroupNameRuleMap);
-  },
-  isValidDirectorGroupName(name) {
-    const found = checkRules(directorGroupNameRuleMap, name);
-    return !found;
-  },
   isValidArray(v, minLength = 0) {
     return v && v.length > minLength;
   },
