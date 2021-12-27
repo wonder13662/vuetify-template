@@ -1,11 +1,7 @@
-const app = require('express')();
-const http = require('http').Server(app);
+const http = require('http').createServer();
 const io = require('socket.io')(http);
+require("dotenv").config();
 const port = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
 
 io.on('connection', (socket) => {
   socket.on('chat message', msg => {
