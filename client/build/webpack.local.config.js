@@ -25,7 +25,7 @@ module.exports = {
     // https://webpack.js.org/configuration/dev-server/#devservercompress
     compress: true,
     host: '0.0.0.0',
-    port: 5100,
+    port: 50000,
     // https://webpack.js.org/configuration/dev-server/#devserveropen
     // true to open your default browser
     open: true,
