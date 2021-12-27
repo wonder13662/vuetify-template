@@ -13,15 +13,15 @@ export default {
       baseURL: process.env.VUE_APP_AUTH_HTTP,
     };
 
-    const defaultRequestInterceptorOnSuccess = (request) => {
-      const accessToken = localStorage.getItem(process.env.VUE_APP_AUTH_TOKEN);
-      if (accessToken) {
-        instance.setAuthToken(accessToken);
-      } else {
-        instance.removeAuthToken();
-      }
-
-      return request;
+    // https://axios-http.com/docs/interceptors
+    const defaultRequestInterceptorOnSuccess = (config) => {
+      const accessToken = localStorage.getItem(process.env.VUE_APP_AUTH_ACCESS_TOKEN);
+      return {
+        ...config,
+        headers: {
+          Authorization: instance.convertAuthTokenFormatJWT(accessToken),
+        },
+      };
     };
     const defaultRequestInterceptorOnFail = (err) => Promise.reject(err);
     const defaultResponseInterceptorOnSuccess = (request) => (request);

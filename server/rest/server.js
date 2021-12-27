@@ -15,9 +15,8 @@ app.get('/', (req, res) => {
   })
 })
 
-// TODO verify로 변경 필요.
-app.get('/dashboard', verifyToken, (req, res) => {
-  jwt.verify(req.token, 'the_secret_key', err => {
+app.post('/verify', verifyToken, (req, res) => {
+  jwt.verify(req.token, 'access-token', err => {
     if (err) {
       res.sendStatus(401)
     } else {
@@ -69,7 +68,7 @@ app.post('/register', (req, res) => {
   }
 })
 
-app.post('/login', (req, res) => {
+app.post('/signin', (req, res) => {
   const userDB = fs.readFileSync('./db/user.json')
   const userInfo = JSON.parse(userDB)
   if (
@@ -77,10 +76,12 @@ app.post('/login', (req, res) => {
     req.body.email === userInfo.email &&
     req.body.password === userInfo.password
   ) {
-    const token = jwt.sign({ userInfo }, 'the_secret_key')
+    const accessToken = jwt.sign({ userInfo }, 'access-token')
+    const refreshToken = jwt.sign({ userInfo }, 'refresh-token')
     // In a production app, you'll want the secret key to be an environment variable
     res.json({
-      token,
+      accessToken,
+      refreshToken,
       email: userInfo.email,
       name: userInfo.name
     })

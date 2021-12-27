@@ -53,13 +53,8 @@ export default {
       async delete() {
         throw new Error('delete 메서드는 아직 구현되지 않았습니다.');
       },
-      setAuthToken(token) {
-        /* eslint-disable-next-line no-param-reassign */
-        getInstance().defaults.headers.common.Authorization = `Bearer ${token}`;
-      },
-      removeAuthToken() {
-        /* eslint-disable-next-line no-param-reassign */
-        getInstance().defaults.headers.common.Authorization = null;
+      convertAuthTokenFormatJWT(token) {
+        return `Bearer ${token}`;
       },
     };
   },

@@ -65,22 +65,18 @@ export default {
       this.$router.push('/auth/sign-up');
     },
     async onClickSignIn() {
-      const credentials = {
-        v: 1,
-        email: this.email,
-        password: this.password,
-        role: 'director',
-      };
-
       try {
         // TODO 예외처리 필요 - 패스워드 오류, 존재하지 않는 ID등
-        await store.dispatch('auth/signIn', credentials);
+        await store.dispatch('auth/signIn', {
+          email: this.email,
+          password: this.password,
+        });
         const loggedIn = store.getters['auth/loggedIn'];
         if (loggedIn) {
           const accessToken = store.getters['auth/accessToken'];
           const refreshToken = store.getters['auth/refreshToken'];
           auth.postProcessSignIn(accessToken, refreshToken);
-          await this.$router.push({ path: '/admin/dashboard' });
+          // await this.$router.push({ path: '/admin/dashboard' });
         }
       } catch (error) {
         store.dispatch('error/addError', error);

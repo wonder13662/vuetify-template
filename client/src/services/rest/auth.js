@@ -1,8 +1,8 @@
 import { authClient } from '@/lib/axios';
 
 export default {
-  async postSignIn(credentials) {
-    const result = await authClient.getInstance().post('/v1/signin', credentials);
+  async postSignIn({ email, password }) {
+    const result = await authClient.getInstance().post('/signin', { email, password });
     return result;
   },
   async verifyTokenInLocalStorage() {
@@ -11,9 +11,7 @@ export default {
       return false;
     }
 
-    const { data: result } = await authClient.getInstance().post('/v1/verify', {
-      v: 1,
-      clientId: '',
+    const { data: result } = await authClient.getInstance().post('/verify', {
       token: accessToken,
     });
 
