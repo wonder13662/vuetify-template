@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import admin from './admin';
 import auth from './auth';
 import book from './book';
 import system from './system';
@@ -25,7 +24,6 @@ VueRouter.prototype.push = function push(location) {
 // https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations
 
 const routes = [
-  ...admin,
   ...auth,
   ...book,
   ...system,
