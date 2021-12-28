@@ -13,7 +13,7 @@ jest.mock('@/services', () => ({
         accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mbyI6eyJuYW1lIjoiS2F0ZSBTbWl0aCIsImVtYWlsIjoia2F0ZUBnbWFpbC5jb20iLCJwYXNzd29yZCI6InBhc3MxMjM0In0sImlhdCI6MTY0MDYxNjMwMX0.GGK3BWxn8j-kIk3lXuieHV0J-bbMYB3928Iy4GnIAyY',
         refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mbyI6eyJuYW1lIjoiS2F0ZSBTbWl0aCIsImVtYWlsIjoia2F0ZUBnbWFpbC5jb20iLCJwYXNzd29yZCI6InBhc3MxMjM0In0sImlhdCI6MTY0MDYxNjMwMX0.rk87tyn_lFn7YZ_yUAAABkGGNY1LKAhB1L2O8MlgTXw',
       })),
-      verifyTokenInLocalStorage: jest.fn(() => {
+      verify: jest.fn(() => {
         return {
           isVerified: true,
         }
