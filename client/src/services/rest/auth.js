@@ -13,7 +13,7 @@ export default {
       refreshToken,
     };
   },
-  async verifyTokenInLocalStorage(accessToken) {
+  async verify(accessToken) {
     if (!accessToken) {
       return {
         isVerified: false,
@@ -28,7 +28,6 @@ export default {
     } = await authClient.getInstance().post('/verify', {
       token: accessToken,
     });
-
     return {
       isVerified: status === 200 && success,
     };

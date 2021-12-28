@@ -39,7 +39,7 @@ export default {
 
     const {
       isVerified,
-    } = await services.rest.auth.verifyTokenInLocalStorage();
+    } = await services.rest.auth.verify(accessToken);
     if (!isVerified) {
       dispatch('signOut');
       return;
