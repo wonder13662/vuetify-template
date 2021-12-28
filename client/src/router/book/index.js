@@ -5,6 +5,10 @@ export default [
   },
   {
     path: '/book',
+    name: 'Book',
     component: () => import('@/views/book'),
+    meta: {
+      requiresAuth: true,
+    },
   },
 ];

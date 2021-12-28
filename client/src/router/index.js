@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import auth from './auth';
 import book from './book';
 import system from './system';
+import template from './template';
 import store from '@/store';
 
 Vue.use(VueRouter);
@@ -27,6 +28,7 @@ const routes = [
   ...auth,
   ...book,
   ...system,
+  ...template,
 ];
 const router = new VueRouter({
   mode: 'history',
