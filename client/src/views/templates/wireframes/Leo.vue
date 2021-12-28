@@ -4,38 +4,25 @@
       v-model="drawer"
       app
     >
-      <v-card
-        class="d-flex align-start flex-column"
-        color="grey lighten-2"
-        flat
-        tile
-        height="100vh"
+      <div
+        class="grey lighten-2 d-flex align-start flex-column left-navigation-box"
       >
-        <v-card
-          tile
-          flat
-          class="left-navigation"
-          color="grey"
+        <div
+          class="grey left-navigation-child"
         >
           Head
-        </v-card>
-        <v-card
-          tile
-          flat
-          class="left-navigation flex-grow-1"
-          color="grey lighten-1"
+        </div>
+        <div
+          class="grey lighten-1 left-navigation-child flex-grow-1"
         >
           Body
-        </v-card>
-        <v-card
-          tile
-          flat
-          class="left-navigation"
-          color="grey darken-1"
+        </div>
+        <div
+          class="grey darken-1 left-navigation-child"
         >
           Tail
-        </v-card>
-      </v-card>
+        </div>
+      </div>
     </v-navigation-drawer>
     <v-app-bar app>
       <v-app-bar-nav-icon @click="drawer = !drawer" />
@@ -59,6 +46,12 @@ export default {
 
 <style lang="scss" scoped>
 .left-navigation {
+  width: 100%;
+}
+.left-navigation-box {
+  height: 100vh;
+}
+.left-navigation-child {
   width: 100%;
 }
 </style>
