@@ -26,6 +26,10 @@
         Inbox
       </router-link>
       <br>
+      <router-link to="/template/wireframe/leo">
+        Leo
+      </router-link>
+      <br>
       <router-link to="/template/wireframe/side-navigation">
         Side Navigation
       </router-link>

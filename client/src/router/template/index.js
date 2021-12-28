@@ -64,6 +64,14 @@ export default [
             },
           },
           {
+            path: 'leo',
+            name: 'Leo',
+            component: () => import('@/views/templates/wireframes/Leo.vue'),
+            meta: {
+              requiresAuth: true,
+            },
+          },
+          {
             path: 'side-navigation',
             name: 'SideNavigation',
             component: () => import('@/views/templates/wireframes/SideNavigation.vue'),
