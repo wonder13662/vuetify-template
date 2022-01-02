@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import BaseListItemDense from '@/components/base/BaseListItemDense';
+import BaseListItemDense from '@/components/base/v1/BaseListItemDense';
 
 export default {
   components: {

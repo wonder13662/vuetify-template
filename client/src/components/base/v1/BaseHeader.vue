@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import BaseText from '@/components/base/BaseText';
+import BaseText from '@/components/base/v1/BaseText';
 
 export default {
   name: 'BaseHeader',
