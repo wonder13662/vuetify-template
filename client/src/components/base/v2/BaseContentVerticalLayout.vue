@@ -1,20 +1,20 @@
 <template>
   <div
-    class="base-content-vertial-layout grey lighten-2 d-flex align-start flex-column"
+    class="base-content-vertial-layout d-flex align-start flex-column"
   >
     <div
-      class="base-content-vertial-layout-row grey"
+      class="base-content-vertial-layout-row transparent"
     >
       <slot name="head" />
     </div>
     <div
-      class="base-content-vertial-layout-row grey lighten-1 flex-grow-1"
+      class="base-content-vertial-layout-row transparent lighten-1 flex-grow-1"
     >
       <slot name="body" />
     </div>
     <div
       v-if="hasTail"
-      class="base-content-vertial-layout-row grey darken-1"
+      class="base-content-vertial-layout-row transparent darken-1"
     >
       <slot name="tail" />
     </div>

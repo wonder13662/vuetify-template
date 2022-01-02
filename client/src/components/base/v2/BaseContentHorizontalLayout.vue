@@ -1,6 +1,6 @@
 <template>
   <div
-    class="base-content-layout grey lighten-2 d-flex align-start flex-row align-stretch"
+    class="base-content-layout d-flex align-start flex-row align-stretch"
   >
     <div
       class="grey"
@@ -10,7 +10,7 @@
       <slot name="left" />
     </div>
     <div
-      class="grey lighten-1"
+      class="grey"
       :class="classRightCol"
       :style="styleRightCol"
     >
@@ -35,6 +35,8 @@ export default {
     classLeftCol() {
       return {
         'flex-grow-1': !this.fixedColLeft,
+        'lighten-3': !this.fixedColLeft,
+        'lighten-2': this.fixedColLeft,
       };
     },
     styleLeftCol() {
@@ -43,6 +45,8 @@ export default {
     classRightCol() {
       return {
         'flex-grow-1': this.fixedColLeft,
+        'lighten-3': this.fixedColLeft,
+        'lighten-2': !this.fixedColLeft,
       };
     },
     styleRightCol() {
