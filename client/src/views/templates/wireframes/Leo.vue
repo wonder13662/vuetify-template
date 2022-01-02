@@ -1,57 +1,63 @@
 <template>
-  <v-app id="template-wireframe-leo">
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-    >
-      <div
-        class="grey lighten-2 d-flex align-start flex-column left-navigation-box"
+  <BaseApp>
+    <template v-slot:nav-drawer>
+      <BaseContentVerticalLayout
+        :has-tail="false"
       >
-        <div
-          class="grey left-navigation-child"
-        >
+        <template v-slot:head>
           Head
-        </div>
-        <div
-          class="grey lighten-1 left-navigation-child flex-grow-1"
-        >
+        </template>
+        <template v-slot:body>
           Body
-        </div>
-        <div
-          class="grey darken-1 left-navigation-child"
-        >
+        </template>
+        <template v-slot:tail>
           Tail
-        </div>
-      </div>
-    </v-navigation-drawer>
-    <v-app-bar app>
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
-      <v-toolbar-title>Application</v-toolbar-title>
-    </v-app-bar>
-    <v-main>
-      <!-- Content is here! -->
-    </v-main>
-  </v-app>
+        </template>
+      </BaseContentVerticalLayout>
+    </template>
+    <template v-slot:content>
+      <BaseContentHorizontalLayout
+        fixed-col-width="400px"
+        :fixed-col-left="true"
+      >
+        <template v-slot:left>
+          <BaseContentVerticalLayout
+            :has-tail="true"
+          >
+            <template v-slot:head>
+              Inner Head: 타이틀
+            </template>
+            <template v-slot:body>
+              Inner Body: 검색 키워드 필드 리스트
+            </template>
+            <template v-slot:tail>
+              Inner Tail: 검색 버튼
+            </template>
+          </BaseContentVerticalLayout>
+        </template>
+        <template v-slot:right>
+          Right Content
+        </template>
+      </BaseContentHorizontalLayout>
+    </template>
+  </BaseApp>
 </template>
 
 <script>
-/*
-Admin을 기준으로 wireframe을 작성해보자.
-+ Base.vue
-*/
+import BaseApp from '@/components/base/v2/BaseApp';
+import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalLayout';
+import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
+
 export default {
-  data: () => ({ drawer: null }),
+  name: 'Leo',
+  components: {
+    BaseApp,
+    BaseContentVerticalLayout,
+    BaseContentHorizontalLayout,
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-.left-navigation {
-  width: 100%;
-}
-.left-navigation-box {
-  height: 100vh;
-}
-.left-navigation-child {
-  width: 100%;
-}
+
 </style>
