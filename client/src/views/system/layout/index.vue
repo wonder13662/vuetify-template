@@ -7,8 +7,8 @@
 </template>
 
 <script>
-import BaseApp from '@/components/base/BaseApp';
-import BaseContainer from '@/components/base/BaseContainer';
+import BaseApp from '@/components/base/v1/BaseApp';
+import BaseContainer from '@/components/base/v1/BaseContainer';
 
 export default {
   name: 'SystemLayout',
