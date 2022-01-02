@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <template>
   <div
     class="base-content-vertial-layout d-flex align-start flex-column"
@@ -8,7 +9,7 @@
       <slot name="head" />
     </div>
     <div
-      class="base-content-vertial-layout-row transparent lighten-1 flex-grow-1"
+      class="base-content-vertial-layout-row base-content-vertial-layout-row-body transparent lighten-1 flex-grow-1"
     >
       <slot name="body" />
     </div>
@@ -38,5 +39,9 @@ export default {
 }
 .base-content-vertial-layout-row {
   width: 100%;
+}
+.base-content-vertial-layout-row-body {
+  overflow: auto;
+  height: 10vh;
 }
 </style>

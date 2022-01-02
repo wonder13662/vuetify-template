@@ -8,6 +8,9 @@
     </v-navigation-drawer>
     <v-app-bar
       dense
+      flat
+      color="deep-purple"
+      dark
       app
     >
       <v-app-bar-nav-icon @click="drawer = !drawer" />
