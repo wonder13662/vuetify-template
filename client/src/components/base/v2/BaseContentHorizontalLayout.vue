@@ -3,14 +3,12 @@
     class="base-content-layout d-flex align-start flex-row align-stretch"
   >
     <div
-      class="grey"
       :class="classLeftCol"
       :style="styleLeftCol"
     >
       <slot name="left" />
     </div>
     <div
-      class="grey"
       :class="classRightCol"
       :style="styleRightCol"
     >
@@ -30,6 +28,11 @@ export default {
     fixedColLeft: {
       type: Boolean,
     },
+    color: {
+      type: String,
+      validator: (v) => ['grey', 'white', 'transparent'].includes(v),
+      default: 'grey',
+    },
   },
   computed: {
     classLeftCol() {
@@ -37,6 +40,9 @@ export default {
         'flex-grow-1': !this.fixedColLeft,
         'lighten-3': !this.fixedColLeft,
         'lighten-2': this.fixedColLeft,
+        grey: this.color === 'grey',
+        white: this.color === 'white',
+        transparent: this.color === 'transparent',
       };
     },
     styleLeftCol() {
@@ -47,6 +53,9 @@ export default {
         'flex-grow-1': this.fixedColLeft,
         'lighten-3': this.fixedColLeft,
         'lighten-2': !this.fixedColLeft,
+        grey: this.color === 'grey',
+        white: this.color === 'white',
+        transparent: this.color === 'transparent',
       };
     },
     styleRightCol() {
