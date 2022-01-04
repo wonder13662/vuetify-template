@@ -31,7 +31,7 @@ export default {
       type: Boolean,
     },
     bodyHeight: {
-      type: Number,
+      type: String,
       required: true,
     },
   },
