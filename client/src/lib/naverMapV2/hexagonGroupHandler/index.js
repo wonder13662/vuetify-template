@@ -476,6 +476,11 @@ export default {
     });
     hexagonGroups.push(hg);
   },
+  // 2-2. hexagonGroups의 mode를 모두 read only(읽기모드)로 바꿉니다.
+  setModeReadOnly(hexagonGroups) {
+    hexagonGroups.forEach((v) => v.setModeReadOnly());
+    hexagonGroups.forEach((v) => v.blur());
+  },
   // 2-1. draw
   drawHexagonGroups({
     map,
