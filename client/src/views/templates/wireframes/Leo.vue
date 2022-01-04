@@ -18,7 +18,7 @@
     <template v-slot:content>
       <BaseContentHorizontalLayout
         fixed-col-width="400px"
-        :fixed-col-left="true"
+        :fixed-col-left="false"
       >
         <template v-slot:left>
           <BaseContentVerticalLayout
@@ -30,7 +30,7 @@
             <template v-slot:body>
               Inner Body: 검색 키워드 필드 리스트
               <div
-                v-for="n in 100"
+                v-for="n in items"
                 :key="n"
               >
                 {{ `${n}` }}
@@ -42,7 +42,25 @@
           </BaseContentVerticalLayout>
         </template>
         <template v-slot:right>
-          Right Content
+          <BaseContentVerticalLayout
+            :has-tail="false"
+          >
+            <template v-slot:head>
+              Inner Head: 타이틀
+            </template>
+            <template v-slot:body>
+              Inner Body: 검색 키워드 필드 리스트
+              <div
+                v-for="n in items"
+                :key="n"
+              >
+                {{ `${n}` }}
+              </div>
+            </template>
+            <template v-slot:tail>
+              Inner Tail: 검색 버튼
+            </template>
+          </BaseContentVerticalLayout>
         </template>
       </BaseContentHorizontalLayout>
     </template>
@@ -60,6 +78,16 @@ export default {
     BaseApp,
     BaseContentVerticalLayout,
     BaseContentHorizontalLayout,
+  },
+  data() {
+    return {
+      items: [],
+    };
+  },
+  created() {
+    setTimeout(() => {
+      this.items = Array.from(Array(200).keys());
+    }, 500);
   },
 };
 </script>
