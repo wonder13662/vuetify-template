@@ -23,6 +23,7 @@
         <template v-slot:left>
           <BaseContentVerticalLayout
             :has-tail="true"
+            body-height="calc(100vh - 96px)"
           >
             <template v-slot:head>
               Inner Head: 타이틀
@@ -44,6 +45,7 @@
         <template v-slot:right>
           <BaseContentVerticalLayout
             :has-tail="false"
+            body-height="calc(100vh - 72px)"
           >
             <template v-slot:head>
               Inner Head: 타이틀

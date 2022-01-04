@@ -10,6 +10,7 @@
     </div>
     <div
       class="base-content-vertial-layout-row base-content-vertial-layout-row-body transparent lighten-1 flex-grow-1"
+      :style="{ height: bodyHeight }"
     >
       <slot name="body" />
     </div>
@@ -29,6 +30,10 @@ export default {
     hasTail: {
       type: Boolean,
     },
+    bodyHeight: {
+      type: Number,
+      required: true,
+    },
   },
 };
 </script>
@@ -42,6 +47,5 @@ export default {
 }
 .base-content-vertial-layout-row-body {
   overflow: auto;
-  height: 10vh;
 }
 </style>
