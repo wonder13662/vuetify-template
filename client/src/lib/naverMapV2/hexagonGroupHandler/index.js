@@ -113,6 +113,8 @@ class HexagonGroup {
 
   #onEnabled
 
+  #onChange
+
   #isEditable
 
   constructor({
@@ -124,6 +126,7 @@ class HexagonGroup {
     onClick = () => {},
     onDisabled = () => {},
     onEnabled = () => {},
+    onChange = () => {},
     isEditable = false,
   }) {
     this.#hexagonGroupName = hexagonGroupName;
@@ -141,6 +144,7 @@ class HexagonGroup {
     this.#onClick = onClick;
     this.#onDisabled = onDisabled;
     this.#onEnabled = onEnabled;
+    this.#onChange = onChange;
     this.#isEditable = isEditable;
   }
 
@@ -249,6 +253,8 @@ class HexagonGroup {
     }
     // 4. 새로 만든 hexagon 객체를 지도 위에 polygon으로 그린다.
     this.draw(map);
+    // 5. Hexagon 갯수가 변했으므로 콜백으로 알린다.
+    this.#onChange(this);
   }
 
   /**
@@ -289,7 +295,7 @@ class HexagonGroup {
    *
    * @return {object} 사용자 meta 객체
    */
-  getMeta() {
+  get meta() {
     return {
       ...this.#meta,
     };
@@ -443,6 +449,7 @@ export default {
     onClick = () => {},
     onDisabled = () => {},
     onEnabled = () => {},
+    onChange = () => {},
     isEditable = false,
   }) {
     return new HexagonGroup({
@@ -454,6 +461,7 @@ export default {
       onClick,
       onDisabled,
       onEnabled,
+      onChange,
       isEditable,
     });
   },
