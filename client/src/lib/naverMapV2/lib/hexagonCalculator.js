@@ -365,14 +365,14 @@ export default {
    * Naver map의 폴리곤 경계가 비활성화 되었을 때의 스타일 값을 줍니다.
    * Vuetify의 lime 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: grey lighten-1 #BDBDBD
+   * fillColor: grey darken-1 #757575
    * stokeColor: grey darken-2 #616161
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
   getStylePolygonDisabled: () => ({
-    fillColor: '#BDBDBD',
-    fillOpacity: 0.7,
+    fillColor: '#757575',
+    fillOpacity: 0.9,
     strokeWeight: 2,
     strokeColor: '#616161',
     zIndex: Z_INDEX_POLYGON_BORDER,
@@ -380,18 +380,18 @@ export default {
 
   /**
    * Naver map의 폴리곤 경계가 편집중일 때의 스타일 값을 줍니다.
-   * Vuetify의 grey 사용
+   * Vuetify의 light-green 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: lime #CDDC39
-   * stokeColor: lime darken-4 #827717
+   * fillColor: light-green accent-4 #64DD17
+   * stokeColor: light-green darken-4 #33691E
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
   getStylePolygonEditing: () => ({
-    fillColor: '#CDDC39',
+    fillColor: '#64DD17',
     fillOpacity: 0.5,
     strokeWeight: 2,
-    strokeColor: '#827717',
+    strokeColor: '#33691E',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
