@@ -203,8 +203,17 @@ class HexagonGroup {
    * @return {void} 없음
    */
   // eslint-disable-next-line no-unused-vars
-  setZoomLevel({ map, zoomLevel }) {
+  setZoomLevel({ map, zoomLevel }) { // REMOVE ME - 이제 줌 레벨이 크게 의미가 없다. 삭제.
     this.#zoomLevel = zoomLevel;
+  }
+
+  /**
+   * HexagonGroup의 change 이벤트 핸들러를 설정합니다.
+   *
+   * @return {void} 없음
+   */
+  setOnChange(onChange) {
+    this.#onChange = onChange;
   }
 
   /**
