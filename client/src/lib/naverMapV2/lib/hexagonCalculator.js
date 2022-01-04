@@ -311,18 +311,18 @@ export default {
    * Naver map의 폴리곤 경계의 스타일 값을 줍니다.
    * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Data.html#toc25__anchor
    *
-   * Vuetify의 green 사용
+   * Vuetify의 deep-purple 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: green lighten-5 #E8F5E9
-   * stokeColor: green lighten-3 #A5D6A7
+   * fillColor: deep-purple lighten-1 #7E57C2
+   * stokeColor: deep-purple darken-1 #5E35B1
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
   getStylePolygonBorder: () => ({
-    fillColor: '#E8F5E9',
-    fillOpacity: 0.4,
+    fillColor: '#7E57C2',
+    fillOpacity: 0.6,
     strokeWeight: 2,
-    strokeColor: '#A5D6A7',
+    strokeColor: '#5E35B1',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
@@ -365,16 +365,16 @@ export default {
    * Naver map의 폴리곤 경계가 비활성화 되었의 스타일 값을 줍니다.
    * Vuetify의 grey 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: grey lighten-3 #EEEEEE
-   * stokeColor: grey #9E9E9E
+   * fillColor: grey lighten-1 #BDBDBD
+   * stokeColor: grey darken-2 #616161
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
   getStylePolygonDisabled: () => ({
-    fillColor: '#81D4FA',
-    fillOpacity: 0.4,
+    fillColor: '#BDBDBD',
+    fillOpacity: 0.7,
     strokeWeight: 2,
-    strokeColor: '#03A9F4',
+    strokeColor: '#616161',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
