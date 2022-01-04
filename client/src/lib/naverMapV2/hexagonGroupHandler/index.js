@@ -319,20 +319,10 @@ class HexagonGroup {
         h3Indexes: this.h3Indexes,
         style: this.getStylePolygonBorderBlur(),
         onFocus: () => {
-          this.onFocus(this);
-          if (!this.hexagonGroupReadOnlyPolygon) {
-            return;
-          }
-          const styles = this.getStylePolygonBorderFocus();
-          this.hexagonGroupReadOnlyPolygon.setStyles(styles);
+          this.focus();
         },
         onBlur: () => {
-          this.onBlur(this);
-          if (!this.hexagonGroupReadOnlyPolygon) {
-            return;
-          }
-          const styles = this.getStylePolygonBorderBlur();
-          this.hexagonGroupReadOnlyPolygon.setStyles(styles);
+          this.blur();
         },
         onClick: () => {
           this.onClick(this);
@@ -365,6 +355,34 @@ class HexagonGroup {
       this.hexagonGroupReadOnlyPolygon = polygon;
       this.hexagonGroupReadOnlyListeners = listeners;
     }
+  }
+
+  /**
+   * 지도 위에 Hexagon을 Focus시킵니다.
+   *
+   * @return {void} 없음
+   */
+  focus() {
+    this.onFocus(this);
+    if (!this.hexagonGroupReadOnlyPolygon) {
+      return;
+    }
+    const styles = this.getStylePolygonBorderFocus();
+    this.hexagonGroupReadOnlyPolygon.setStyles(styles);
+  }
+
+  /**
+   * 지도 위에 Hexagon을 Blur시킵니다.
+   *
+   * @return {void} 없음
+   */
+  blur() {
+    this.onBlur(this);
+    if (!this.hexagonGroupReadOnlyPolygon) {
+      return;
+    }
+    const styles = this.getStylePolygonBorderBlur();
+    this.hexagonGroupReadOnlyPolygon.setStyles(styles);
   }
 
   /**
@@ -444,6 +462,12 @@ export default {
     point,
   }) {
     hexagonGroups.forEach((v) => v.setClickedPoint({ map, point }));
+  },
+  blurHexagonGroups(hexagonGroups) {
+    if (!hexagonGroups || hexagonGroups.length === 0) {
+      return;
+    }
+    hexagonGroups.forEach((v) => v.blur());
   },
   // 3. read
   // 3-1. bound
