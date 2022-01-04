@@ -303,9 +303,10 @@ class HexagonGroup {
 
   /**
    * Hexagon의 상태를 설정합니다. 아래 값 중 하나여야 합니다.
-   * 1. HEXAGON_UNSELECTED
-   * 2. HEXAGON_SELECTED
-   * 3. HEXAGON_DISABLED
+   * 1. HEXAGON_STATUS.HEXAGON_UNSELECTED
+   * 2. HEXAGON_STATUS.HEXAGON_SELECTED
+   * 3. HEXAGON_STATUS.HEXAGON_DISABLED
+   * 4. HEXAGON_STATUS.HEXAGON_EDITING
    *
    * @param {string} arg (required) Hexagon의 상태
    *
@@ -316,6 +317,15 @@ class HexagonGroup {
       throw new Error(`arg:${arg}: 유효하지 않습니다.`);
     }
     this.#status = arg;
+  }
+
+  /**
+   * Hexagon의 상태를 HEXAGON_STATUS.HEXAGON_EDITING으로 설정합니다.
+   *
+   * @return {void} 없음
+   */
+  setStatusEditing() {
+    this.setStatus(HEXAGON_STATUS.HEXAGON_EDITING);
   }
 
   /**
@@ -383,7 +393,6 @@ class HexagonGroup {
     this.#onBlur(this);
     if (!this.#hexagonGroupPolygon
       || this.#status === HEXAGON_STATUS.HEXAGON_DISABLED
-      || this.#mode === MODE_EDIT
     ) {
       return;
     }
