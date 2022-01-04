@@ -278,7 +278,7 @@ export default {
    */
 
   convertH3IndexesToNaverPolygonPathOutline(h3Indexes) {
-    const { naver } = window;
+    const { naver } = window; // TODO naver 객체를 인자로 받아야 함. global에서 참조하지 말것!
     if (!naver) {
       throw new Error('naver: 유효하지 않음');
     }
@@ -362,8 +362,8 @@ export default {
   }),
 
   /**
-   * Naver map의 폴리곤 경계가 비활성화 되었의 스타일 값을 줍니다.
-   * Vuetify의 grey 사용
+   * Naver map의 폴리곤 경계가 비활성화 되었을 때의 스타일 값을 줍니다.
+   * Vuetify의 lime 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
    * fillColor: grey lighten-1 #BDBDBD
    * stokeColor: grey darken-2 #616161
@@ -375,6 +375,23 @@ export default {
     fillOpacity: 0.7,
     strokeWeight: 2,
     strokeColor: '#616161',
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  }),
+
+  /**
+   * Naver map의 폴리곤 경계가 편집중일 때의 스타일 값을 줍니다.
+   * Vuetify의 grey 사용
+   * https://vuetifyjs.com/en/styles/colors/#material-colors
+   * fillColor: lime #CDDC39
+   * stokeColor: lime darken-4 #827717
+   *
+   * @return {object} Naver 맵의 폴리곤 경계의 스타일
+   */
+  getStylePolygonEditing: () => ({
+    fillColor: '#CDDC39',
+    fillOpacity: 0.5,
+    strokeWeight: 2,
+    strokeColor: '#827717',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 

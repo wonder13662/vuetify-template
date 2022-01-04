@@ -1,4 +1,3 @@
-// import hexagonHandler from './hexagonHandler';
 import naverMapHelper from './naverMapHelper';
 import hexagonGroupHandler from './hexagonGroupHandler';
 import markerGroupHandler from './markerGroupHandler';
@@ -241,10 +240,11 @@ class NaverMap {
         throw new Error('지도에 그릴 hexagonGroup 정보가 유효하지 않습니다.');
       }
 
-      this.hexagonGroups = hexagonGroups;
-      this.hexagonGroups.forEach((v) => { // FIX ME - 이거 핸들러로 처리하도록 바꿔야 함
-        v.draw(map);
+      hexagonGroupHandler.drawHexagonGroups({
+        map,
+        hexagonGroups,
       });
+      this.hexagonGroups = hexagonGroups;
     } catch (error) {
       this.onError(error);
     }

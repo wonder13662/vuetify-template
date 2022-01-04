@@ -14,7 +14,7 @@ const MODE_EDIT = 'MODE_EDIT';
 
 // TODO 멤버 변수의 private 선언 필요
 
-const drawReadOnlyMode = ({
+const drawPolygon = ({
   map,
   h3Indexes,
   style,
@@ -30,43 +30,32 @@ const drawReadOnlyMode = ({
     style,
     onMouseover: onFocus,
     onMouseout: onBlur,
-    onClick,
+    onClick: (v) => {
+      const {
+        coord: {
+          _lat: lat,
+          _lng: lng,
+        },
+      } = v;
+      const point = {
+        lat,
+        lng,
+      };
+      onClick({
+        point,
+        map,
+      });
+      return {
+        point,
+        map,
+      };
+    },
   });
 
   return {
     polygon,
     listeners,
   };
-};
-
-const drawEditMode = ({
-  map,
-  hexagonMap,
-  zoomLevel,
-}) => {
-  if (!map) {
-    throw new Error('map: 유효하지 않음');
-  }
-  if (!hexagonMap) {
-    throw new Error('hexagonMap: 유효하지 않음');
-  }
-
-  // 1. 맵 위에 그려져 있던 hexagon을 모두 지웁니다.
-  const hexagons = Object.values(hexagonMap);
-  hexagons.forEach((hexagon) => (hexagon.remove()));
-
-  // 2. 일정 줌 레벨 이하면 도형을 그리지 않습니다.
-  if (!naverMapWrapper.isZoomLevelPolygonVisible(zoomLevel)) {
-    return;
-  }
-
-  // 3. 유저가 보고 있는 화면 안에 있는 hexagon만 골라내 그립니다.
-  const h3IndexesInBounds = hexagonCalculator.getH3IndexesInBounds(map.getBounds());
-  h3IndexesInBounds.forEach((h3Index) => {
-    if (hexagonMap.has(h3Index)) {
-      hexagonMap.get(h3Index).draw(map);
-    }
-  });
 };
 
 const createHexagon = (hexagonMap, h3Index) => hexagonHandler.createHexagon({
@@ -96,7 +85,7 @@ const createHexagonMap = (hexagonMap, h3Indexes) => {
 
 
 class HexagonGroup {
-  constructor(
+  constructor({
     hexagonGroupName,
     h3Indexes = [],
     driverCnt = 0,
@@ -105,8 +94,10 @@ class HexagonGroup {
     onFocus = () => {},
     onBlur = () => {},
     onClick = () => {},
+    onDisabled = () => {},
+    onEnabled = () => {},
     isEditable = false,
-  ) {
+  }) {
     this.hexagonGroupName = hexagonGroupName;
     this.hexagonMap = createHexagonMap(new Map(), h3Indexes);
     this.driverCnt = driverCnt;
@@ -114,14 +105,16 @@ class HexagonGroup {
     this.meta = meta;
     this.mode = MODE_READ_ONLY;
     this.zoomLevel = DEFAULT_ZOOM;
-    this.hexagonGroupReadOnlyPolygon = null;
-    this.hexagonGroupReadOnlyListeners = null;
+    this.hexagonGroupPolygon = null;
+    this.hexagonGroupPolygonListeners = null;
     this.stylePolygonBorderFocus = null;
     this.stylePolygonBorderBlur = null;
     this.status = HEXAGON_STATUS.HEXAGON_UNSELECTED;
     this.onFocus = onFocus;
     this.onBlur = onBlur;
     this.onClick = onClick;
+    this.onDisabled = onDisabled;
+    this.onEnabled = onEnabled;
     this.isEditable = isEditable;
   }
 
@@ -135,6 +128,14 @@ class HexagonGroup {
       throw new Error('mode: 유효하지 않습니다.');
     }
     this.mode = mode;
+  }
+
+  setModeReadOnly() {
+    this.setMode(MODE_READ_ONLY);
+  }
+
+  setModeEdit() {
+    this.setMode(MODE_EDIT);
   }
 
   /**
@@ -175,7 +176,6 @@ class HexagonGroup {
     this.zoomLevel = zoomLevel;
 
     // TODO 편집 모드일 경우, 줌 레벨을 제한해야 한다.
-
     if (this.isEditMode()) {
       this.remove();
       this.draw(map);
@@ -216,12 +216,18 @@ class HexagonGroup {
     }
     // 1. point에 해당하는 h3Index를 구한다
     const h3Index = hexagonCalculator.convertPointToH3Index(point);
-    // 2. h3Index로 hexagon 객체를 새로 만든다
-    const hexagon = createHexagon(this.hexagonMap, h3Index);
-    // 3. 새로 만든 hexagon 객체를 hexagonGroups에 추가한다.
-    setHexagonToHexagonMap(this.hexagonMap, hexagon);
-    // 4. 새로 만든 hexagon 객체를 지도 위에 그린다.
-    hexagon.draw(map);
+    if (this.hexagonMap.has(h3Index)) {
+      // 2-1. 이미 선택된 Hexagon이라면 제거
+      this.hexagonMap.delete(h3Index);
+    } else {
+      // 2-2. 없는 Hexagon이라면 추가
+      // 2. h3Index로 hexagon 객체를 새로 만든다
+      const hexagon = createHexagon(this.hexagonMap, h3Index);
+      // 3. 새로 만든 hexagon 객체를 hexagonGroups에 추가한다.
+      setHexagonToHexagonMap(this.hexagonMap, hexagon);
+    }
+    // 4. 새로 만든 hexagon 객체를 지도 위에 polygon으로 그린다.
+    this.draw(map);
   }
 
   /**
@@ -250,6 +256,9 @@ class HexagonGroup {
     }
     if (this.status === HEXAGON_STATUS.HEXAGON_DISABLED) {
       return hexagonCalculator.getStylePolygonDisabled();
+    }
+    if (this.status === HEXAGON_STATUS.HEXAGON_EDITING) {
+      return hexagonCalculator.getStylePolygonEditing();
     }
     return this.stylePolygonBorderBlur;
   }
@@ -307,14 +316,11 @@ class HexagonGroup {
       throw new Error('map: 유효하지 않음');
     }
 
-    if (this.isEditMode() && naverMapWrapper.isZoomLevelPolygonVisible(this.zoomLevel)) {
-      // TODO 3. zoomLevel을 변경할 수 있는 범위를 제한한다.
-      drawEditMode({
-        map,
-        hexagonMap: this.hexagonMap,
-      });
-    } else if (this.isReadOnlyMode()) {
-      const { polygon, listeners } = drawReadOnlyMode({
+    // 1. 이전에 그린 것이 있다면 지운다.
+    this.remove();
+    // 2. 새로 지도 위에 그린다.
+    if (this.h3Indexes && this.h3Indexes.length > 0) {
+      const { polygon, listeners } = drawPolygon({
         map,
         h3Indexes: this.h3Indexes,
         style: this.getStylePolygonBorderBlur(),
@@ -324,36 +330,16 @@ class HexagonGroup {
         onBlur: () => {
           this.blur();
         },
-        onClick: () => {
+        onClick: (v) => {
           this.onClick(this);
-
-          if (!this.isEditable) {
-            return;
-          }
-          // TODO 요거 리팩터링해서 별도 메서드로 추출하자.
-          // 0. zoomLevel이 유효하지 않으면 사용자에게 알림. 그리고 중단
-          if (!naverMapWrapper.isZoomLevelPolygonVisible(this.zoomLevel)) {
-            // TODO 사용자에게 알림 메시지를 전달하는 콜백을 추가해야 함
-            // eslint-disable-next-line no-console
-            console.log('현재 줌 레벨로는 편집모드의 폴리곤을 그릴 수 없습니다. 줌 레벨을 낮추어야 합니다.');
-            return;
-          }
-          // 1. 읽기모드의 polygon을 삭제함
-          this.remove();
-          // 2. 클릭하면 모드가 변경됨
-          this.setMode(MODE_EDIT);
-          // TODO 3. zoomLevel을 변경할 수 있는 범위를 제한한다.
-          // 3. 편집모드의 polygon을 지도 위에 그림
-          drawEditMode({
-            map,
-            hexagonMap: this.hexagonMap,
-            zoomLevel: this.zoomLevel,
+          this.setClickedPoint({
+            map: v.map,
+            point: v.point,
           });
         },
       });
-
-      this.hexagonGroupReadOnlyPolygon = polygon;
-      this.hexagonGroupReadOnlyListeners = listeners;
+      this.hexagonGroupPolygon = polygon;
+      this.hexagonGroupPolygonListeners = listeners;
     }
   }
 
@@ -364,11 +350,14 @@ class HexagonGroup {
    */
   focus() {
     this.onFocus(this);
-    if (!this.hexagonGroupReadOnlyPolygon) {
+    if (!this.hexagonGroupPolygon
+      || this.status === HEXAGON_STATUS.HEXAGON_DISABLED
+      || this.mode === MODE_EDIT
+    ) {
       return;
     }
     const styles = this.getStylePolygonBorderFocus();
-    this.hexagonGroupReadOnlyPolygon.setStyles(styles);
+    this.hexagonGroupPolygon.setStyles(styles);
   }
 
   /**
@@ -378,11 +367,44 @@ class HexagonGroup {
    */
   blur() {
     this.onBlur(this);
-    if (!this.hexagonGroupReadOnlyPolygon) {
+    if (!this.hexagonGroupPolygon
+      || this.status === HEXAGON_STATUS.HEXAGON_DISABLED
+      || this.mode === MODE_EDIT
+    ) {
       return;
     }
     const styles = this.getStylePolygonBorderBlur();
-    this.hexagonGroupReadOnlyPolygon.setStyles(styles);
+    this.hexagonGroupPolygon.setStyles(styles);
+  }
+
+  /**
+   * 지도 위에 Hexagon을 Disabled 합니다.
+   *
+   * @return {void} 없음
+   */
+  disabled() {
+    this.onDisabled(this);
+    if (!this.hexagonGroupPolygon) {
+      return;
+    }
+    this.setStatus(HEXAGON_STATUS.HEXAGON_DISABLED);
+    const styles = this.getStylePolygonBorderBlur();
+    this.hexagonGroupPolygon.setStyles(styles);
+  }
+
+  /**
+   * 지도 위에 Hexagon을 Disabled 합니다.
+   *
+   * @return {void} 없음
+   */
+  enabled() {
+    this.onEnabled(this);
+    if (!this.hexagonGroupPolygon) {
+      return;
+    }
+    this.setStatus(HEXAGON_STATUS.HEXAGON_UNSELECTED);
+    const styles = this.getStylePolygonBorderBlur();
+    this.hexagonGroupPolygon.setStyles(styles);
   }
 
   /**
@@ -391,19 +413,14 @@ class HexagonGroup {
    * @return {void} 없음
    */
   remove() {
-    if (this.hexagonMap.size > 0) {
-      const hexagons = Object.values(this.hexagonMap);
-      hexagons.forEach((hexagon) => (hexagon.remove()));
-    }
-
-    if (this.hexagonGroupReadOnlyPolygon && this.hexagonGroupReadOnlyListeners) {
+    if (this.hexagonGroupPolygon && this.hexagonGroupPolygonListeners) {
       naverMapWrapper.removePolygon({
-        polygon: this.hexagonGroupReadOnlyPolygon,
-        listeners: this.hexagonGroupReadOnlyListeners,
+        polygon: this.hexagonGroupPolygon,
+        listeners: this.hexagonGroupPolygonListeners,
       });
     }
-
-    this.mode = MODE_READ_ONLY;
+    this.hexagonGroupPolygon = null;
+    this.hexagonGroupPolygonListeners = null;
   }
 }
 
@@ -418,9 +435,11 @@ export default {
     onFocus = () => {},
     onBlur = () => {},
     onClick = () => {},
+    onDisabled = () => {},
+    onEnabled = () => {},
     isEditable = false,
   }) {
-    return new HexagonGroup(
+    return new HexagonGroup({
       hexagonGroupName,
       h3Indexes,
       driverCnt,
@@ -429,10 +448,22 @@ export default {
       onFocus,
       onBlur,
       onClick,
+      onDisabled,
+      onEnabled,
       isEditable,
-    );
+    });
   },
   // 2. update
+  // 2-1. hexagonGroups에 새로운 hexagonGroup을 추가합니다.
+  addHexagonGroup({
+    hexagonGroups,
+  }) {
+    const hg = this.createHexagonGroup({
+      hexagonGroupName: '',
+      isEditable: true,
+    });
+    hexagonGroups.push(hg);
+  },
   // 2-1. draw
   drawHexagonGroups({
     map,
@@ -450,10 +481,11 @@ export default {
     hexagonGroups,
     zoomLevel,
   }) {
-    hexagonGroups.forEach((v) => v.setZoomLevel({
-      map,
-      zoomLevel,
-    }));
+    hexagonGroups.forEach((v) => {
+      if (v.isEditMode()) {
+        v.setZoomLevel({ map, zoomLevel });
+      }
+    });
   },
   // 2-4. onClick
   setClickedPoint({
@@ -461,13 +493,29 @@ export default {
     hexagonGroups,
     point,
   }) {
-    hexagonGroups.forEach((v) => v.setClickedPoint({ map, point }));
+    hexagonGroups.forEach((v) => {
+      if (v.isEditMode()) {
+        v.setClickedPoint({ map, point });
+      }
+    });
   },
   blurHexagonGroups(hexagonGroups) {
     if (!hexagonGroups || hexagonGroups.length === 0) {
       return;
     }
     hexagonGroups.forEach((v) => v.blur());
+  },
+  disabledHexagonGroups(hexagonGroups) {
+    if (!hexagonGroups || hexagonGroups.length === 0) {
+      return;
+    }
+    hexagonGroups.forEach((v) => v.disabled());
+  },
+  enabledHexagonGroups(hexagonGroups) {
+    if (!hexagonGroups || hexagonGroups.length === 0) {
+      return;
+    }
+    hexagonGroups.forEach((v) => v.enabled());
   },
   // 3. read
   // 3-1. bound
