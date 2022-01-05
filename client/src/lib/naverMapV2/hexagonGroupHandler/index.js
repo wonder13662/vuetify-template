@@ -216,21 +216,6 @@ class HexagonGroup {
     this.#onChange = onChange;
   }
 
-  /**
-   * Naver 맵의 bounds가 변경되면 이 콜백을 호출합니다.
-   *
-   * @param {object} map (required)naver map의 인스턴스
-   * @param {object} bounds (required)변경된 naver bounds
-   *
-   * @return {void} 없음
-   */
-  onBoundChanged({ map, bounds }) {
-    if (!this.isEditMode()) {
-      return;
-    }
-    this.remove();
-    this.draw({ map, bounds });
-  }
 
   getBound() {
     return hexagonCalculator.convertH3IndexToBound(this.h3Indexes);
@@ -382,7 +367,9 @@ class HexagonGroup {
    * @return {void} 없음
    */
   focus() {
-    this.#onFocus(this);
+    if (this.#onFocus) {
+      this.#onFocus(this);
+    }
     if (!this.#hexagonGroupPolygon
       || this.#status === HEXAGON_STATUS.HEXAGON_DISABLED
       || this.#mode === MODE_EDIT
@@ -399,7 +386,9 @@ class HexagonGroup {
    * @return {void} 없음
    */
   blur() {
-    this.#onBlur(this);
+    if (this.#onBlur) {
+      this.#onBlur(this);
+    }
     if (!this.#hexagonGroupPolygon
       || this.#status === HEXAGON_STATUS.HEXAGON_DISABLED
     ) {
@@ -453,6 +442,12 @@ class HexagonGroup {
     }
     this.#hexagonGroupPolygon = null;
     this.#hexagonGroupPolygonListeners = null;
+    this.#onFocus = null;
+    this.#onBlur = null;
+    this.#onClick = null;
+    this.#onDisabled = null;
+    this.#onEnabled = null;
+    this.#onChange = null;
   }
 }
 
