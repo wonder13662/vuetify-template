@@ -3,6 +3,7 @@ import {
   h3ToGeoBoundary, // https://h3geo.org/docs/api/indexing#h3togeoboundary
   polyfill, // https://h3geo.org/docs/api/regions#polyfill
   geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
+  kRing, // https://h3geo.org/docs/api/traversal#kring
 } from 'h3-js';
 import GeoJSON from 'geojson';
 import {
@@ -288,6 +289,29 @@ export default {
     const paths = polygonOutline.map((v) => (naverMapWrapper.getLatLng(v[0], v[1])));
 
     return paths;
+  },
+
+  /**
+   * h3Index가 h3Index의 배열과 이웃해있는지 확인합니다.
+   *
+   * @param {string} h3Index - 비교할 h3Index 값
+   * @param {array} h3Indexes - 비교할 h3Index 값 배열
+   *
+   * @return {array} Naver path 배열
+   */
+  isNeighbor(h3Index, h3Indexes) {
+    if (!h3Index || !h3Indexes || h3Indexes.length === 0) {
+      return false;
+    }
+
+    const kDistance = 1;
+    const neighbors = kRing(h3Index, kDistance);
+    const neighborMap = neighbors.reduce((acc, v) => {
+      acc.add(v);
+      return acc;
+    }, new Set());
+    const found = h3Indexes.find((v) => neighborMap.has(v));
+    return !!found;
   },
 
   /**
