@@ -234,8 +234,13 @@ class HexagonGroup {
     // 1. point에 해당하는 h3Index를 구한다
     const h3Index = hexagonCalculator.convertPointToH3Index(point);
     if (this.#hexagonMap.has(h3Index)) {
-      // 2-1. 이미 선택된 Hexagon이라면 제거
-      this.#hexagonMap.delete(h3Index);
+      // 2-1-1. 이미 선택되었지만, HexagonGroup의 내부(자신을 다른 Hexagon들 6개가 둘러싼 경우)라면 제거하지 않는다.
+      // (내부의 빈공간의 폴리곤을 저장하는 구조로 바뀌면 이 조건은 제거 되어야 함)
+      const isSurrounded = hexagonCalculator.isSurrounded(h3Index, this.h3Indexes);
+      if (!isSurrounded) {
+        // 2-1-2. 다른 Hexagon에 둘러싸여 닫히지 않았고, 이미 선택된 Hexagon이라면 제거
+        this.#hexagonMap.delete(h3Index);
+      }
     } else {
       // 2-2. 없는 Hexagon이라면 추가
       // 2-2-1. 이미 선택된 Hexagon과 붙어있지 않다면 저장 불가

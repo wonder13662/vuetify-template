@@ -297,21 +297,49 @@ export default {
    * @param {string} h3Index - 비교할 h3Index 값
    * @param {array} h3Indexes - 비교할 h3Index 값 배열
    *
-   * @return {array} Naver path 배열
+   * @return {boolean} h3Index가 h3Index의 배열과 이웃해있는지 여부
    */
-  isNeighbor(h3Index, h3Indexes) {
+  isNeighbor(h3Index, h3Indexes) { // TODO 테스트 코드 작성하기
     if (!h3Index || !h3Indexes || h3Indexes.length === 0) {
       return false;
     }
 
     const kDistance = 1;
     const neighbors = kRing(h3Index, kDistance);
-    const neighborMap = neighbors.reduce((acc, v) => {
+    const neighborSet = neighbors.reduce((acc, v) => {
       acc.add(v);
       return acc;
     }, new Set());
-    const found = h3Indexes.find((v) => neighborMap.has(v));
+    const found = h3Indexes.find((v) => neighborSet.has(v));
     return !!found;
+  },
+
+  /**
+   * h3Index가 h3Index의 배열에 둘러싸여 있는지 확인합니다.
+   *
+   * @param {string} h3Index - 비교할 h3Index 값
+   * @param {array} h3Indexes - 비교할 h3Index 값 배열
+   *
+   * @return {boolean} h3Index가 h3Index의 배열에 둘러싸여 있는지 여부
+   */
+  isSurrounded(h3Index, h3Indexes) { // TODO 테스트 코드 작성하기
+    if (!h3Index || !h3Indexes || h3Indexes.length === 0) {
+      return false;
+    }
+
+    const kDistance = 1;
+    const surroundings = kRing(h3Index, kDistance);
+    const surroundingSet = surroundings.reduce((acc, v) => {
+      acc.add(v);
+      return acc;
+    }, new Set());
+    h3Indexes.forEach((v) => {
+      if (surroundingSet.has(v)) {
+        surroundingSet.delete(v);
+      }
+    });
+
+    return surroundingSet.size === 0;
   },
 
   /**
