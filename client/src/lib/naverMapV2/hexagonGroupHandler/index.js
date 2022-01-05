@@ -10,8 +10,6 @@ import naverMapWrapper from '../lib/naverMapWrapper';
 const MODE_READ_ONLY = 'MODE_READ_ONLY';
 const MODE_EDIT = 'MODE_EDIT';
 
-// TODO 멤버 변수의 private 선언 필요
-
 const drawPolygon = ({
   map,
   h3Indexes,
@@ -240,15 +238,22 @@ class HexagonGroup {
       this.#hexagonMap.delete(h3Index);
     } else {
       // 2-2. 없는 Hexagon이라면 추가
-      // 2. h3Index로 hexagon 객체를 새로 만든다
-      const hexagon = createHexagon(this.#hexagonMap, h3Index);
-      // 3. 새로 만든 hexagon 객체를 hexagonGroups에 추가한다.
-      setHexagonToHexagonMap(this.#hexagonMap, hexagon);
+      // 2-2-1. 이미 선택된 Hexagon과 붙어있지 않다면 저장 불가
+      // (2개 이상의 떨어져 있는 폴리곤을 저장하는 구조로 바뀌면 이 조건은 제거 되어야 함)
+      const isNeighbor = hexagonCalculator.isNeighbor(h3Index, this.h3Indexes);
+      if (isNeighbor) {
+        // 2-2-2. h3Index로 hexagon 객체를 새로 만든다
+        const hexagon = createHexagon(this.#hexagonMap, h3Index);
+        // 2-2-3. 새로 만든 hexagon 객체를 hexagonGroups에 추가한다.
+        setHexagonToHexagonMap(this.#hexagonMap, hexagon);
+      }
     }
     // 4. 새로 만든 hexagon 객체를 지도 위에 polygon으로 그린다.
     this.draw(map);
     // 5. Hexagon 갯수가 변했으므로 콜백으로 알린다.
-    this.#onChange(this);
+    if (this.#onChange) {
+      this.#onChange(this);
+    }
   }
 
   /**
@@ -349,7 +354,9 @@ class HexagonGroup {
           this.blur();
         },
         onClick: (v) => {
-          this.#onClick(this);
+          if (this.#onClick) {
+            this.#onClick(this);
+          }
           this.setClickedPoint({
             map: v.map,
             point: v.point,
@@ -404,7 +411,9 @@ class HexagonGroup {
    * @return {void} 없음
    */
   disabled() {
-    this.#onDisabled(this);
+    if (this.#onDisabled) {
+      this.#onDisabled(this);
+    }
     if (!this.#hexagonGroupPolygon) {
       return;
     }
@@ -419,7 +428,9 @@ class HexagonGroup {
    * @return {void} 없음
    */
   enabled() {
-    this.#onEnabled(this);
+    if (this.#onEnabled) {
+      this.#onEnabled(this);
+    }
     if (!this.#hexagonGroupPolygon) {
       return;
     }
@@ -442,6 +453,15 @@ class HexagonGroup {
     }
     this.#hexagonGroupPolygon = null;
     this.#hexagonGroupPolygonListeners = null;
+  }
+
+  /**
+   * Hexagon 객체를 없앱니다.
+   *
+   * @return {void} 없음
+   */
+  destroy() {
+    this.remove();
     this.#onFocus = null;
     this.#onBlur = null;
     this.#onClick = null;
@@ -494,18 +514,22 @@ export default {
     hexagonGroups.forEach((v) => v.setModeReadOnly());
     hexagonGroups.forEach((v) => v.blur());
   },
-  // 2-1. draw
+  // 2-3. draw
   drawHexagonGroups({
     map,
     hexagonGroups,
   }) {
     hexagonGroups.forEach((v) => v.draw(map));
   },
-  // 2-2. remove
+  // 2-4. remove(draw한 것을 지도 위에서 지웁니다)
   removeHexagonGroups(hexagonGroups) {
     hexagonGroups.forEach((v) => v.remove());
   },
-  // 2-3. setZoomLevel
+  // 2-5. destroy(hexagonGroup을 메모리에서 삭제합니다. remove 작업도 함께 수행합니다.)
+  destroyHexagonGroups(hexagonGroups) {
+    hexagonGroups.forEach((v) => v.destroy());
+  },
+  // 2-6. setZoomLevel
   setZoomLevel({
     map,
     hexagonGroups,
@@ -517,7 +541,7 @@ export default {
       }
     });
   },
-  // 2-4. onClick
+  // 2-7. onClick
   setClickedPoint({
     map,
     hexagonGroups,
