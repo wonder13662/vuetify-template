@@ -79,6 +79,28 @@ const createHexagonMap = (hexagonMap, h3Indexes) => {
   return hexagonMap;
 };
 
+const addHexagon = ({ h3Index, h3Indexes, hexagonMap }) => {
+  // (내부의 빈공간의 폴리곤을 저장하는 구조로 바뀌면 아래 조건들은 제거 되어야 함)
+  // 1. 이미 선택되었지만, HexagonGroup의 내부(자신을 다른 Hexagon들 6개가 둘러싼 경우)라면 제거하지 않는다.
+  if (hexagonCalculator.isSurrounded(h3Index, h3Indexes)) {
+    return;
+  }
+  // 2. 다른 Hexagon에 둘러싸여 닫히지 않았고, 이미 선택된 Hexagon이라면 제거
+  // 3. TODO 제거한 뒤에, 따로 떨어져 있는 폴리곤들도 함께 제거(이건 조건이 좀 복잡하다)
+  // ex) 길게 늘어진 선 형태의 폴리곤(두께: 폴리곤 1개)에서 가운데 폴리곤을 제거하면 어느 쪽이 남아야 하는가?
+  hexagonMap.delete(h3Index);
+};
+
+const subtractHexagon = ({ h3Index, hexagonMap }) => {
+  // 1. 없는 Hexagon이라면 추가
+  // 2. 이미 선택된 Hexagon과 붙어있지 않다면 저장 불가
+  // (2개 이상의 떨어져 있는 폴리곤을 저장하는 구조로 바뀌면 이 조건은 제거 되어야 함)
+  // 3. h3Index로 hexagon 객체를 새로 만든다
+  const hexagon = createHexagon(hexagonMap, h3Index);
+  // 4. 새로 만든 hexagon 객체를 hexagonGroups에 추가한다.
+  setHexagonToHexagonMap(hexagonMap, hexagon);
+};
+
 
 class HexagonGroup {
   #hexagonGroupName
@@ -214,7 +236,11 @@ class HexagonGroup {
     this.#onChange = onChange;
   }
 
-
+  /**
+   * HexagonGroup의 bound를 가져옵니다.
+   *
+   * @return {object} Naver bound 객체
+   */
   getBound() {
     return hexagonCalculator.convertH3IndexToBound(this.h3Indexes);
   }
@@ -233,25 +259,20 @@ class HexagonGroup {
     }
     // 1. point에 해당하는 h3Index를 구한다
     const h3Index = hexagonCalculator.convertPointToH3Index(point);
-    if (this.#hexagonMap.has(h3Index)) {
-      // 2-1-1. 이미 선택되었지만, HexagonGroup의 내부(자신을 다른 Hexagon들 6개가 둘러싼 경우)라면 제거하지 않는다.
-      // (내부의 빈공간의 폴리곤을 저장하는 구조로 바뀌면 이 조건은 제거 되어야 함)
-      const isSurrounded = hexagonCalculator.isSurrounded(h3Index, this.h3Indexes);
-      if (!isSurrounded) {
-        // 2-1-2. 다른 Hexagon에 둘러싸여 닫히지 않았고, 이미 선택된 Hexagon이라면 제거
-        this.#hexagonMap.delete(h3Index);
-      }
-    } else {
-      // 2-2. 없는 Hexagon이라면 추가
-      // 2-2-1. 이미 선택된 Hexagon과 붙어있지 않다면 저장 불가
-      // (2개 이상의 떨어져 있는 폴리곤을 저장하는 구조로 바뀌면 이 조건은 제거 되어야 함)
-      const isNeighbor = hexagonCalculator.isNeighbor(h3Index, this.h3Indexes);
-      if (isNeighbor) {
-        // 2-2-2. h3Index로 hexagon 객체를 새로 만든다
-        const hexagon = createHexagon(this.#hexagonMap, h3Index);
-        // 2-2-3. 새로 만든 hexagon 객체를 hexagonGroups에 추가한다.
-        setHexagonToHexagonMap(this.#hexagonMap, hexagon);
-      }
+    const hasNoH3Index = this.h3Indexes.length === 0;
+    const hasNeighborH3Index = hexagonCalculator.isNeighbor(h3Index, this.h3Indexes);
+    const hasH3Index = this.#hexagonMap.has(h3Index);
+    if (hasH3Index) {
+      addHexagon({
+        h3Index,
+        h3Indexes: this.h3Indexes,
+        hexagonMap: this.#hexagonMap,
+      });
+    } else if (hasNoH3Index || hasNeighborH3Index) {
+      subtractHexagon({
+        h3Index,
+        hexagonMap: this.#hexagonMap,
+      });
     }
     // 4. 새로 만든 hexagon 객체를 지도 위에 polygon으로 그린다.
     this.draw(map);
@@ -428,7 +449,7 @@ class HexagonGroup {
   }
 
   /**
-   * 지도 위에 Hexagon을 Disabled 합니다.
+   * 지도 위에 Hexagon을 Enabled 합니다.
    *
    * @return {void} 없음
    */
