@@ -18,6 +18,7 @@
 </template>
 
 <script>
+// TODO 고정할 컬럼이 왼쪽인지 오른쪽인지 명확하게 표현하는 방식을 사용하는 편이 더 나을 것 같다.
 export default {
   name: 'BaseContentHorizontalLayout',
   props: {
