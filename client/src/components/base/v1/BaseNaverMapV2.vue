@@ -1,7 +1,6 @@
 <template>
   <div
     :id="mapId"
-    class="mainmap"
     :style="{ height: height, width: width }"
   />
 </template>
@@ -216,7 +215,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.mainmap {
-  border: solid 0.05em rgba(0, 0, 0, 0.6);
-}
+
 </style>
