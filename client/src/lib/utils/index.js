@@ -8,6 +8,7 @@ import {
 import i18n from '@/plugins/vueI18n';
 
 export { default as rules } from './rules';
+export { default as ruleMap } from './ruleMap';
 
 export default {
   isValidArray(v, minLength = 0) {

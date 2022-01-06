@@ -7,15 +7,17 @@ import {
   CSTICKET_CHANNEL_CLIENT,
   CSTICKET_CHANNEL_ROOM,
 } from './socket';
-import alert from './alert';
 import dictionary from './dictionary';
+import alert from './alert';
 import customerServiceTicket from './customerServiceTicket';
 import delivery from './delivery';
 import directorGroup from './directorGroup';
-import resource from './resource';
-import physicalGroup from './physicalGroup';
-import servicerUser from './serviceUser';
 import driverGroup from './driverGroup';
+import physicalGroup from './physicalGroup';
+import resource from './resource';
+import rule from './rule';
+import servicerUser from './serviceUser';
+
 
 const createMapByReduce = (acc, v) => {
   if (!acc[v]) {
@@ -79,3 +81,6 @@ export const DIRECTOR_GROUP__PAGE_MODE_SET = Array.from(Object.values(directorGr
 
 export const ALERT_TYPE = alert.TYPE;
 export const ALERT_TYPE_LIST = Array.from(Object.values(alert.TYPE));
+
+export const RULE_KEY = rule;
+export const RULE_KEY_SET = Array.from(Object.values(rule)).reduce((acc, v) => (acc.add(v)), new Set());

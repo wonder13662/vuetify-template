@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import BaseRow from '@/components/base/BaseRow';
-import BaseCol from '@/components/base/BaseCol';
+import BaseRow from '@/components/base/v1/BaseRow';
+import BaseCol from '@/components/base/v1/BaseCol';
 
 export default {
   name: 'BaseContentHorizontalEvenLayout',
