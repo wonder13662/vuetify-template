@@ -32,7 +32,7 @@ export default {
     color: {
       type: String,
       validator: (v) => ['grey', 'white', 'transparent'].includes(v),
-      default: 'grey',
+      default: 'white',
     },
   },
   computed: {
