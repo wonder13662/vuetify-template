@@ -1,6 +1,6 @@
 <template>
   <div
-    class="base-content-layout d-flex align-start flex-row align-stretch"
+    class="base-content-h-layout d-flex align-start flex-row align-stretch"
   >
     <div
       :class="classLeftCol"
@@ -34,6 +34,9 @@ export default {
       validator: (v) => ['grey', 'white', 'transparent'].includes(v),
       default: 'white',
     },
+    showDivider: {
+      type: Boolean,
+    },
   },
   computed: {
     classLeftCol() {
@@ -54,6 +57,7 @@ export default {
         'flex-grow-1': this.fixedColLeft,
         'lighten-3': this.fixedColLeft,
         'lighten-2': !this.fixedColLeft,
+        'base-content-h-layout__right': this.showDivider,
         grey: this.color === 'grey',
         white: this.color === 'white',
         transparent: this.color === 'transparent',
@@ -67,7 +71,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.base-content-layout {
+.base-content-h-layout {
   height: 100%;
+}
+.base-content-h-layout__right {
+  border-left: solid 1px rgba(0, 0, 0, 0.12) !important;
 }
 </style>
