@@ -1,6 +1,7 @@
 <template>
   <BaseContentHorizontalEvenLayout
     :items="names"
+    :style="{ background: background }"
   >
     <template v-slot:item="{ item }">
       <BaseText
@@ -27,6 +28,10 @@ export default {
       type: Array,
       required: true,
     },
+    background: {
+      type: String,
+      default: '#eee',
+    },
   },
   computed: {
     cols() {
@@ -37,12 +42,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.row {
-  margin: 0;
-  width: 100%;
-}
-.col {
-  text-align: center;
-  padding: 5px;
-}
+
 </style>
