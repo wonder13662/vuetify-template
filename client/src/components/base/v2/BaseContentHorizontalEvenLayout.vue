@@ -31,7 +31,7 @@ export default {
   },
   computed: {
     cols() {
-      return Math.round(12 / this.items.length);
+      return 12 / this.items.length;
     },
   },
 };
