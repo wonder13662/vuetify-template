@@ -10,6 +10,8 @@ import i18n from '@/plugins/vueI18n';
 export { default as rules } from './rules';
 export { default as ruleMap } from './ruleMap';
 
+const YYYYMMDD = 'YYYY-MM-DD';
+
 export default {
   isValidArray(v, minLength = 0) {
     return v && v.length > minLength;
@@ -53,6 +55,44 @@ export default {
   },
   isLongitude(v) {
     return Number.isFinite(v) && v >= -180 && v <= 180;
+  },
+  convertObjToSet(obj) {
+    if (!obj) {
+      return new Set();
+    }
+    return this.convertListToSet(Object.values(obj));
+  },
+  convertListToSet(list) {
+    if (!this.isValidArray(list)) {
+      return new Set();
+    }
+
+    return list.reduce((acc, v) => {
+      acc.add(v);
+      return acc;
+    }, new Set());
+  },
+  // '2021-06-28'
+  getNowYYYYMMDD() {
+    return moment().format(YYYYMMDD);
+  },
+  isBefore(yyyymmddA, yyyymmddB) {
+    // moment('2010-10-20').isBefore('2010-10-21'); // true
+    // https://momentjs.com/docs/#/query/is-before/
+    return moment(yyyymmddA).isBefore(yyyymmddB);
+  },
+  isAfter(yyyymmddA, yyyymmddB) {
+    // moment('2010-10-20').isAfter('2010-10-19'); // true
+    // https://momentjs.com/docs/#/query/is-after/
+    return moment(yyyymmddA).isAfter(yyyymmddB);
+  },
+  convertDateNHourToMoment(yyyymmdd, hour) {
+    return moment(yyyymmdd).add(hour, 'h');
+  },
+  convertDateNHourToUTC(yyyymmdd, hour) {
+    // https://momentjs.com/docs/#/manipulating/utc/
+    // ex: "2020-10-09T00:00:00Z"
+    return this.convertDateNHourToMoment(yyyymmdd, hour).utc().format();
   },
   // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
   convertUnixTimeToReadable(unixTime) {

@@ -370,7 +370,7 @@ export default {
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonBorder: () => ({
+  getStyleReadUnselectedBlur: () => ({
     fillColor: '#7E57C2',
     fillOpacity: 0.6,
     strokeWeight: 2,
@@ -388,7 +388,7 @@ export default {
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonBorderFocus: () => ({
+  getStyleReadUnselectedFocus: () => ({
     fillColor: '#FFCC80',
     fillOpacity: 0.4,
     strokeWeight: 2,
@@ -397,7 +397,7 @@ export default {
   }),
 
   /**
-   * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 스타일 값을 줍니다.
+   * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 Blur의 스타일 값을 줍니다.
    * Vuetify의 light-blue 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
    * fillColor: light-blue lighten-3 #81D4FA
@@ -405,7 +405,7 @@ export default {
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonSelected: () => ({
+  getStyleReadSelectedBlur: () => ({
     fillColor: '#81D4FA',
     fillOpacity: 0.4,
     strokeWeight: 2,
@@ -414,7 +414,24 @@ export default {
   }),
 
   /**
-   * Naver map의 폴리곤 경계가 비활성화 되었을 때의 스타일 값을 줍니다.
+   * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 Focus의 스타일 값을 줍니다.
+   * Vuetify의 light-blue 사용
+   * https://vuetifyjs.com/en/styles/colors/#material-colors
+   * fillColor: light-blue lighten-3 #81D4FA
+   * stokeColor: light-blue #03A9F4
+   *
+   * @return {object} Naver 맵의 폴리곤 경계의 스타일
+   */
+  getStyleReadSelectedFocus: () => ({
+    fillColor: '#81D4FA',
+    fillOpacity: 0.4,
+    strokeWeight: 2,
+    strokeColor: '#03A9F4',
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  }),
+
+  /**
+   * Naver map의 폴리곤 경계가 비활성화 되었을 때의 Blur의 스타일 값을 줍니다.
    * Vuetify의 lime 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
    * fillColor: grey darken-1 #757575
@@ -422,7 +439,7 @@ export default {
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonDisabled: () => ({
+  getStyleDisabledBlur: () => ({
     fillColor: '#757575',
     fillOpacity: 0.9,
     strokeWeight: 2,
@@ -431,7 +448,24 @@ export default {
   }),
 
   /**
-   * Naver map의 폴리곤 경계가 편집중일 때의 스타일 값을 줍니다.
+   * Naver map의 폴리곤 경계가 비활성화 되었을 때의 Focus의 스타일 값을 줍니다.
+   * Vuetify의 lime 사용
+   * https://vuetifyjs.com/en/styles/colors/#material-colors
+   * fillColor: grey darken-1 #757575
+   * stokeColor: grey darken-2 #616161
+   *
+   * @return {object} Naver 맵의 폴리곤 경계의 스타일
+   */
+  getStyleDisabledFocus: () => ({
+    fillColor: '#757575',
+    fillOpacity: 0.9,
+    strokeWeight: 2,
+    strokeColor: '#616161',
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  }),
+
+  /**
+   * Naver map의 폴리곤 경계가 편집중일 때의 Blur의 스타일 값을 줍니다.
    * Vuetify의 light-green 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
    * fillColor: light-green accent-4 #64DD17
@@ -439,7 +473,24 @@ export default {
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonEditing: () => ({
+  getStyleEditBlur: () => ({
+    fillColor: '#64DD17',
+    fillOpacity: 0.5,
+    strokeWeight: 2,
+    strokeColor: '#33691E',
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  }),
+
+  /**
+   * Naver map의 폴리곤 경계가 편집중일 때의 Focus의 스타일 값을 줍니다.
+   * Vuetify의 light-green 사용
+   * https://vuetifyjs.com/en/styles/colors/#material-colors
+   * fillColor: light-green accent-4 #64DD17
+   * stokeColor: light-green darken-4 #33691E
+   *
+   * @return {object} Naver 맵의 폴리곤 경계의 스타일
+   */
+  getStyleEditFocus: () => ({
     fillColor: '#64DD17',
     fillOpacity: 0.5,
     strokeWeight: 2,
