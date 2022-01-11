@@ -7,8 +7,8 @@
     :return-value.sync="timeData"
     transition="scale-transition"
     offset-y
-    max-width="283px"
-    min-width="283px"
+    :max-width="width"
+    :min-width="width"
   >
     <template v-slot:activator="{ on, attrs }">
       <v-text-field
@@ -18,6 +18,7 @@
         dense
         hide-details
         readonly
+        :disabled="disabled"
         v-bind="attrs"
         v-on="on"
       />
@@ -48,11 +49,18 @@
 
 <script>
 export default {
-  name: 'BaseDialogTimePicker',
+  name: 'BaseTimePicker',
   props: {
     time: {
       type: String,
       default: '00:00',
+    },
+    width: {
+      type: String,
+      default: '280px',
+    },
+    disabled: {
+      type: Boolean,
     },
   },
   data() {

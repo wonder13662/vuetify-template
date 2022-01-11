@@ -17,6 +17,7 @@
         :error-messages="errorMessage"
         :error="error"
         :outlined="outlined"
+        :disabled="disabled"
         v-bind="attrs"
         v-on="on"
       />
@@ -62,6 +63,9 @@ export default {
     max: {
       type: String,
       default: '',
+    },
+    disabled: {
+      type: Boolean,
     },
   },
   data() {
