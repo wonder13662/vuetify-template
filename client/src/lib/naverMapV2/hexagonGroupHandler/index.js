@@ -235,7 +235,7 @@ class HexagonGroup {
    * @return {void} 없음
    */
   setClickedPoint({ map, point }) {
-    if (!this.isEditMode()) {
+    if (this.mode !== HEXAGON_MODE.EDIT) {
       return;
     }
     // 1. point에 해당하는 h3Index를 구한다
@@ -401,9 +401,11 @@ class HexagonGroup {
   /**
    * 지도 위에 Hexagon을 Focus시킵니다.
    *
+   * @param {object} meta (optional)호출자가 Focus 시의 맥락 정보를 담은 meta 객체
+   *
    * @return {void} 없음
    */
-  focus() {
+  focus(meta = {}) {
     if (this.#status === HEXAGON_STATUS.FOCUS) {
       return;
     }
@@ -418,16 +420,21 @@ class HexagonGroup {
     }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.FOCUS);
     if (eventListenerMap.size > 0) {
-      Array.from(eventListenerMap.values()).forEach((v) => v(this));
+      Array.from(eventListenerMap.values()).forEach((v) => v({
+        hexagonGroup: this,
+        meta,
+      }));
     }
   }
 
   /**
    * 지도 위에 Hexagon을 Blur시킵니다.
    *
+   * @param {object} meta (optional)호출자가 Blur 시의 맥락 정보를 담은 meta 객체
+   *
    * @return {void} 없음
    */
-  blur() {
+  blur(meta = {}) {
     if (this.#status === HEXAGON_STATUS.BLUR) {
       return;
     }
@@ -442,17 +449,30 @@ class HexagonGroup {
     }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.BLUR);
     if (eventListenerMap.size > 0) {
-      Array.from(eventListenerMap.values()).forEach((v) => v(this));
+      Array.from(eventListenerMap.values()).forEach((v) => v({
+        hexagonGroup: this,
+        meta,
+      }));
     }
   }
 
-  click() {
+  /**
+   * 지도 위에 Hexagon을 Click 합니다.
+   *
+   * @param {object} meta (optional)호출자가 Click 시의 맥락 정보를 담은 meta 객체
+   *
+   * @return {void} 없음
+   */
+  click(meta = {}) {
     if (this.#onClick) {
       this.#onClick(this);
     }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.CLICK);
     if (eventListenerMap.size > 0) {
-      Array.from(eventListenerMap.values()).forEach((v) => v(this));
+      Array.from(eventListenerMap.values()).forEach((v) => v({
+        hexagonGroup: this,
+        meta,
+      }));
     }
   }
 
@@ -586,7 +606,7 @@ export default {
     zoomLevel,
   }) {
     hexagonGroups.forEach((v) => {
-      if (v.isEditMode()) {
+      if (this.mode !== HEXAGON_MODE.EDIT) {
         v.setZoomLevel({ map, zoomLevel });
       }
     });
@@ -598,7 +618,7 @@ export default {
     point,
   }) {
     hexagonGroups.forEach((v) => {
-      if (v.isEditMode()) {
+      if (this.mode !== HEXAGON_MODE.EDIT) {
         v.setClickedPoint({ map, point });
       }
     });
