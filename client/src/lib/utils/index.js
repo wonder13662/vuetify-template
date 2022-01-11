@@ -72,9 +72,17 @@ export default {
       return acc;
     }, new Set());
   },
+  convertMapToList(map) {
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#relation_with_array_objects
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#cloning_and_merging_maps
+    return Array.from(new Map(map).values());
+  },
   // '2021-06-28'
   getNowYYYYMMDD() {
     return moment().format(YYYYMMDD);
+  },
+  getNowUTC() {
+    return moment().utc().toISOString();
   },
   isBefore(yyyymmddA, yyyymmddB) {
     // moment('2010-10-20').isBefore('2010-10-21'); // true
@@ -93,6 +101,13 @@ export default {
     // https://momentjs.com/docs/#/manipulating/utc/
     // ex: "2020-10-09T00:00:00Z"
     return this.convertDateNHourToMoment(yyyymmdd, hour).utc().format();
+  },
+  convertYYYYMMDDStrToUTCTime(yyyymmdd) {
+    return moment(yyyymmdd, 'YYYY-MM-DD').utc().toISOString();
+  },
+  convertUTCToLocalYYYYMMDD(utc) {
+    // '2021-06-28T06:03:01.291Z' to '2021-06-28'
+    return moment(utc).format(YYYYMMDD);
   },
   // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
   convertUnixTimeToReadable(unixTime) {
