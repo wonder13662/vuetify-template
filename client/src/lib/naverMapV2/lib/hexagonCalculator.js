@@ -381,52 +381,52 @@ export default {
   /**
    * Naver map의 폴리곤 경계의 Focus 시의 스타일 값을 줍니다.
    *
-   * Vuetify의 orange 사용
+   * Vuetify의 purple 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: orange lighten-3 #FFCC80
-   * stokeColor: orange #FF9800
+   * fillColor: purple #9C27B0
+   * stokeColor: purple darken-4 #4A148C
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
   getStyleReadUnselectedFocus: () => ({
-    fillColor: '#FFCC80',
+    fillColor: '#9C27B0',
     fillOpacity: 0.4,
     strokeWeight: 2,
-    strokeColor: '#FF9800',
+    strokeColor: '#4A148C',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
   /**
    * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 Blur의 스타일 값을 줍니다.
-   * Vuetify의 light-blue 사용
+   * Vuetify의 Orange 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: light-blue lighten-3 #81D4FA
-   * stokeColor: light-blue #03A9F4
+   * fillColor: orange #FF9800
+   * stokeColor: orange darken-4 #E65100
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
   getStyleReadSelectedBlur: () => ({
-    fillColor: '#81D4FA',
+    fillColor: '#FF9800',
     fillOpacity: 0.4,
     strokeWeight: 2,
-    strokeColor: '#03A9F4',
+    strokeColor: '#E65100',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
   /**
    * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 Focus의 스타일 값을 줍니다.
-   * Vuetify의 light-blue 사용
+   * Vuetify의 yellow 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: light-blue lighten-3 #81D4FA
-   * stokeColor: light-blue #03A9F4
+   * fillColor: yellow #FFEB3B
+   * stokeColor: yellow darken-4 #F57F17
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
   getStyleReadSelectedFocus: () => ({
-    fillColor: '#81D4FA',
+    fillColor: '#FFEB3B',
     fillOpacity: 0.4,
     strokeWeight: 2,
-    strokeColor: '#03A9F4',
+    strokeColor: '#F57F17',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
