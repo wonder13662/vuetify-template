@@ -77,6 +77,9 @@ export default {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#cloning_and_merging_maps
     return Array.from(new Map(map).values());
   },
+  convertMapKeysToList(map) {
+    return Array.from(new Map(map).keys());
+  },
   // '2021-06-28'
   getNowYYYYMMDD() {
     return moment().format(YYYYMMDD);
