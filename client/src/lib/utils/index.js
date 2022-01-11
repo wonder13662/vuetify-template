@@ -87,6 +87,12 @@ export default {
   getNowUTC() {
     return moment().utc().toISOString();
   },
+  isSameOrBefore(yyyymmddA, yyyymmddB) {
+    // moment('2010-10-20').isSameOrBefore('2010-10-20'); // true
+    // moment('2010-10-20').isSameOrBefore('2010-10-21'); // true
+    // https://momentjs.com/docs/#/query/is-same-or-before/
+    return moment(yyyymmddA).isSameOrBefore(yyyymmddB);
+  },
   isBefore(yyyymmddA, yyyymmddB) {
     // moment('2010-10-20').isBefore('2010-10-21'); // true
     // https://momentjs.com/docs/#/query/is-before/
