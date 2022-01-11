@@ -23,8 +23,8 @@
     </template>
     <v-date-picker
       :value="date"
-      :min="minDate"
-      :max="maxDate"
+      :min="min"
+      :max="max"
       no-title
       scrollable
       @change="onChange"
@@ -33,7 +33,6 @@
 </template>
 
 <script>
-import moment from 'moment';
 import utils from '@/lib/utils';
 
 export default {
@@ -69,20 +68,6 @@ export default {
     return {
       menu: false,
     };
-  },
-  computed: {
-    minDate() {
-      if (!this.min) {
-        return '';
-      }
-      return moment(this.min).toISOString();
-    },
-    maxDate() {
-      if (!this.max) {
-        return '';
-      }
-      return moment(this.max).toISOString();
-    },
   },
   methods: {
     onChange(v) {
