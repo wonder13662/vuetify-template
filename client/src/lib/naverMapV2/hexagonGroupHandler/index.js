@@ -406,10 +406,6 @@ class HexagonGroup {
    * @return {void} 없음
    */
   focus(meta = {}) {
-    if (this.#status === HEXAGON_STATUS.FOCUS) {
-      return;
-    }
-
     this.#status = HEXAGON_STATUS.FOCUS;
 
     if (this.#hexagonGroupPolygon) {
@@ -435,10 +431,6 @@ class HexagonGroup {
    * @return {void} 없음
    */
   blur(meta = {}) {
-    if (this.#status === HEXAGON_STATUS.BLUR) {
-      return;
-    }
-
     this.#status = HEXAGON_STATUS.BLUR;
 
     if (this.#hexagonGroupPolygon) {
