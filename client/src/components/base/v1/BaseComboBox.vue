@@ -64,6 +64,11 @@ export default {
       userSelect: this.select,
     };
   },
+  watch: {
+    select(v) {
+      this.userSelect = v;
+    },
+  },
   methods: {
     onChange(value) {
       this.$emit('select-item', value);
