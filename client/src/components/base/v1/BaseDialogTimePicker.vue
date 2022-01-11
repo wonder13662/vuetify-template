@@ -1,15 +1,18 @@
 <template>
-  <v-dialog
-    ref="dialog"
-    v-model="modal"
-    :return-value.sync="time"
-    persistent
-    width="290px"
+  <v-menu
+    ref="menu"
+    v-model="menu"
+    :close-on-content-click="false"
+    :nudge-right="40"
+    :return-value.sync="timeData"
+    transition="scale-transition"
+    offset-y
+    max-width="283px"
+    min-width="283px"
   >
     <template v-slot:activator="{ on, attrs }">
       <v-text-field
-        v-model="time"
-        label="Picker in dialog"
+        v-model="timeData"
         prepend-inner-icon="mdi-clock-time-four-outline"
         outlined
         dense
@@ -20,50 +23,63 @@
       />
     </template>
     <v-time-picker
-      v-if="modal"
-      v-model="time"
+      v-if="menu"
+      v-model="timeData"
       full-width
     >
       <v-spacer />
       <v-btn
         text
         color="primary"
-        @click="modal = false"
+        @click="onCancel"
       >
         Cancel
       </v-btn>
       <v-btn
         text
         color="primary"
-        @click="$refs.dialog.save(time)"
+        @click="onOK"
       >
         OK
       </v-btn>
     </v-time-picker>
-  </v-dialog>
+  </v-menu>
 </template>
 
 <script>
 export default {
   name: 'BaseDialogTimePicker',
+  props: {
+    time: {
+      type: String,
+      default: '00:00',
+    },
+  },
   data() {
     return {
-      time: null,
-      modal: false,
+      timeData: this.time,
+      menu: false,
     };
+  },
+  watch: {
+    time(v) {
+      if (v !== this.timeData) {
+        this.timeData = v;
+      }
+    },
   },
   methods: {
     onCancel() {
       this.reset();
     },
     onOK() {
-      this.$refs.dialog.save(this.time);
-      this.$emit('change', { time: this.time });
+      this.$refs.menu.save(this.timeData);
+      this.$emit('change', { time: this.timeData });
       this.reset();
     },
     reset() {
-      this.modal = false;
-      this.time = null;
+      this.menu = false;
+      this.timeData = null;
     },
   },
 };
