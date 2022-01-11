@@ -334,8 +334,8 @@ class HexagonGroup {
     if (!id) {
       throw new Error(`id:${id} / 유효하지 않습니다.`);
     }
-    if (this.#eventListenerMap.has(id)) {
-      this.#eventListenerMap.delete(id);
+    if (this.#eventListenerMap.get(event).has(id)) {
+      this.#eventListenerMap.get(event).delete(id);
     }
   }
 
