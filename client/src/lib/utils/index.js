@@ -111,8 +111,18 @@ export default {
     // ex: "2020-10-09T00:00:00Z"
     return this.convertDateNHourToMoment(yyyymmdd, hour).utc().format();
   },
-  convertYYYYMMDDStrToUTCTime(yyyymmdd) {
+  convertYYYYMMDDStrToUTCTime(yyyymmdd) { // REMOVE ME
     return moment(yyyymmdd, 'YYYY-MM-DD').utc().toISOString();
+  },
+  convertYYYYMMDDStrToUTCStartOfTime(yyyymmdd) {
+    // https://momentjs.com/docs/#/manipulating/start-of/
+    // '2021-06-28' to '2021-06-28T00:00:00.000Z'
+    return moment(yyyymmdd, 'YYYY-MM-DD').startOf('day').utc().toISOString();
+  },
+  convertYYYYMMDDStrToUTCEndOfTime(yyyymmdd) {
+    // https://momentjs.com/docs/#/manipulating/end-of/
+    // '2021-06-28' to '2021-06-28T23:59:59.000Z'
+    return moment(yyyymmdd, 'YYYY-MM-DD').endOf('day').utc().toISOString();
   },
   convertUTCToLocalYYYYMMDD(utc) {
     // '2021-06-28T06:03:01.291Z' to '2021-06-28'
