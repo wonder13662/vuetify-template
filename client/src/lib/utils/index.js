@@ -152,4 +152,38 @@ export default {
     }
     return i18n.t(`models.serviceUser.approveStatus.${approveStatus}`);
   },
+  /**
+   * 값을 요소로 가지는 2개 배열을 비교하여, 추가(add)된 것과 삭제(remove)된 것을 구분해줍니다.
+   *
+   * @param {array} origin - 원본 배열
+   * @param {array} modified - 수정된 배열
+   *
+   * @return {object} add: 추가된 값들, remove 삭제된 값들
+   */
+  branchAddRemove(origin, modified) {
+    const originSet = this.convertListToSet(origin);
+    const modifiedSet = this.convertListToSet(modified);
+    const mergedSet = new Set([...originSet, ...modifiedSet]);
+    const mergedList = [...mergedSet];
+    const addSet = new Set();
+    const removeSet = new Set();
+    // 1. 지울 것들을 찾는다(orign에는 있고, modified에는 없는 값).
+    mergedList.forEach((v) => {
+      if (originSet.has(v) && !modifiedSet.has(v)) {
+        removeSet.add(v);
+      }
+    });
+
+    // 2. 추가할 것들을 찾는다(orign에는 없고, modified에는 있는 값).
+    mergedList.forEach((v) => {
+      if (!originSet.has(v) && modifiedSet.has(v)) {
+        addSet.add(v);
+      }
+    });
+
+    return {
+      add: [...addSet],
+      remove: [...removeSet],
+    };
+  },
 };

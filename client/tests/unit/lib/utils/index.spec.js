@@ -191,3 +191,37 @@ describe('#5 RULE_KEY.DIRECTOR_GROUP_NAME', () => {
   });
 });
 
+describe('#6 branchAddRemove', () => {
+  test('#6-1', async () => {
+    const origin = [0,1,2,3];
+    const modified = [2,3,4,5];
+    const { add, remove } = utils.branchAddRemove(origin, modified);
+    expect(add).toEqual([4,5]);
+    expect(remove).toEqual([0,1]);
+  });
+
+  test('#6-2', async () => {
+    const origin = [0,1,2,3];
+    const modified = [];
+    const { add, remove } = utils.branchAddRemove(origin, modified);
+    expect(add).toEqual(modified);
+    expect(remove).toEqual(origin);
+  });  
+
+  test('#6-3', async () => {
+    const origin = [];
+    const modified = [0,1,2,3];
+    const { add, remove } = utils.branchAddRemove(origin, modified);
+    expect(add).toEqual(modified);
+    expect(remove).toEqual(origin);
+  });
+
+  test('#6-4', async () => {
+    const origin = [];
+    const modified = [];
+    const { add, remove } = utils.branchAddRemove(origin, modified);
+    expect(add).toEqual(modified);
+    expect(remove).toEqual(origin);
+  });
+});
+
