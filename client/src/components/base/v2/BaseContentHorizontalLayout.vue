@@ -22,6 +22,14 @@
 export default {
   name: 'BaseContentHorizontalLayout',
   props: {
+    colWidthLeft: {
+      type: String,
+      default: '',
+    },
+    colWidthRight: {
+      type: String,
+      default: '',
+    },
     fixedColWidth: {
       type: String,
       default: '',
@@ -41,22 +49,25 @@ export default {
   computed: {
     classLeftCol() {
       return {
-        'flex-grow-1': !this.fixedColLeft,
-        'lighten-3': !this.fixedColLeft,
-        'lighten-2': this.fixedColLeft,
+        'flex-grow-1': !this.fixedColLeft && !this.colWidthLeft,
+        'lighten-3': !this.fixedColLeft && !this.colWidthLeft,
+        'lighten-2': this.fixedColLeft || this.colWidthLeft,
         grey: this.color === 'grey',
         white: this.color === 'white',
         transparent: this.color === 'transparent',
       };
     },
     styleLeftCol() {
+      if (this.colWidthLeft && !this.colWidthRight) {
+        return { width: `${this.colWidthLeft}` };
+      }
       return this.fixedColLeft ? { width: `${this.fixedColWidth}` } : '';
     },
     classRightCol() {
       return {
-        'flex-grow-1': this.fixedColLeft,
-        'lighten-3': this.fixedColLeft,
-        'lighten-2': !this.fixedColLeft,
+        'flex-grow-1': this.fixedColLeft || this.colWidthLeft,
+        'lighten-3': this.fixedColLeft || this.colWidthLeft,
+        'lighten-2': !this.fixedColLeft && !this.colWidthLeft,
         'base-content-h-layout__right': this.showDivider,
         grey: this.color === 'grey',
         white: this.color === 'white',
@@ -64,6 +75,9 @@ export default {
       };
     },
     styleRightCol() {
+      if (this.colWidthRight && !this.colWidthLeft) {
+        return { width: `${this.colWidthRight}` };
+      }
       return !this.fixedColLeft ? { width: `${this.fixedColWidth}` } : '';
     },
   },
