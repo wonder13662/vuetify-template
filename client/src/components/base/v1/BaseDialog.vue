@@ -4,6 +4,7 @@
     :persistent="persistent"
     max-width="600px"
     @input="onChange"
+    @click:outside="onCancel"
   >
     <template
       v-if="!activatorHidden"
