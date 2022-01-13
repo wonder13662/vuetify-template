@@ -30,10 +30,12 @@ export default {
       type: String,
       default: '',
     },
+    // @ Deprecated
     fixedColWidth: {
       type: String,
       default: '',
     },
+    // @ Deprecated
     fixedColLeft: {
       type: Boolean,
     },
@@ -48,10 +50,25 @@ export default {
   },
   computed: {
     classLeftCol() {
+      if (this.colWidthRight) {
+        return {
+          'flex-grow-1': true,
+          white: true,
+        };
+      }
+
+      if (this.colWidthLeft) {
+        return {
+          'flex-grow-1': false,
+          white: true,
+        };
+      }
+
+      // @ Deprecated
       return {
-        'flex-grow-1': !this.fixedColLeft && !this.colWidthLeft,
-        'lighten-3': !this.fixedColLeft && !this.colWidthLeft,
-        'lighten-2': this.fixedColLeft || this.colWidthLeft,
+        'flex-grow-1': !this.fixedColLeft,
+        'lighten-3': !this.fixedColLeft,
+        'lighten-2': this.fixedColLeft,
         grey: this.color === 'grey',
         white: this.color === 'white',
         transparent: this.color === 'transparent',
@@ -64,10 +81,27 @@ export default {
       return this.fixedColLeft ? { width: `${this.fixedColWidth}` } : '';
     },
     classRightCol() {
+      if (this.colWidthLeft) {
+        return {
+          'flex-grow-1': true,
+          'base-content-h-layout__right': this.showDivider,
+          white: true,
+        };
+      }
+
+      if (this.colWidthRight) {
+        return {
+          'flex-grow-1': false,
+          'base-content-h-layout__right': this.showDivider,
+          white: true,
+        };
+      }
+
+      // @ Deprecated
       return {
-        'flex-grow-1': this.fixedColLeft || this.colWidthLeft,
-        'lighten-3': this.fixedColLeft || this.colWidthLeft,
-        'lighten-2': !this.fixedColLeft && !this.colWidthLeft,
+        'flex-grow-1': this.fixedColLeft,
+        'lighten-3': this.fixedColLeft,
+        'lighten-2': !this.fixedColLeft,
         'base-content-h-layout__right': this.showDivider,
         grey: this.color === 'grey',
         white: this.color === 'white',
