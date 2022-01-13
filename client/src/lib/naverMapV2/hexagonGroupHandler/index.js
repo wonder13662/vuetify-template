@@ -80,7 +80,7 @@ const createHexagonMap = (hexagonMap, h3Indexes) => {
   return hexagonMap;
 };
 
-const addHexagon = ({ h3Index, h3Indexes, hexagonMap }) => {
+const subtractHexagon = ({ h3Index, h3Indexes, hexagonMap }) => {
   // (내부의 빈공간의 폴리곤을 저장하는 구조로 바뀌면 아래 조건들은 제거 되어야 함)
   // 1. 이미 선택되었지만, HexagonGroup의 내부(자신을 다른 Hexagon들 6개가 둘러싼 경우)라면 제거하지 않는다.
   if (hexagonCalculator.isSurrounded(h3Index, h3Indexes)) {
@@ -92,7 +92,7 @@ const addHexagon = ({ h3Index, h3Indexes, hexagonMap }) => {
   hexagonMap.delete(h3Index);
 };
 
-const subtractHexagon = ({ h3Index, hexagonMap }) => {
+const addHexagon = ({ h3Index, hexagonMap }) => {
   // 1. 없는 Hexagon이라면 추가
   // 2. 이미 선택된 Hexagon과 붙어있지 않다면 저장 불가
   // (2개 이상의 떨어져 있는 폴리곤을 저장하는 구조로 바뀌면 이 조건은 제거 되어야 함)
@@ -244,13 +244,13 @@ class HexagonGroup {
     const hasNeighborH3Index = hexagonCalculator.isNeighbor(h3Index, this.h3Indexes);
     const hasH3Index = this.#hexagonMap.has(h3Index);
     if (hasH3Index) {
-      addHexagon({
+      subtractHexagon({
         h3Index,
         h3Indexes: this.h3Indexes,
         hexagonMap: this.#hexagonMap,
       });
     } else if (hasNoH3Index || hasNeighborH3Index) {
-      subtractHexagon({
+      addHexagon({
         h3Index,
         hexagonMap: this.#hexagonMap,
       });
