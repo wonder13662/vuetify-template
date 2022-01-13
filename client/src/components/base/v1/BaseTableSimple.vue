@@ -25,7 +25,12 @@
             v-for="header in headers"
             :key="header.value"
           >
-            {{ item[header.value] }}
+            <div v-if="header.value">
+              {{ item[header.value] }}
+            </div>
+            <div v-if="header.key">
+              {{ item[header.key] }}
+            </div>
           </td>
         </tr>
       </tbody>
@@ -41,7 +46,8 @@ export default {
       type: Array,
       required: true,
       validator(v) {
-        const found = v.findIndex((item) => !item.text || !item.value);
+        // FIX ME: value는 하위 호환성을 위해서 유지, 되도록 key를 사용하도록 합니다.
+        const found = v.findIndex(({ text, key, value }) => !text || (!value && !key));
         return !(found > -1);
       },
     },
