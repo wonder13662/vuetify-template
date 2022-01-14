@@ -70,6 +70,12 @@ class Bound {
 }
 
 export default {
+  createBoundByPoints(p1, p2) {
+    const sw = utils.getSWby2Points(p1, p2);
+    const ne = utils.getNEby2Points(p1, p2);
+
+    return this.createBound(sw, ne);
+  },
   createBound(sw, ne) {
     return new Bound(sw, ne);
   },
