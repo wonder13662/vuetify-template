@@ -44,7 +44,11 @@ export default {
       validator: (v) => ['grey', 'white', 'transparent'].includes(v),
       default: 'white',
     },
+    // @ Deprecated
     showDivider: {
+      type: Boolean,
+    },
+    divider: {
       type: Boolean,
     },
   },
@@ -76,15 +80,25 @@ export default {
     },
     styleLeftCol() {
       if (this.colWidthLeft && !this.colWidthRight) {
-        return { width: `${this.colWidthLeft}` };
+        return {
+          width: `${this.colWidthLeft}`,
+          'min-width': `${this.colWidthLeft}`,
+        };
       }
-      return this.fixedColLeft ? { width: `${this.fixedColWidth}` } : '';
+      // @ Deprecated
+      if (this.fixedColLeft) {
+        return {
+          width: `${this.fixedColWidth}`,
+          'min-width': `${this.fixedColWidth}`,
+        };
+      }
+      return '';
     },
     classRightCol() {
       if (this.colWidthLeft) {
         return {
           'flex-grow-1': true,
-          'base-content-h-layout__right': this.showDivider,
+          'base-content-h-layout__right': this.showDivider || this.divider,
           white: true,
         };
       }
@@ -92,7 +106,7 @@ export default {
       if (this.colWidthRight) {
         return {
           'flex-grow-1': false,
-          'base-content-h-layout__right': this.showDivider,
+          'base-content-h-layout__right': this.showDivider || this.divider,
           white: true,
         };
       }
@@ -102,7 +116,7 @@ export default {
         'flex-grow-1': this.fixedColLeft,
         'lighten-3': this.fixedColLeft,
         'lighten-2': !this.fixedColLeft,
-        'base-content-h-layout__right': this.showDivider,
+        'base-content-h-layout__right': this.showDivider || this.divider,
         grey: this.color === 'grey',
         white: this.color === 'white',
         transparent: this.color === 'transparent',
@@ -110,9 +124,19 @@ export default {
     },
     styleRightCol() {
       if (this.colWidthRight && !this.colWidthLeft) {
-        return { width: `${this.colWidthRight}` };
+        return {
+          width: `${this.colWidthRight}`,
+          'min-width': `${this.colWidthRight}`,
+        };
       }
-      return !this.fixedColLeft ? { width: `${this.fixedColWidth}` } : '';
+      // @ Deprecated
+      if (!this.fixedColLeft) {
+        return {
+          width: `${this.fixedColWidth}`,
+          'min-width': `${this.fixedColWidth}`,
+        };
+      }
+      return '';
     },
   },
 };
