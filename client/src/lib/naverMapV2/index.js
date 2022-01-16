@@ -115,16 +115,17 @@ class NaverMap {
   }
 
   draw() {
+    // @ Deprecated
     markerGroupHandler.drawMarkerGroups({
       map: this.map,
       markerGroups: this.markerGroups,
     });
-
+    // @ Deprecated
     distanceLineGroupHandler.drawDistanceLineGroup({
       map: this.map,
       markerGroups: this.distanceLineGroups,
     });
-
+    // @ Deprecated
     hexagonGroupHandler.drawHexagonGroups({
       map: this.map,
       hexagonGroups: this.hexagonGroups,
@@ -165,10 +166,6 @@ class NaverMap {
    */
   addOverlays(overlays) {
     try {
-      const { map } = this;
-      if (!map) {
-        throw new Error('map: 유효하지 않음');
-      }
       if (!overlays || overlays.length === 0) {
         throw new Error('overlays: 유효하지 않음');
       }
@@ -182,7 +179,10 @@ class NaverMap {
         ...overlays,
       ];
       // 2. 새로 추가된 overlays만 화면에 그려진다.
-      overlays.forEach((v) => v.draw(map));
+      const { map } = this;
+      if (map) {
+        overlays.forEach((v) => v.draw(map));
+      }
     } catch (error) {
       this.onError(error);
     }
@@ -326,9 +326,13 @@ class NaverMap {
   }
 
   fitBounds(bound) {
+    const { map } = this;
+    if (!map) {
+      return;
+    }
     try {
       naverMapHelper.fitBounds({
-        map: this.map,
+        map,
         bound,
       });
     } catch (error) {
