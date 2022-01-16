@@ -20,11 +20,11 @@ class Bound {
     if (!utils.isLongitude(ne.lng)) {
       throw new Error(`ne.lng:${ne.lng}: 유효하지 않습니다.`);
     }
-    if (sw.lat >= ne.lat) { // TODO 음수인 지역도 있다. 음수인 경우는 더 작은 것이 맞다. 절대값으로 처리하면 될까? 확인 필요.
-      throw new Error(`sw.lat:${sw.lat} < ne.lat:${ne.lat}: 유효하지 않습니다.`);
+    if (sw.lat > ne.lat) { // TODO 음수인 지역도 있다. 음수인 경우는 더 작은 것이 맞다. 절대값으로 처리하면 될까? 확인 필요.
+      throw new Error(`sw.lat:${sw.lat} > ne.lat:${ne.lat}: 유효하지 않습니다.`);
     }
-    if (sw.lng >= ne.lng) { // TODO 음수인 지역도 있다. 음수인 경우는 더 작은 것이 맞다. 절대값으로 처리하면 될까? 확인 필요.
-      throw new Error(`sw.lng:${sw.lng} < ne.lng:${ne.lng}: 유효하지 않습니다.`);
+    if (sw.lng > ne.lng) { // TODO 음수인 지역도 있다. 음수인 경우는 더 작은 것이 맞다. 절대값으로 처리하면 될까? 확인 필요.
+      throw new Error(`sw.lng:${sw.lng} > ne.lng:${ne.lng}: 유효하지 않습니다.`);
     }
 
     this.sw = {
