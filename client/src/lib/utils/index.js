@@ -142,9 +142,16 @@ export default {
       durationLeftInMinutes,
     };
   },
+  // @ Deprecated
   convertDeliveryIdShortReadable(deliveryId) {
     if (!deliveryId) return '';
     return deliveryId.slice(0, 8).toUpperCase();
+  },
+  convertUUIDShortReadable(id) {
+    if (!id) {
+      return '';
+    }
+    return id.slice(0, 8).toUpperCase();
   },
   convertServiceUserApproveStatusReadable(approveStatus) {
     if (!approveStatus || !SERVICEUSER_APPROVE_STATUS_SET.has(approveStatus)) {
