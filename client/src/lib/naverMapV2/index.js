@@ -164,9 +164,6 @@ class NaverMap {
    * @return {void} 반환값 없음
    */
   addOverlays(overlays) {
-    // eslint-disable-next-line no-console
-    console.log('addOverlays / overlays:', overlays);
-
     try {
       const { map } = this;
       if (!map) {
