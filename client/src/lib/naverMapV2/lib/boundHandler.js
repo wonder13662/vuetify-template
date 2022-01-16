@@ -70,13 +70,44 @@ class Bound {
 }
 
 export default {
-  createBoundByPoints(p1, p2) {
+  /**
+   * 2개 이상의 points 배열로 bounds를 만들어 줍니다.
+   *
+   * @param {array} points - lat, lng를 가지는 point의 배열
+   *
+   * @return {Bound} Bound 클래스의 인스턴스
+   */
+  createBoundsByPoints(points) {
+    const { sw, ne } = points.reduce((acc, v) => {
+      if (!v || !utils.isLatitude(v.lat) || !utils.isLongitude(v.lng)) {
+        return acc;
+      }
+
+      return {
+        sw: utils.getSWby2Points(acc.sw, v),
+        ne: utils.getNEby2Points(acc.ne, v),
+      };
+    }, {
+      sw: null,
+      ne: null,
+    });
+
+    return this.createBounds(sw, ne);
+  },
+  /**
+   * 2개의 points 배열로 bounds를 만들어 줍니다.
+   *
+   * @param {array} points - lat, lng를 가지는 point의 배열
+   *
+   * @return {Bound} Bound 클래스의 인스턴스
+   */
+  createBoundsBy2Points(p1, p2) {
     const sw = utils.getSWby2Points(p1, p2);
     const ne = utils.getNEby2Points(p1, p2);
 
-    return this.createBound(sw, ne);
+    return this.createBounds(sw, ne);
   },
-  createBound(sw, ne) {
+  createBounds(sw, ne) {
     return new Bound(sw, ne);
   },
 };

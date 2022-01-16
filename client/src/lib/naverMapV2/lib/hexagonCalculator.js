@@ -86,7 +86,7 @@ const convertPointsToBound = (points) => {
     minLng,
   } = src;
 
-  return boundHandler.createBound(
+  return boundHandler.createBounds(
     {
       lat: minLat,
       lng: minLng,
