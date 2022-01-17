@@ -9,6 +9,7 @@
     hide-details="auto"
     :value="text"
     :rules="rules"
+    :disabled="disabled"
     @change="onChange"
   />
 </template>
@@ -27,6 +28,9 @@ export default {
       validator(value) {
         return value > 0;
       },
+    },
+    disabled: {
+      type: Boolean,
     },
   },
   data() {
