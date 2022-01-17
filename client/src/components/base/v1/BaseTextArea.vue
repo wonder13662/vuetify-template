@@ -6,6 +6,7 @@
     dense
     no-resize
     outlined
+    hide-details="auto"
     :value="text"
     :rules="rules"
     @change="onChange"
