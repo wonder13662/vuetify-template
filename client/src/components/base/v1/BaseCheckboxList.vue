@@ -3,40 +3,37 @@
     :class="{ 'd-flex':!vertical, 'flex-wrap':!vertical }"
   >
     <v-checkbox
-      v-for="{ text, value } in items"
+      v-for="({ text, value }, idx) in items"
       :key="value"
       v-model="selected"
+      class="pa-0 ma-0"
+      :class="{ 'pl-2': idx > 0 }"
       :label="text"
       :value="value"
       :rules="rules"
+      :disabled="disabled"
       dense
-      class="pl-2"
       hide-details
       @change="onChange"
     />
-    <BaseRow>
-      <BaseCol>
-        <BaseText
-          v-if="errorMsg"
-          :text="errorMsg"
-          :warning="true"
-        />
-      </BaseCol>
-    </BaseRow>
+    <div
+      v-if="errorMsg"
+    >
+      <BaseText
+        :text="errorMsg"
+        :warning="true"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import BaseText from './BaseText';
-import BaseRow from './BaseRow';
-import BaseCol from './BaseCol';
 
 export default {
   name: 'BaseCheckboxList',
   components: {
     BaseText,
-    BaseRow,
-    BaseCol,
   },
   props: {
     items: {
@@ -55,12 +52,20 @@ export default {
       type: Array,
       default: () => ([]),
     },
+    disabled: {
+      type: Boolean,
+    },
   },
   data() {
     return {
       selected: this.selectedItems,
       errorMsg: '',
     };
+  },
+  watch: {
+    selectedItems(v) {
+      this.selected = v;
+    },
   },
   methods: {
     onChange(v) {
