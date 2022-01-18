@@ -64,6 +64,9 @@ export default {
   },
   watch: {
     selectedItems(v) {
+      if (this.selected.length === 0 && (!v || v.length === 0)) {
+        return;
+      }
       this.selected = v;
     },
   },
