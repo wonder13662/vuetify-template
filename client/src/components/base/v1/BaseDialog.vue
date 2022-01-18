@@ -4,7 +4,6 @@
     :persistent="persistent"
     max-width="600px"
     @input="onChange"
-    @click:outside="onCancel"
   >
     <template
       v-if="!activatorHidden"
@@ -55,6 +54,7 @@
             x-small
             depressed
             color="primary"
+            :disabled="disabledSubmitBtn"
             @click="onSubmit"
           >
             {{ submitBtnName }}
@@ -108,6 +108,9 @@ export default {
     persistent: {
       type: Boolean,
       default: false,
+    },
+    disabledSubmitBtn: {
+      type: Boolean,
     },
   },
   data() {
