@@ -29,16 +29,17 @@ export default {
         return value > 0;
       },
     },
+    // NOTE: 공백을 허용하는 입력창인 경우 이 속성을 true로 전달합니다.
+    allowEmpty: {
+      type: Boolean,
+    },
     disabled: {
       type: Boolean,
     },
   },
   data() {
     return {
-      rules: [
-        (value) => (value && value.length > 0) || '내용을 입력해야 합니다.',
-        (value) => (value && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`,
-      ],
+      rules: this.getRules(),
     };
   },
   computed: {
@@ -52,6 +53,15 @@ export default {
   methods: {
     onChange(value) {
       this.$emit('change', value);
+    },
+    getRules() {
+      if (this.allowEmpty) {
+        return [];
+      }
+      return [
+        (value) => (value && value.length > 0) || '내용을 입력해야 합니다.',
+        (value) => (value && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`,
+      ];
     },
   },
 };
