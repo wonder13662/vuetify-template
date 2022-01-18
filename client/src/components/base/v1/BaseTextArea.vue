@@ -6,7 +6,7 @@
     dense
     no-resize
     outlined
-    hide-details="auto"
+    :hide-details="hideDetails"
     :value="text"
     :rules="rules"
     :disabled="disabled"
@@ -40,6 +40,14 @@ export default {
         (value) => (value && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`,
       ],
     };
+  },
+  computed: {
+    hideDetails() {
+      if (this.disabled) {
+        return true;
+      }
+      return 'auto';
+    },
   },
   methods: {
     onChange(value) {
