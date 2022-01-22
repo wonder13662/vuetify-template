@@ -1,4 +1,3 @@
-// import hexagonHandler from './hexagonHandler';
 import naverMapHelper from './naverMapHelper';
 import hexagonGroupHandler from './hexagonGroupHandler';
 import markerGroupHandler from './markerGroupHandler';
@@ -32,11 +31,15 @@ class NaverMap {
     this.mapId = mapId;
     this.mapOptions = mapOptions;
 
+    this.overlays = [];
+    // @ Deprecated
     this.polylinesOnMap = []; // REMOVE ME
     // this.polylines = []; // TODO hexagonGroups와 동일한 방식으로 제어하도록 수정하자!
-
+    // @ Deprecated
     this.markerGroups = [];
+    // @ Deprecated
     this.distanceLineGroups = [];
+    // @ Deprecated
     this.hexagonGroups = [];
 
     this.mapEventListenerOnBoundChanged = null;
@@ -112,20 +115,23 @@ class NaverMap {
   }
 
   draw() {
+    // @ Deprecated
     markerGroupHandler.drawMarkerGroups({
       map: this.map,
       markerGroups: this.markerGroups,
     });
-
+    // @ Deprecated
     distanceLineGroupHandler.drawDistanceLineGroup({
       map: this.map,
       markerGroups: this.distanceLineGroups,
     });
-
+    // @ Deprecated
     hexagonGroupHandler.drawHexagonGroups({
       map: this.map,
       hexagonGroups: this.hexagonGroups,
     });
+
+    this.overlays.forEach((v) => v.draw(this.map));
   }
 
   createNaverMapInstance() {
@@ -149,6 +155,56 @@ class NaverMap {
     });
   }
 
+  // TODO 여러 Overlay 객체 중에서 몇가지만 특정 시점에 그려야 한다면? Map 객체를 넘겨받고, 그리는 시점(맵이 완료된 시점)은 각자 알아서? 고민해보자.
+
+  /**
+   * 네이버 맵 위에 그리거나 지울수 있는 객체인 overlay의 배열을 추가합니다.
+   *
+   * @param {array} overlays - overlay 타입의 인스턴스
+   *
+   * @return {void} 반환값 없음
+   */
+  addOverlays(overlays) {
+    try {
+      if (!overlays || overlays.length === 0) {
+        throw new Error('overlays: 유효하지 않음');
+      }
+      const found = overlays.find(({ draw, remove }) => !draw || !remove);
+      if (found) {
+        throw new Error('overlays 객체는 반드시 draw, remove 메서드를 구현해야 합니다');
+      }
+      // 1. 새로 추가된 overlays는 기존 배열에 추가된다.
+      this.overlays = [
+        ...this.overlays,
+        ...overlays,
+      ];
+      // 2. 새로 추가된 overlays만 화면에 그려진다.
+      const { map } = this;
+      if (map) {
+        overlays.forEach((v) => v.draw(map));
+      }
+    } catch (error) {
+      this.onError(error);
+    }
+  }
+
+  /**
+   * 네이버 맵 위에 그리거나 지울수 있는 객체인 overlay의 배열을 지도에서 모두 지웁니다.
+   *
+   * @param {array} overlays - overlay 타입의 인스턴스
+   *
+   * @return {void} 반환값 없음
+   */
+  removeOverlays() {
+    try {
+      this.overlays.forEach((v) => v.remove());
+      this.overlays = [];
+    } catch (error) {
+      this.onError(error);
+    }
+  }
+
+  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
   /**
    * 네이버 맵 위에 출발, 도착 지점을 잇는 선들의 집합(DistanceLineGroup)을 그립니다.
    *
@@ -175,6 +231,7 @@ class NaverMap {
     }
   }
 
+  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
   /**
    * 네이버 맵 위에 출발, 도착 지점을 잇는 선들의 집합(DistanceLineGroup)을 지웁니다.
    *
@@ -188,6 +245,7 @@ class NaverMap {
     }
   }
 
+  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
   /**
    * MarkerGroup의 인스턴스의 배열을 추가합니다.
    *
@@ -211,6 +269,7 @@ class NaverMap {
     }
   }
 
+  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
   /**
    * MarkerGroup의 인스턴스의 배열을 맵 위에서 삭제합니다.
    *
@@ -224,6 +283,7 @@ class NaverMap {
     }
   }
 
+  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
   /**
    * HexagonGroup의 인스턴스의 배열을 추가합니다.
    *
@@ -241,15 +301,17 @@ class NaverMap {
         throw new Error('지도에 그릴 hexagonGroup 정보가 유효하지 않습니다.');
       }
 
-      this.hexagonGroups = hexagonGroups;
-      this.hexagonGroups.forEach((v) => { // FIX ME - 이거 핸들러로 처리하도록 바꿔야 함
-        v.draw(map);
+      hexagonGroupHandler.drawHexagonGroups({
+        map,
+        hexagonGroups,
       });
+      this.hexagonGroups = hexagonGroups;
     } catch (error) {
       this.onError(error);
     }
   }
 
+  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
   /**
    * HexagonGroup의 인스턴스의 배열을 맵 위에서 삭제합니다.
    *
@@ -264,9 +326,13 @@ class NaverMap {
   }
 
   fitBounds(bound) {
+    const { map } = this;
+    if (!map) {
+      return;
+    }
     try {
       naverMapHelper.fitBounds({
-        map: this.map,
+        map,
         bound,
       });
     } catch (error) {

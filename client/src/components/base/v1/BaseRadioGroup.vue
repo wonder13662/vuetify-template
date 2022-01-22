@@ -1,9 +1,10 @@
 <template>
   <v-radio-group
-    class="pa-1 ma-0"
+    class="pa-0 ma-0"
     row
     dense
-    :value="selectedValue"
+    hide-details="auto"
+    :value="selectedValueData"
     :rules="rules"
     :validate-on-blur="true"
     @change="onChange"
@@ -39,8 +40,34 @@ export default {
       default: () => ([]),
     },
   },
+  data() {
+    return {
+      selectedValueData: this.selectedValue,
+    };
+  },
+  watch: {
+    selectedValue(v) {
+      if (this.selectedValueData !== v) {
+        this.selectedValueData = v;
+      }
+    },
+  },
   methods: {
     onChange(v) {
+      this.guardUnexpectedNullFromVuetifyRadioGroup(v);
+    },
+    guardUnexpectedNullFromVuetifyRadioGroup(v) {
+      // 주의: 다이얼로그를 닫을 때 Radio Group에서 null을 변경된 데이터로 줍니다.
+      // 이를 방어하는 코드입니다.
+      if (!v) {
+        return;
+      }
+      // radio button에 표시된 값이 아니라면 부모에게 변경 이벤트를 호출하지 않습니다.
+      const found = this.items.find(({ value }) => value === v);
+      if (!found) {
+        return;
+      }
+      this.selectedValueData = v;
       this.$emit('change', v);
     },
   },

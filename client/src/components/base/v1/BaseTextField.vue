@@ -25,7 +25,7 @@ export default {
       default: '',
     },
     value: {
-      type: String,
+      type: [String, Number],
       default: '',
     },
     rules: {
@@ -38,6 +38,9 @@ export default {
     isPassword: {
       type: Boolean,
     },
+    isNumber: {
+      type: Boolean,
+    },
     disabled: {
       type: Boolean,
     },
@@ -47,7 +50,13 @@ export default {
       return this.isSearchType ? 'mdi-magnify' : '';
     },
     type() {
-      return this.isPassword ? 'password' : 'text';
+      if (this.isPassword) {
+        return 'password';
+      }
+      if (this.isNumber) {
+        return 'number';
+      }
+      return 'text';
     },
   },
   watch: {

@@ -1,28 +1,36 @@
 <template>
-  <v-row class="row">
-    <v-col
-      v-for="(name, idx) in names"
-      :key="idx"
-      :cols="cols"
-      class="col"
-    >
-      <BaseText :text="name" />
-    </v-col>
-  </v-row>
+  <BaseContentHorizontalEvenLayout
+    :items="names"
+    :style="{ background: background }"
+  >
+    <template v-slot:item="{ item }">
+      <BaseText
+        :text="`${item}`"
+        :bold="true"
+        :center="true"
+      />
+    </template>
+  </BaseContentHorizontalEvenLayout>
 </template>
 
 <script>
+import BaseContentHorizontalEvenLayout from '@/components/base/v2/BaseContentHorizontalEvenLayout';
 import BaseText from '@/components/base/v1/BaseText';
 
 export default {
   name: 'BaseHeader',
   components: {
+    BaseContentHorizontalEvenLayout,
     BaseText,
   },
   props: {
     names: {
       type: Array,
       required: true,
+    },
+    background: {
+      type: String,
+      default: '#eee',
     },
   },
   computed: {
@@ -34,12 +42,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.row {
-  margin: 0;
-  width: 100%;
-}
-.col {
-  text-align: center;
-  padding: 5px;
-}
+
 </style>

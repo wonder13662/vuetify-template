@@ -3,6 +3,7 @@ import {
   h3ToGeoBoundary, // https://h3geo.org/docs/api/indexing#h3togeoboundary
   polyfill, // https://h3geo.org/docs/api/regions#polyfill
   geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
+  kRing, // https://h3geo.org/docs/api/traversal#kring
 } from 'h3-js';
 import GeoJSON from 'geojson';
 import {
@@ -85,7 +86,7 @@ const convertPointsToBound = (points) => {
     minLng,
   } = src;
 
-  return boundHandler.createBound(
+  return boundHandler.createBounds(
     {
       lat: minLat,
       lng: minLng,
@@ -278,7 +279,7 @@ export default {
    */
 
   convertH3IndexesToNaverPolygonPathOutline(h3Indexes) {
-    const { naver } = window;
+    const { naver } = window; // TODO naver 객체를 인자로 받아야 함. global에서 참조하지 말것!
     if (!naver) {
       throw new Error('naver: 유효하지 않음');
     }
@@ -288,6 +289,57 @@ export default {
     const paths = polygonOutline.map((v) => (naverMapWrapper.getLatLng(v[0], v[1])));
 
     return paths;
+  },
+
+  /**
+   * h3Index가 h3Index의 배열과 이웃해있는지 확인합니다.
+   *
+   * @param {string} h3Index - 비교할 h3Index 값
+   * @param {array} h3Indexes - 비교할 h3Index 값 배열
+   *
+   * @return {boolean} h3Index가 h3Index의 배열과 이웃해있는지 여부
+   */
+  isNeighbor(h3Index, h3Indexes) { // TODO 테스트 코드 작성하기
+    if (!h3Index || !h3Indexes || h3Indexes.length === 0) {
+      return false;
+    }
+
+    const kDistance = 1;
+    const neighbors = kRing(h3Index, kDistance);
+    const neighborSet = neighbors.reduce((acc, v) => {
+      acc.add(v);
+      return acc;
+    }, new Set());
+    const found = h3Indexes.find((v) => neighborSet.has(v));
+    return !!found;
+  },
+
+  /**
+   * h3Index가 h3Index의 배열에 둘러싸여 있는지 확인합니다.
+   *
+   * @param {string} h3Index - 비교할 h3Index 값
+   * @param {array} h3Indexes - 비교할 h3Index 값 배열
+   *
+   * @return {boolean} h3Index가 h3Index의 배열에 둘러싸여 있는지 여부
+   */
+  isSurrounded(h3Index, h3Indexes) { // TODO 테스트 코드 작성하기
+    if (!h3Index || !h3Indexes || h3Indexes.length === 0) {
+      return false;
+    }
+
+    const kDistance = 1;
+    const surroundings = kRing(h3Index, kDistance);
+    const surroundingSet = surroundings.reduce((acc, v) => {
+      acc.add(v);
+      return acc;
+    }, new Set());
+    h3Indexes.forEach((v) => {
+      if (surroundingSet.has(v)) {
+        surroundingSet.delete(v);
+      }
+    });
+
+    return surroundingSet.size === 0;
   },
 
   /**
@@ -311,70 +363,138 @@ export default {
    * Naver map의 폴리곤 경계의 스타일 값을 줍니다.
    * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Data.html#toc25__anchor
    *
-   * Vuetify의 green 사용
+   * Vuetify의 deep-purple 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: green lighten-5 #E8F5E9
-   * stokeColor: green lighten-3 #A5D6A7
+   * fillColor: deep-purple lighten-1 #7E57C2
+   * stokeColor: deep-purple darken-1 #5E35B1
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonBorder: () => ({
-    fillColor: '#E8F5E9',
-    fillOpacity: 0.4,
+  getStyleReadUnselectedBlur: () => ({
+    fillColor: '#7E57C2',
+    fillOpacity: 0.6,
     strokeWeight: 2,
-    strokeColor: '#A5D6A7',
+    strokeColor: '#5E35B1',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
   /**
    * Naver map의 폴리곤 경계의 Focus 시의 스타일 값을 줍니다.
    *
-   * Vuetify의 orange 사용
+   * Vuetify의 purple 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: orange lighten-3 #FFCC80
-   * stokeColor: orange #FF9800
+   * fillColor: purple #9C27B0
+   * stokeColor: purple darken-4 #4A148C
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonBorderFocus: () => ({
-    fillColor: '#FFCC80',
+  getStyleReadUnselectedFocus: () => ({
+    fillColor: '#9C27B0',
     fillOpacity: 0.4,
     strokeWeight: 2,
-    strokeColor: '#FF9800',
+    strokeColor: '#4A148C',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
   /**
-   * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 스타일 값을 줍니다.
-   * Vuetify의 light-blue 사용
+   * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 Blur의 스타일 값을 줍니다.
+   * Vuetify의 Orange 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: light-blue lighten-3 #81D4FA
-   * stokeColor: light-blue #03A9F4
+   * fillColor: orange #FF9800
+   * stokeColor: orange darken-4 #E65100
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonSelected: () => ({
-    fillColor: '#81D4FA',
+  getStyleReadSelectedBlur: () => ({
+    fillColor: '#FF9800',
     fillOpacity: 0.4,
     strokeWeight: 2,
-    strokeColor: '#03A9F4',
+    strokeColor: '#E65100',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 
   /**
-   * Naver map의 폴리곤 경계가 비활성화 되었의 스타일 값을 줍니다.
-   * Vuetify의 grey 사용
+   * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 Focus의 스타일 값을 줍니다.
+   * Vuetify의 yellow 사용
    * https://vuetifyjs.com/en/styles/colors/#material-colors
-   * fillColor: grey lighten-3 #EEEEEE
-   * stokeColor: grey #9E9E9E
+   * fillColor: yellow #FFEB3B
+   * stokeColor: yellow darken-4 #F57F17
    *
    * @return {object} Naver 맵의 폴리곤 경계의 스타일
    */
-  getStylePolygonDisabled: () => ({
-    fillColor: '#81D4FA',
+  getStyleReadSelectedFocus: () => ({
+    fillColor: '#FFEB3B',
     fillOpacity: 0.4,
     strokeWeight: 2,
-    strokeColor: '#03A9F4',
+    strokeColor: '#F57F17',
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  }),
+
+  /**
+   * Naver map의 폴리곤 경계가 비활성화 되었을 때의 Blur의 스타일 값을 줍니다.
+   * Vuetify의 lime 사용
+   * https://vuetifyjs.com/en/styles/colors/#material-colors
+   * fillColor: grey darken-1 #757575
+   * stokeColor: grey darken-2 #616161
+   *
+   * @return {object} Naver 맵의 폴리곤 경계의 스타일
+   */
+  getStyleDisabledBlur: () => ({
+    fillColor: '#757575',
+    fillOpacity: 0.9,
+    strokeWeight: 2,
+    strokeColor: '#616161',
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  }),
+
+  /**
+   * Naver map의 폴리곤 경계가 비활성화 되었을 때의 Focus의 스타일 값을 줍니다.
+   * Vuetify의 lime 사용
+   * https://vuetifyjs.com/en/styles/colors/#material-colors
+   * fillColor: grey darken-1 #757575
+   * stokeColor: grey darken-2 #616161
+   *
+   * @return {object} Naver 맵의 폴리곤 경계의 스타일
+   */
+  getStyleDisabledFocus: () => ({
+    fillColor: '#757575',
+    fillOpacity: 0.9,
+    strokeWeight: 2,
+    strokeColor: '#616161',
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  }),
+
+  /**
+   * Naver map의 폴리곤 경계가 편집중일 때의 Blur의 스타일 값을 줍니다.
+   * Vuetify의 light-green 사용
+   * https://vuetifyjs.com/en/styles/colors/#material-colors
+   * fillColor: light-green accent-4 #64DD17
+   * stokeColor: light-green darken-4 #33691E
+   *
+   * @return {object} Naver 맵의 폴리곤 경계의 스타일
+   */
+  getStyleEditBlur: () => ({
+    fillColor: '#64DD17',
+    fillOpacity: 0.5,
+    strokeWeight: 2,
+    strokeColor: '#33691E',
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  }),
+
+  /**
+   * Naver map의 폴리곤 경계가 편집중일 때의 Focus의 스타일 값을 줍니다.
+   * Vuetify의 light-green 사용
+   * https://vuetifyjs.com/en/styles/colors/#material-colors
+   * fillColor: light-green accent-4 #64DD17
+   * stokeColor: light-green darken-4 #33691E
+   *
+   * @return {object} Naver 맵의 폴리곤 경계의 스타일
+   */
+  getStyleEditFocus: () => ({
+    fillColor: '#64DD17',
+    fillOpacity: 0.5,
+    strokeWeight: 2,
+    strokeColor: '#33691E',
     zIndex: Z_INDEX_POLYGON_BORDER,
   }),
 

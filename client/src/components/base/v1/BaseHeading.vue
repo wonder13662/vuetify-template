@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="{ 'text-h6': size === 0, 'text-h4': size === 1 }"
+    :class="{ 'text-h6': size === 0 && !large, 'text-h4': size === 1 || large }"
   >
     {{ text }}
   </div>
@@ -13,9 +13,13 @@ export default {
       type: String,
       required: true,
     },
+    // @ Deprecated
     size: {
       type: Number,
       default: 0,
+    },
+    large: {
+      type: Boolean,
     },
   },
 };

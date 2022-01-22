@@ -4,18 +4,18 @@
     class="base-content-vertial-layout d-flex align-start flex-column"
   >
     <div
-      class="base-content-vertial-layout-row transparent"
+      class="bcvl-head base-content-vertial-layout-row transparent"
     >
       <slot name="head" />
     </div>
     <div
-      class="base-content-vertial-layout-row base-content-vertial-layout-row-body transparent lighten-1 flex-grow-1"
+      class="bcvl-body base-content-vertial-layout-row base-content-vertial-layout-row-body transparent lighten-1 flex-grow-1"
+      :style="{ height: bodyHeight }"
     >
       <slot name="body" />
     </div>
     <div
-      v-if="hasTail"
-      class="base-content-vertial-layout-row transparent darken-1"
+      class="bcvl-tail base-content-vertial-layout-row transparent darken-1"
     >
       <slot name="tail" />
     </div>
@@ -26,8 +26,9 @@
 export default {
   name: 'BaseContentVerticalLayout',
   props: {
-    hasTail: {
-      type: Boolean,
+    bodyHeight: {
+      type: String,
+      required: true,
     },
   },
 };
@@ -42,6 +43,5 @@ export default {
 }
 .base-content-vertial-layout-row-body {
   overflow: auto;
-  height: 10vh;
 }
 </style>

@@ -1,19 +1,19 @@
 <template>
-  <BaseApp>
+  <BaseAppCenter>
     <BaseContainer>
       <router-view />
     </BaseContainer>
-  </BaseApp>
+  </BaseAppCenter>
 </template>
 
 <script>
-import BaseApp from '@/components/base/v1/BaseApp';
+import BaseAppCenter from '@/components/base/v1/BaseAppCenter';
 import BaseContainer from '@/components/base/v1/BaseContainer';
 
 export default {
   name: 'SystemLayout',
   components: {
-    BaseApp,
+    BaseAppCenter,
     BaseContainer,
   },
 };

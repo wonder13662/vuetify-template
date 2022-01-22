@@ -178,8 +178,8 @@ export default {
     }
     naverMapWrapper.removeListener(eventListeners);
   },
-  createBound(sw, ne) {
-    return boundHandler.createBound(sw, ne);
+  createBounds(sw, ne) {
+    return boundHandler.createBounds(sw, ne);
   },
   fitBounds({
     map,
