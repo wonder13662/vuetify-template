@@ -27,6 +27,7 @@ import BaseNaverMap from '@/components/base/v1/BaseNaverMapV2';
 import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
+- https://h3geo.org/
 */
 export default {
   name: 'Map',
