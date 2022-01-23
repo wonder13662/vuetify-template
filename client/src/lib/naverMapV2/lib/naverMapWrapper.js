@@ -222,6 +222,7 @@ export default {
   drawPolygon({
     map,
     naverPolygonPaths,
+    visible = true,
     style = {},
     onMouseover = () => {},
     onMouseout = () => {},
@@ -239,6 +240,7 @@ export default {
     const polygon = this.getPolygon({
       map,
       paths: naverPolygonPaths,
+      visible,
       clickable: true,
       ...style,
     });

@@ -1,3 +1,7 @@
+import {
+  h3IsValid, // https://h3geo.org/docs/api/inspection#h3isvalid
+} from 'h3-js';
+
 export default {
   isLatitude(v) {
     return Number.isFinite(v) && v >= -90 && v <= 90;
@@ -68,5 +72,15 @@ export default {
     const lng = p1.lng < p2.lng ? p2.lng : p1.lng;
 
     return { lat, lng };
+  },
+  /**
+   * h3Index가 유효한지 확인합니다.
+   *
+   * @param {string} h3Index - h3Index의 id값
+   *
+   * @return {boolean} h3Index가 유효한지 여부의 boolean 값
+   */
+  h3IsValid(h3Index) {
+    return h3IsValid(h3Index);
   },
 };
