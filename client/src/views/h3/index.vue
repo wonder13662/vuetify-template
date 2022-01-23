@@ -11,6 +11,9 @@
             <BaseNaverMap
               :map-id="'map-sample'"
               :overlays="overlays"
+              draggable
+              zoom-control
+              scroll-wheel
               @click="onClick"
             />
           </div>
