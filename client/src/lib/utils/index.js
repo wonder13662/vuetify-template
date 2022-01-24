@@ -11,6 +11,8 @@ export { default as rules } from './rules';
 export { default as ruleMap } from './ruleMap';
 
 const YYYYMMDD = 'YYYY-MM-DD';
+const YYYYMMDDHHmmss = 'YYYY-MM-DD HH:mm:ss';
+const HHmmss = 'HH:mm:ss';
 
 export default {
   isValidArray(v, minLength = 0) {
@@ -111,7 +113,7 @@ export default {
     // ex: "2020-10-09T00:00:00Z"
     return this.convertDateNHourToMoment(yyyymmdd, hour).utc().format();
   },
-  convertYYYYMMDDStrToUTCTime(yyyymmdd) { // REMOVE ME
+  convertYYYYMMDDStrToUTCTime(yyyymmdd) {
     return moment(yyyymmdd, 'YYYY-MM-DD').utc().toISOString();
   },
   convertYYYYMMDDStrToUTCStartOfTime(yyyymmdd) {
@@ -124,9 +126,16 @@ export default {
     // '2021-06-28' to '2021-06-28T23:59:59.000Z'
     return moment(yyyymmdd, 'YYYY-MM-DD').endOf('day').utc().toISOString();
   },
+  convertLocalYYYYMMDDHHmmssStrToUTC(str) {
+    return moment(str, YYYYMMDDHHmmss).utc().toISOString();
+  },
   convertUTCToLocalYYYYMMDD(utc) {
     // '2021-06-28T06:03:01.291Z' to '2021-06-28'
     return moment(utc).format(YYYYMMDD);
+  },
+  convertUTCToLocalHHmmss(utc) {
+    // '2021-06-28T06:03:01.291Z' to '06:03:01'
+    return moment(utc).format(HHmmss);
   },
   // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
   convertUnixTimeToReadable(unixTime) {
