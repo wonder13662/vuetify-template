@@ -26,6 +26,7 @@
               <!-- 2. 타이틀: "H3 컨트롤" -->
               <div class="pa-1">
                 <BaseHeading
+                  large
                   text="H3 컨트롤"
                 />
               </div>
@@ -38,6 +39,13 @@
                   :meta="geoToH3.meta"
                   :show="geoToH3.show"
                   :naver-polygon="geoToH3.overlay"
+                  @change="onChange"
+                />
+                <v-divider />
+                <KRing
+                  :meta="kRing.meta"
+                  :show="kRing.show"
+                  :naver-polygon="kRing.overlay"
                   @change="onChange"
                 />
               </div>
@@ -55,6 +63,7 @@ import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizon
 import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalLayout';
 import BaseHeading from '@/components/base/v1/BaseHeading';
 import GeoToH3 from './controlPanels/GeoToH3';
+import KRing from './controlPanels/KRing';
 import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
@@ -68,13 +77,28 @@ export default {
     BaseContentVerticalLayout,
     BaseHeading,
     GeoToH3,
+    KRing,
   },
   data() {
     return {
-      keys: ['geoToH3'],
+      keys: ['geoToH3', 'kRing'],
       geoToH3: {
         meta: {
           key: 'geoToH3',
+          point: {
+            lat: -1,
+            lng: -1,
+          },
+        },
+        show: false,
+        overlay: hexagonHandler.createHexagon({
+          h3Index: '8930e1d8c0fffff', // 종로구 어딘가...
+          visible: false,
+        }),
+      },
+      kRing: {
+        meta: {
+          key: 'kRing',
           point: {
             lat: -1,
             lng: -1,
@@ -95,17 +119,24 @@ export default {
   },
   methods: {
     onChange({ meta, show }) {
-      const { key } = meta;
-      if (this[key]) {
-        this[key] = {
-          ...this[key],
-          meta: {
-            ...meta,
-            point: !show ? { lat: -1, lng: -1 } : meta.point,
-          },
-          show,
-        };
-      }
+      // const { key } = meta;
+      this.keys.forEach((key) => {
+        if (key === meta.key) {
+          this[key] = {
+            ...this[key],
+            meta: {
+              ...meta,
+              point: !show ? { lat: -1, lng: -1 } : meta.point,
+            },
+            show,
+          };
+        } else {
+          this[key] = {
+            ...this[key],
+            show: false,
+          };
+        }
+      });
       // TODO 다른 모든 패널을 닫는다. show = false;
     },
     onClick({ lat, lng }) {

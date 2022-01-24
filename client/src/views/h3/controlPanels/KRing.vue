@@ -1,7 +1,7 @@
 <template>
   <div>
     <BaseExpandableRow
-      title="GeoToH3"
+      title="KRing"
       :show="show"
       :meta="meta"
       @click="onClick"
@@ -45,6 +45,7 @@
             </div>
           </template>
         </BaseContentHorizontalLayout>
+        <!-- 5. K-Ring -->
       </div>
     </BaseExpandableRow>
   </div>
@@ -53,6 +54,7 @@
 <script>
 import {
   geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
+  h3ToGeoBoundary, // https://h3geo.org/docs/api/indexing#h3togeoboundary
 } from 'h3-js';
 import BaseExpandableRow from '@/components/base/v2/BaseExpandableRow';
 import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
@@ -60,6 +62,9 @@ import BaseText from '@/components/base/v1/BaseText';
 import BaseSelect from '@/components/base/v1/BaseSelect';
 import ControlPanelRow from './ControlPanelRow';
 import utils from '@/lib/naverMapV2/lib/utils';
+
+// TODO K-Ring은 구멍이 뚫린 Polygon 형태. 이런 스타일을 어떻게 표현해주면 될까?
+// 1. 외부의 선들을 나타내
 
 export default {
   name: 'GeoToH3',

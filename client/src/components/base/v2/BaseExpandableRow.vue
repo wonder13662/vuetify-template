@@ -1,8 +1,6 @@
 <template>
-  <BaseContentVerticalLayout
-    body-height="calc(100vh - 100px)"
-  >
-    <template v-slot:head>
+  <div>
+    <div>
       <BaseContentHorizontalLayout
         col-width-right="36px"
       >
@@ -23,22 +21,20 @@
           </v-btn>
         </template>
       </BaseContentHorizontalLayout>
-    </template>
-    <template v-slot:body>
+    </div>
+    <div>
       <slot v-if="expandable && show" />
-    </template>
-  </BaseContentVerticalLayout>
+    </div>
+  </div>
 </template>
 
 <script>
-import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalLayout';
 import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
 import BaseHeading from '@/components/base/v1/BaseHeading';
 
 export default {
   name: 'BaseExpandableRow',
   components: {
-    BaseContentVerticalLayout,
     BaseContentHorizontalLayout,
     BaseHeading,
   },
