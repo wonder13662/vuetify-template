@@ -27,6 +27,8 @@
       v-if="menu"
       v-model="timeData"
       full-width
+      format="24hr"
+      use-seconds
     >
       <v-spacer />
       <v-btn
@@ -57,7 +59,7 @@ export default {
     },
     width: {
       type: String,
-      default: '280px',
+      default: '320px',
     },
     disabled: {
       type: Boolean,
