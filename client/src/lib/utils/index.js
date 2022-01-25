@@ -129,6 +129,10 @@ export default {
   convertLocalYYYYMMDDHHmmssStrToUTC(str) {
     return moment(str, YYYYMMDDHHmmss).utc().toISOString();
   },
+  convertUTCToLocalYYYYMMDDHHmmss(utc) {
+    // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
+    return moment(utc).format(YYYYMMDDHHmmss);
+  },
   convertUTCToLocalYYYYMMDD(utc) {
     // '2021-06-28T06:03:01.291Z' to '2021-06-28'
     return moment(utc).format(YYYYMMDD);
@@ -138,8 +142,9 @@ export default {
     return moment(utc).format(HHmmss);
   },
   // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
+  // @ Deprecated
   convertUnixTimeToReadable(unixTime) {
-    return moment(unixTime).format('YYYY-MM-DD HH:mm:ss');
+    return this.convertUTCToLocalYYYYMMDDHHmmss(unixTime);
   },
   convertTimeToReadable(time) {
     const timeSafe = (typeof time !== 'string') ? Number(time) : time;
