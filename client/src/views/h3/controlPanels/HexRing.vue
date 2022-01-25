@@ -1,13 +1,13 @@
 <template>
   <GeoToH3
-    title="KRing"
+    title="HexRing"
     :show="show"
     :meta="meta"
     @change="onChange"
     @change-h3-index="onChangeH3Index"
     @change-overlays="onChangeOverlays"
   >
-    <!-- 1. K-Ring -->
+    <!-- 1. Hex-Ring -->
     <BaseContentHorizontalLayout
       col-width-left="100px"
     >
@@ -15,7 +15,7 @@
         <div class="pl-1 py-3">
           <BaseText
             bold
-            text="K-Ring"
+            text="Hex-Ring"
           />
         </div>
       </template>
@@ -27,7 +27,7 @@
             :label="`${kDistance}`"
             :min="1"
             :max="5"
-            @change="onChangeKRing"
+            @change="onChangeHexRing"
           />
         </div>
       </template>
@@ -37,7 +37,7 @@
 
 <script>
 import {
-  kRing, // https://h3geo.org/docs/api/traversal#kring
+  hexRing, // https://h3geo.org/docs/api/traversal/#hexring
 } from 'h3-js';
 import GeoToH3 from './GeoToH3';
 import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
@@ -45,8 +45,10 @@ import BaseText from '@/components/base/v1/BaseText';
 import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
 import utils from '@/lib/naverMapV2/lib/utils';
 
+// TODO 빵꾸(hollow) 표현을 해야 함!
+
 export default {
-  name: 'KRing',
+  name: 'HexRing',
   components: {
     BaseContentHorizontalLayout,
     BaseText,
@@ -65,7 +67,7 @@ export default {
     return {
       h3Index: null,
       kDistance: 1,
-      kRingNaverPolygon: null,
+      hexRingNaverPolygon: null,
       overlaysFromGeoToH3: [],
     };
   },
@@ -89,37 +91,39 @@ export default {
         return;
       }
       this.h3Index = h3Index;
-      this.updateKRingPolygon();
+      this.updateHexRingPolygon();
     },
     onChangeOverlays(overlays) {
       this.overlaysFromGeoToH3 = overlays;
     },
-    onChangeKRing(v) {
+    onChangeHexRing(v) {
       if (!utils.h3IsValid(this.h3Index)) {
         return;
       }
       this.kDistance = v;
-      this.updateKRingPolygon();
+      this.updateHexRingPolygon();
     },
-    setKRingPolygon(h3Index, kDistance) {
+    setHexRingPolygon(h3Index, kDistance) {
       // 2. k-ring polygon 만들기
       // 2-1. k-ring에 해당하는 h3Index의 배열을 구한다.
-      const kRingH3Indexes = kRing(h3Index, kDistance);
-      if (!this.kRingNaverPolygon) {
+      const hexRingH3Indexes = hexRing(h3Index, kDistance);
+      // eslint-disable-next-line no-console
+      console.log('hexRingH3Indexes:', hexRingH3Indexes);
+      if (!this.hexRingNaverPolygon) {
         // 2-2. k-ring polygon이 없다면 새로 만든다.
-        this.kRingNaverPolygon = hexagonGroupHandler.createHexagonGroup({
+        this.hexRingNaverPolygon = hexagonGroupHandler.createHexagonGroup({
           hexagonGroupName: 'k-ring',
-          h3Indexes: kRingH3Indexes,
+          h3Indexes: hexRingH3Indexes,
         });
       } else {
         // 2-3. k-ring polygon이 있다면 k-ring의 h3Index 배열만 업데이트해준다.
-        this.kRingNaverPolygon.setH3Indexes(kRingH3Indexes);
+        this.hexRingNaverPolygon.setH3Indexes(hexRingH3Indexes);
       }
     },
-    updateKRingPolygon() {
-      this.setKRingPolygon(this.h3Index, this.kDistance);
+    updateHexRingPolygon() {
+      this.setHexRingPolygon(this.h3Index, this.kDistance);
       this.$emit('change-overlays', [
-        this.kRingNaverPolygon,
+        this.hexRingNaverPolygon,
         ...this.overlaysFromGeoToH3,
       ]);
     },

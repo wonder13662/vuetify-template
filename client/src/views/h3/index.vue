@@ -48,6 +48,13 @@
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
+                <v-divider />
+                <HexRing
+                  :meta="hexRing.meta"
+                  :show="hexRing.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
               </div>
             </template>
           </BaseContentVerticalLayout>
@@ -64,6 +71,7 @@ import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalL
 import BaseHeading from '@/components/base/v1/BaseHeading';
 import GeoToH3 from './controlPanels/GeoToH3';
 import KRing from './controlPanels/KRing';
+import HexRing from './controlPanels/HexRing';
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
 - https://h3geo.org/
@@ -77,10 +85,11 @@ export default {
     BaseHeading,
     GeoToH3,
     KRing,
+    HexRing,
   },
   data() {
     return {
-      keys: ['geoToH3', 'kRing'],
+      keys: ['geoToH3', 'kRing', 'hexRing'],
       geoToH3: {
         meta: {
           key: 'geoToH3',
@@ -94,6 +103,16 @@ export default {
       kRing: {
         meta: {
           key: 'kRing',
+          point: {
+            lat: null,
+            lng: null,
+          },
+        },
+        show: false,
+      },
+      hexRing: {
+        meta: {
+          key: 'hexRing',
           point: {
             lat: null,
             lng: null,
