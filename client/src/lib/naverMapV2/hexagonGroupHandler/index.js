@@ -50,9 +50,6 @@ const drawPolygon = ({
     },
   });
 
-  // eslint-disable-next-line no-console
-  console.log('drawPolygon / 03');
-
   return {
     polygon,
     listeners,
