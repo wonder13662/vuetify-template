@@ -5,7 +5,13 @@
         col-width-right="36px"
       >
         <template v-slot:left>
-          <div class="pa-1">
+          <slot
+            name="head"
+          />
+          <div
+            v-if="title"
+            class="pa-1"
+          >
             <BaseText
               v-if="small"
               bold
@@ -34,7 +40,10 @@
       </BaseContentHorizontalLayout>
     </div>
     <div>
-      <slot v-if="expandable && show" />
+      <slot
+        v-if="expandable && show"
+        name="body"
+      />
     </div>
   </div>
 </template>
@@ -54,7 +63,7 @@ export default {
   props: {
     title: {
       type: String,
-      required: true,
+      default: '',
     },
     show: {
       type: Boolean,
