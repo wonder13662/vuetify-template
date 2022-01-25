@@ -43,6 +43,7 @@ import GeoToH3 from './GeoToH3';
 import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
 import BaseText from '@/components/base/v1/BaseText';
 import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
+import utils from '@/lib/naverMapV2/lib/utils';
 
 export default {
   name: 'KRing',
@@ -68,6 +69,14 @@ export default {
       overlaysFromGeoToH3: [],
     };
   },
+  watch: {
+    show(v) {
+      if (!v) {
+        this.h3Index = null;
+        this.$emit('change-overlays', []);
+      }
+    },
+  },
   methods: {
     onChange({ meta, show }) {
       this.$emit('change', {
@@ -76,6 +85,9 @@ export default {
       });
     },
     onChangeH3Index({ h3Index }) {
+      if (!utils.h3IsValid(h3Index)) {
+        return;
+      }
       this.h3Index = h3Index;
       this.updateKRingPolygon();
     },
@@ -83,6 +95,9 @@ export default {
       this.overlaysFromGeoToH3 = overlays;
     },
     onChangeKRing(v) {
+      if (!utils.h3IsValid(this.h3Index)) {
+        return;
+      }
       this.kDistance = v;
       this.updateKRingPolygon();
     },
