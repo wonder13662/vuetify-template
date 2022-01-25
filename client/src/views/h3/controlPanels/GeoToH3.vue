@@ -1,7 +1,7 @@
 <template>
   <div>
     <BaseExpandableRow
-      title="GeoToH3"
+      :title="title"
       :show="show"
       :meta="meta"
       @click="onClick"
@@ -46,6 +46,7 @@
               </div>
             </template>
           </BaseContentHorizontalLayout>
+          <slot />
         </div>
       </template>
     </BaseExpandableRow>
@@ -74,6 +75,10 @@ export default {
     ControlPanelRow,
   },
   props: {
+    title: {
+      type: String,
+      default: 'GeoToH3',
+    },
     show: {
       type: Boolean,
     },
@@ -151,12 +156,7 @@ export default {
           && utils.isLongitude(v.point.lng)) {
         this.lat = v.point.lat;
         this.lng = v.point.lng;
-        this.h3Index = geoToH3(this.lat, this.lng, this.resolution.value);
-
-        this.setHexagonPolygon(this.h3Index);
-        this.$emit('change-overlays', [
-          this.hexagonNaverPolygon,
-        ]);
+        this.updateHexagonPolygon();
       }
     },
     show(v) {
@@ -165,6 +165,7 @@ export default {
         this.lng = null;
         this.h3Index = '';
         this.$emit('change-overlays', []);
+        this.$emit('change-h3-index', { h3Index: null });
       }
     },
   },
@@ -177,6 +178,10 @@ export default {
     },
     onChangeResolution(v) {
       this.resolution = v;
+      this.updateHexagonPolygon();
+    },
+    setH3Index(lat, lng, resolution) {
+      this.h3Index = geoToH3(lat, lng, resolution);
     },
     setHexagonPolygon(h3Index) {
       // 1. hexagon polygon 만들기
@@ -189,6 +194,16 @@ export default {
         // 1-2. hexagon polygon이 있다면 h3Index만 업데이트해준다.
         this.hexagonNaverPolygon.setH3Index(h3Index);
       }
+    },
+    updateHexagonPolygon() {
+      this.setH3Index(this.lat, this.lng, this.resolution.value);
+      this.setHexagonPolygon(this.h3Index);
+      this.$emit('change-overlays', [
+        this.hexagonNaverPolygon,
+      ]);
+      this.$emit('change-h3-index', {
+        h3Index: this.h3Index,
+      });
     },
   },
 };
