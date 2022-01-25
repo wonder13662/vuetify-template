@@ -46,10 +46,9 @@ class Hexagon {
       throw new Error(`h3Index:${h3Index} 유효하지 않음`);
     }
     this.h3Index = h3Index;
-
-    const naverPolygonPaths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([this.h3Index]);
     if (this.naverMapsPolygon) {
-      this.naverMapsPolygon.setPaths(naverPolygonPaths);
+      const paths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([this.h3Index]);
+      this.naverMapsPolygon.setPaths(paths);
     }
   }
 

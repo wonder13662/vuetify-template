@@ -10,6 +10,8 @@ import {
 } from '../lib/constants';
 import hexagonHandler from './hexagonHandler';
 import naverMapWrapper from '../lib/naverMapWrapper';
+import naverMapUtils from '../lib/utils';
+import utils from '@/lib/utils';
 
 const drawPolygon = ({
   map,
@@ -72,7 +74,8 @@ const setHexagonToHexagonMap = (hexagonMap, hexagon) => {
   hexagonMap.set(hexagon.h3Index, hexagon);
 };
 
-const createHexagonMap = (hexagonMap, h3Indexes) => {
+const createHexagonMap = (h3Indexes) => {
+  const hexagonMap = new Map();
   h3Indexes.forEach((v) => {
     const hexagon = createHexagon(hexagonMap, v);
     setHexagonToHexagonMap(hexagonMap, hexagon);
@@ -102,6 +105,15 @@ const addHexagon = ({ h3Index, hexagonMap }) => {
   setHexagonToHexagonMap(hexagonMap, hexagon);
 };
 
+const notifyEventListeners = ({ eventListenerMap, hexagonGroup, meta }) => {
+  if (eventListenerMap.size === 0) {
+    return;
+  }
+  Array.from(eventListenerMap.values()).forEach((v) => v({
+    hexagonGroup,
+    meta,
+  }));
+};
 
 class HexagonGroup {
   #hexagonGroupName
@@ -114,9 +126,9 @@ class HexagonGroup {
 
   #zoomLevel
 
-  #hexagonGroupPolygon
+  #naverMapsPolygon
 
-  #hexagonGroupPolygonListeners
+  #naverMapsPolygonListeners
 
   #stylePolygonBorderFocus
 
@@ -126,17 +138,17 @@ class HexagonGroup {
 
   #eventListenerMap
 
-  #onFocus
+  // #onFocus // REMOVE ME - EventListenerMap으로 대신함
 
-  #onBlur
+  // #onBlur // REMOVE ME - EventListenerMap으로 대신함
 
-  #onClick
+  // #onClick // REMOVE ME - EventListenerMap으로 대신함
 
-  #onDisabled
+  // #onDisabled // REMOVE ME - EventListenerMap으로 대신함
 
-  #onUnselected
+  // #onUnselected // REMOVE ME - EventListenerMap으로 대신함
 
-  #onChange
+  // #onChange // REMOVE ME - EventListenerMap으로 대신함
 
   #isEditable
 
@@ -144,21 +156,21 @@ class HexagonGroup {
     hexagonGroupName,
     h3Indexes = [],
     meta = {},
-    onFocus = () => {},
-    onBlur = () => {},
-    onClick = () => {},
-    onDisabled = () => {},
-    onUnselected = () => {},
-    onChange = () => {},
+    // onFocus = () => {},
+    // onBlur = () => {},
+    // onClick = () => {},
+    // onDisabled = () => {},
+    // onUnselected = () => {},
+    // onChange = () => {},
     isEditable = false,
   }) {
     this.#hexagonGroupName = hexagonGroupName;
-    this.#hexagonMap = createHexagonMap(new Map(), h3Indexes);
+    this.#hexagonMap = createHexagonMap(h3Indexes);
     this.#meta = meta;
     this.#mode = HEXAGON_MODE.READ_UNSELECTED;
     this.#zoomLevel = DEFAULT_ZOOM;
-    this.#hexagonGroupPolygon = null;
-    this.#hexagonGroupPolygonListeners = null;
+    this.#naverMapsPolygon = null;
+    this.#naverMapsPolygonListeners = null;
     this.#stylePolygonBorderFocus = null;
     this.#stylePolygonBorderBlur = null;
     this.#status = HEXAGON_STATUS.BLUR;
@@ -166,12 +178,13 @@ class HexagonGroup {
     this.#eventListenerMap.set(HEXAGON_EVENT.BLUR, new Map());
     this.#eventListenerMap.set(HEXAGON_EVENT.FOCUS, new Map());
     this.#eventListenerMap.set(HEXAGON_EVENT.CLICK, new Map());
-    this.#onFocus = onFocus;
-    this.#onBlur = onBlur;
-    this.#onClick = onClick;
-    this.#onDisabled = onDisabled;
-    this.#onUnselected = onUnselected;
-    this.#onChange = onChange;
+    this.#eventListenerMap.set(HEXAGON_EVENT.CHANGE, new Map());
+    // this.#onFocus = onFocus; // REMOVE ME
+    // this.#onBlur = onBlur; // REMOVE ME
+    // this.#onClick = onClick; // REMOVE ME
+    // this.#onDisabled = onDisabled; // REMOVE ME
+    // this.#onUnselected = onUnselected; // REMOVE ME
+    // this.#onChange = onChange; // REMOVE ME
     this.#isEditable = isEditable;
   }
 
@@ -193,6 +206,9 @@ class HexagonGroup {
    * @return {void} 없음
    */
   get h3Indexes() {
+    if (!this.#hexagonMap || this.#hexagonMap.size === 0) {
+      return [];
+    }
     return [...this.#hexagonMap.keys()];
   }
 
@@ -213,9 +229,9 @@ class HexagonGroup {
    *
    * @return {void} 없음
    */
-  setOnChange(onChange) {
-    this.#onChange = onChange;
-  }
+  // setOnChange(onChange) { // REMOVE ME
+  //   this.#onChange = onChange;
+  // }
 
   /**
    * HexagonGroup의 bound를 가져옵니다.
@@ -257,10 +273,15 @@ class HexagonGroup {
     }
     // 4. 새로 만든 hexagon 객체를 지도 위에 polygon으로 그린다.
     this.draw(map);
-    // 5. Hexagon 갯수가 변했으므로 콜백으로 알린다.
-    if (this.#onChange) {
-      this.#onChange(this);
-    }
+    // 5. Hexagon 갯수가 변했으므로 콜백으로 알린다. // REMOVE ME
+    // if (this.#onChange) {
+    //   this.#onChange(this);
+    // }
+    const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.CHANGE);
+    notifyEventListeners({
+      eventListenerMap,
+      hexagonGroup: this,
+    });
   }
 
   /**
@@ -393,8 +414,35 @@ class HexagonGroup {
           this.click();
         },
       });
-      this.#hexagonGroupPolygon = polygon;
-      this.#hexagonGroupPolygonListeners = listeners;
+      this.#naverMapsPolygon = polygon;
+      this.#naverMapsPolygonListeners = listeners;
+    }
+  }
+
+  /**
+   * 지도 위의 naver polygon의 h3Index들을 설정합니다.
+   *
+   * @param {array} h3Indexes - h3Index의 배열
+   *
+   * @return {void} 없음
+   */
+  setH3Indexes(h3Indexes) {
+    if (!h3Indexes || h3Indexes.length === 0) {
+      throw new Error(`h3Indexes:${h3Indexes} 유효하지 않음`);
+    }
+    const found = h3Indexes.find((v) => !naverMapUtils.h3IsValid(v));
+    if (found) {
+      throw new Error(`found:${found} 유효하지 않음`);
+    }
+
+    if (this.#hexagonMap) {
+      this.#hexagonMap.clear();
+      this.#hexagonMap = null;
+    }
+    this.#hexagonMap = createHexagonMap(h3Indexes);
+    if (this.#naverMapsPolygon) {
+      const paths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([h3Indexes]);
+      this.#naverMapsPolygon.setPaths(paths);
     }
   }
 
@@ -408,19 +456,19 @@ class HexagonGroup {
   focus(meta = {}) {
     this.#status = HEXAGON_STATUS.FOCUS;
 
-    if (this.#hexagonGroupPolygon) {
-      this.#hexagonGroupPolygon.setStyles(this.getStylePolygonBorderFocus());
+    if (this.#naverMapsPolygon) {
+      this.#naverMapsPolygon.setStyles(this.getStylePolygonBorderFocus());
     }
-    if (this.#onFocus) {
-      this.#onFocus(this);
-    }
+    // REMOVE ME
+    // if (this.#onFocus) {
+    //   this.#onFocus(this);
+    // }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.FOCUS);
-    if (eventListenerMap.size > 0) {
-      Array.from(eventListenerMap.values()).forEach((v) => v({
-        hexagonGroup: this,
-        meta,
-      }));
-    }
+    notifyEventListeners({
+      eventListenerMap,
+      hexagonGroup: this,
+      meta,
+    });
   }
 
   /**
@@ -433,19 +481,19 @@ class HexagonGroup {
   blur(meta = {}) {
     this.#status = HEXAGON_STATUS.BLUR;
 
-    if (this.#hexagonGroupPolygon) {
-      this.#hexagonGroupPolygon.setStyles(this.getStylePolygonBorderBlur());
+    if (this.#naverMapsPolygon) {
+      this.#naverMapsPolygon.setStyles(this.getStylePolygonBorderBlur());
     }
-    if (this.#onBlur) {
-      this.#onBlur(this);
-    }
+    // REMOVE ME
+    // if (this.#onBlur) {
+    //   this.#onBlur(this);
+    // }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.BLUR);
-    if (eventListenerMap.size > 0) {
-      Array.from(eventListenerMap.values()).forEach((v) => v({
-        hexagonGroup: this,
-        meta,
-      }));
-    }
+    notifyEventListeners({
+      eventListenerMap,
+      hexagonGroup: this,
+      meta,
+    });
   }
 
   /**
@@ -456,16 +504,15 @@ class HexagonGroup {
    * @return {void} 없음
    */
   click(meta = {}) {
-    if (this.#onClick) {
-      this.#onClick(this);
-    }
+    // if (this.#onClick) { // REMOVE ME
+    //   this.#onClick(this);
+    // }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.CLICK);
-    if (eventListenerMap.size > 0) {
-      Array.from(eventListenerMap.values()).forEach((v) => v({
-        hexagonGroup: this,
-        meta,
-      }));
-    }
+    notifyEventListeners({
+      eventListenerMap,
+      hexagonGroup: this,
+      meta,
+    });
   }
 
   /**
@@ -476,12 +523,12 @@ class HexagonGroup {
   disabled() {
     this.#status = HEXAGON_STATUS.BLUR;
 
-    if (this.#hexagonGroupPolygon) {
-      this.#hexagonGroupPolygon.setStyles(this.getStylePolygonBorderBlur());
+    if (this.#naverMapsPolygon) {
+      this.#naverMapsPolygon.setStyles(this.getStylePolygonBorderBlur());
     }
-    if (this.#onDisabled) {
-      this.#onDisabled(this);
-    }
+    // if (this.#onDisabled) { // REMOVE ME
+    //   this.#onDisabled(this);
+    // }
   }
 
   /**
@@ -492,12 +539,12 @@ class HexagonGroup {
   unselected() {
     this.#status = HEXAGON_STATUS.BLUR;
 
-    if (this.#hexagonGroupPolygon) {
-      this.#hexagonGroupPolygon.setStyles(this.getStylePolygonBorderBlur());
+    if (this.#naverMapsPolygon) {
+      this.#naverMapsPolygon.setStyles(this.getStylePolygonBorderBlur());
     }
-    if (this.#onUnselected) {
-      this.#onUnselected(this);
-    }
+    // if (this.#onUnselected) { // REMOVE ME
+    //   this.#onUnselected(this);
+    // }
   }
 
   /**
@@ -506,14 +553,25 @@ class HexagonGroup {
    * @return {void} 없음
    */
   remove() {
-    if (this.#hexagonGroupPolygon && this.#hexagonGroupPolygonListeners) {
+    if (this.#naverMapsPolygon && this.#naverMapsPolygonListeners) {
       naverMapWrapper.removePolygon({
-        polygon: this.#hexagonGroupPolygon,
-        listeners: this.#hexagonGroupPolygonListeners,
+        polygon: this.#naverMapsPolygon,
+        listeners: this.#naverMapsPolygonListeners,
       });
     }
-    this.#hexagonGroupPolygon = null;
-    this.#hexagonGroupPolygonListeners = null;
+    this.#naverMapsPolygon = null;
+    this.#naverMapsPolygonListeners = null;
+
+    if (this.#eventListenerMap.size > 0) {
+      utils.convertMapToList(this.#eventListenerMap).forEach((map) => map.clear());
+      this.#eventListenerMap.clear();
+    }
+    this.#eventListenerMap = null;
+
+    if (this.#hexagonMap.size > 0) {
+      this.#hexagonMap.clear();
+    }
+    this.#hexagonMap = null;
   }
 
   /**
@@ -523,12 +581,12 @@ class HexagonGroup {
    */
   destroy() {
     this.remove();
-    this.#onFocus = null;
-    this.#onBlur = null;
-    this.#onClick = null;
-    this.#onDisabled = null;
-    this.#onUnselected = null;
-    this.#onChange = null;
+    // this.#onFocus = null; // REMOVE ME
+    // this.#onBlur = null; // REMOVE ME
+    // this.#onClick = null; // REMOVE ME
+    // this.#onDisabled = null; // REMOVE ME
+    // this.#onUnselected = null; // REMOVE ME
+    // this.#onChange = null; // REMOVE ME
   }
 }
 
@@ -538,24 +596,24 @@ export default {
     hexagonGroupName,
     h3Indexes = [],
     meta = {},
-    onFocus = () => {}, // REMOVE ME 콜백 제거 필요
-    onBlur = () => {}, // REMOVE ME 콜백 제거 필요
-    onClick = () => {}, // REMOVE ME 콜백 제거 필요
-    onDisabled = () => {}, // REMOVE ME 콜백 제거 필요
-    onUnselected = () => {}, // REMOVE ME 콜백 제거 필요
-    onChange = () => {}, // REMOVE ME 콜백 제거 필요
+    // onFocus = () => {}, // REMOVE ME 콜백 제거 필요
+    // onBlur = () => {}, // REMOVE ME 콜백 제거 필요
+    // onClick = () => {}, // REMOVE ME 콜백 제거 필요
+    // onDisabled = () => {}, // REMOVE ME 콜백 제거 필요
+    // onUnselected = () => {}, // REMOVE ME 콜백 제거 필요
+    // onChange = () => {}, // REMOVE ME 콜백 제거 필요
     isEditable = false,
   }) {
     return new HexagonGroup({
       hexagonGroupName,
       h3Indexes,
       meta,
-      onFocus,
-      onBlur,
-      onClick,
-      onDisabled,
-      onUnselected,
-      onChange,
+      // onFocus,
+      // onBlur,
+      // onClick,
+      // onDisabled,
+      // onUnselected,
+      // onChange,
       isEditable,
     });
   },
