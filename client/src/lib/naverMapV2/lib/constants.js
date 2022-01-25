@@ -24,5 +24,6 @@ export const HEXAGON_EVENT = {
   FOCUS: 'FOCUS',
   BLUR: 'BLUR',
   CLICK: 'CLICK',
+  CHANGE: 'CHANGE',
 };
 export const HEXAGON_EVENT_SET = utils.convertObjToSet(HEXAGON_EVENT);
