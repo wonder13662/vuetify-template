@@ -47,6 +47,7 @@
                   :show="kRing.show"
                   :naver-polygon="kRing.overlay"
                   @change="onChange"
+                  @change-overlays="onChangeOverlays"
                 />
               </div>
             </template>
@@ -100,24 +101,19 @@ export default {
         meta: {
           key: 'kRing',
           point: {
-            lat: -1,
-            lng: -1,
+            lat: null,
+            lng: null,
           },
         },
         show: false,
-        overlay: hexagonHandler.createHexagon({
-          h3Index: '8930e1d8c0fffff', // 종로구 어딘가...
-          visible: false,
-        }),
       },
+      overlays: [],
     };
   },
-  computed: {
-    overlays() {
-      return this.keys.map((key) => this[key].overlay);
-    },
-  },
   methods: {
+    onChangeOverlays(overlays) {
+      this.overlays = overlays;
+    },
     onChange({ meta, show }) {
       // const { key } = meta;
       this.keys.forEach((key) => {
@@ -139,6 +135,11 @@ export default {
       });
       // TODO 다른 모든 패널을 닫는다. show = false;
     },
+    // 아래 흐름으로 overlay를 생성 및 전달하면, parent는 overlay 배열을 전달만 할 뿐, 제어할 필요는 없어진다.
+    // TODO 네이버 맵에서 클릭한 좌표는 각 controlPanelRow에 전달
+    // TODO controlPanel은 전달받은 좌표를 자신의 상태에 따라 그냥 버릴수도, 이를 이용해 overlay 객체를 만들수도 있다.
+    // TODO controlPanel은 overlay 객체들를 만들어 parent에게 전달
+    // TODO parent는 전달받은 overlay 객체들을 네이버 지도 컴포넌트에 전달
     onClick({ lat, lng }) {
       const foundOpenPanelKey = this.keys.find((key) => (this[key] && this[key].show));
       if (foundOpenPanelKey) {
