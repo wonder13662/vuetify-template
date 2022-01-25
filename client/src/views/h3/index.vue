@@ -38,14 +38,13 @@
                 <GeoToH3
                   :meta="geoToH3.meta"
                   :show="geoToH3.show"
-                  :naver-polygon="geoToH3.overlay"
                   @change="onChange"
+                  @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
                 <KRing
                   :meta="kRing.meta"
                   :show="kRing.show"
-                  :naver-polygon="kRing.overlay"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
@@ -65,7 +64,6 @@ import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalL
 import BaseHeading from '@/components/base/v1/BaseHeading';
 import GeoToH3 from './controlPanels/GeoToH3';
 import KRing from './controlPanels/KRing';
-import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
 - https://h3geo.org/
@@ -87,15 +85,11 @@ export default {
         meta: {
           key: 'geoToH3',
           point: {
-            lat: -1,
-            lng: -1,
+            lat: null,
+            lng: null,
           },
         },
         show: false,
-        overlay: hexagonHandler.createHexagon({
-          h3Index: '8930e1d8c0fffff', // 종로구 어딘가...
-          visible: false,
-        }),
       },
       kRing: {
         meta: {
@@ -122,7 +116,7 @@ export default {
             ...this[key],
             meta: {
               ...meta,
-              point: !show ? { lat: -1, lng: -1 } : meta.point,
+              point: !show ? { lat: null, lng: null } : meta.point,
             },
             show,
           };

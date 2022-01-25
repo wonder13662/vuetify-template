@@ -6,46 +6,48 @@
       :meta="meta"
       @click="onClick"
     >
-      <div>
-        <!-- 1. 위도(latitude) -->
-        <ControlPanelRow
-          label="위도(latitude)"
-          :value="lat"
-        />
-        <!-- 2. 경도(longitude) -->
-        <ControlPanelRow
-          label="경도(longitude)"
-          :value="lng"
-        />
-        <!-- 3. H3 Index -->
-        <ControlPanelRow
-          label="H3 Index"
-          :value="h3Index"
-        />
-        <!-- 4. H3 Resolution -->
-        <BaseContentHorizontalLayout
-          col-width-left="100px"
-        >
-          <template v-slot:left>
-            <div class="pl-1 py-3">
-              <BaseText
-                bold
-                text="Resolution"
-              />
-            </div>
-          </template>
-          <template v-slot:right>
-            <div class="pa-1">
-              <BaseSelect
-                :select="resolution"
-                :items="resolutions"
-                outlined
-                @select-item="onChange"
-              />
-            </div>
-          </template>
-        </BaseContentHorizontalLayout>
-      </div>
+      <template v-slot:body>
+        <div>
+          <!-- 1. 위도(latitude) -->
+          <ControlPanelRow
+            label="위도(latitude)"
+            :value="latComputed"
+          />
+          <!-- 2. 경도(longitude) -->
+          <ControlPanelRow
+            label="경도(longitude)"
+            :value="lngComputed"
+          />
+          <!-- 3. H3 Index -->
+          <ControlPanelRow
+            label="H3 Index"
+            :value="h3IndexComputed"
+          />
+          <!-- 4. H3 Resolution -->
+          <BaseContentHorizontalLayout
+            col-width-left="100px"
+          >
+            <template v-slot:left>
+              <div class="pl-1 py-3">
+                <BaseText
+                  bold
+                  text="Resolution"
+                />
+              </div>
+            </template>
+            <template v-slot:right>
+              <div class="pa-1">
+                <BaseSelect
+                  :select="resolution"
+                  :items="resolutions"
+                  outlined
+                  @select-item="onChangeResolution"
+                />
+              </div>
+            </template>
+          </BaseContentHorizontalLayout>
+        </div>
+      </template>
     </BaseExpandableRow>
   </div>
 </template>
@@ -60,6 +62,7 @@ import BaseText from '@/components/base/v1/BaseText';
 import BaseSelect from '@/components/base/v1/BaseSelect';
 import ControlPanelRow from './ControlPanelRow';
 import utils from '@/lib/naverMapV2/lib/utils';
+import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
 
 export default {
   name: 'GeoToH3',
@@ -78,15 +81,11 @@ export default {
       type: Object,
       default: () => ({}),
     },
-    naverPolygon: {
-      type: Object,
-      required: true,
-    },
   },
   data() {
     return {
-      lat: -1,
-      lng: -1,
+      lat: null,
+      lng: null,
       h3Index: '',
       resolution: {
         text: '9',
@@ -130,12 +129,21 @@ export default {
           value: 12,
         },
       ],
+      hexagonNaverPolygon: null,
     };
   },
-  watch: {
-    show(v) {
-      this.naverPolygon.setVisible(v);
+  computed: {
+    latComputed() {
+      return !this.lat ? '없음' : this.lat;
     },
+    lngComputed() {
+      return !this.lng ? '없음' : this.lng;
+    },
+    h3IndexComputed() {
+      return !this.h3Index ? '없음' : this.h3Index;
+    },
+  },
+  watch: {
     meta(v) {
       if (v
           && v.point
@@ -144,7 +152,19 @@ export default {
         this.lat = v.point.lat;
         this.lng = v.point.lng;
         this.h3Index = geoToH3(this.lat, this.lng, this.resolution.value);
-        this.naverPolygon.setH3Index(this.h3Index);
+
+        this.setHexagonPolygon(this.h3Index);
+        this.$emit('change-overlays', [
+          this.hexagonNaverPolygon,
+        ]);
+      }
+    },
+    show(v) {
+      if (!v) {
+        this.lat = null;
+        this.lng = null;
+        this.h3Index = '';
+        this.$emit('change-overlays', []);
       }
     },
   },
@@ -155,8 +175,20 @@ export default {
         show,
       });
     },
-    onChange(v) {
+    onChangeResolution(v) {
       this.resolution = v;
+    },
+    setHexagonPolygon(h3Index) {
+      // 1. hexagon polygon 만들기
+      if (!this.hexagonNaverPolygon) {
+        // 1-1. hexagon polygon이 없다면 새로 만든다
+        this.hexagonNaverPolygon = hexagonHandler.createHexagon({
+          h3Index,
+        });
+      } else {
+        // 1-2. hexagon polygon이 있다면 h3Index만 업데이트해준다.
+        this.hexagonNaverPolygon.setH3Index(h3Index);
+      }
     },
   },
 };

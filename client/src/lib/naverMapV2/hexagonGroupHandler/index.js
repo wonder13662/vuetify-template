@@ -1,6 +1,5 @@
 import hexagonCalculator from '../lib/hexagonCalculator';
 import {
-  DEFAULT_ZOOM,
   HEXAGON_MODE,
   HEXAGON_MODE_SET,
   HEXAGON_STATUS,
@@ -50,6 +49,9 @@ const drawPolygon = ({
       };
     },
   });
+
+  // eslint-disable-next-line no-console
+  console.log('drawPolygon / 03');
 
   return {
     polygon,
@@ -116,15 +118,11 @@ const notifyEventListeners = ({ eventListenerMap, hexagonGroup, meta }) => {
 };
 
 class HexagonGroup {
-  #hexagonGroupName
-
   #hexagonMap
 
   #meta
 
   #mode
-
-  #zoomLevel
 
   #naverMapsPolygon
 
@@ -138,37 +136,13 @@ class HexagonGroup {
 
   #eventListenerMap
 
-  // #onFocus // REMOVE ME - EventListenerMap으로 대신함
-
-  // #onBlur // REMOVE ME - EventListenerMap으로 대신함
-
-  // #onClick // REMOVE ME - EventListenerMap으로 대신함
-
-  // #onDisabled // REMOVE ME - EventListenerMap으로 대신함
-
-  // #onUnselected // REMOVE ME - EventListenerMap으로 대신함
-
-  // #onChange // REMOVE ME - EventListenerMap으로 대신함
-
-  #isEditable
-
   constructor({
-    hexagonGroupName,
     h3Indexes = [],
     meta = {},
-    // onFocus = () => {},
-    // onBlur = () => {},
-    // onClick = () => {},
-    // onDisabled = () => {},
-    // onUnselected = () => {},
-    // onChange = () => {},
-    isEditable = false,
   }) {
-    this.#hexagonGroupName = hexagonGroupName;
     this.#hexagonMap = createHexagonMap(h3Indexes);
     this.#meta = meta;
     this.#mode = HEXAGON_MODE.READ_UNSELECTED;
-    this.#zoomLevel = DEFAULT_ZOOM;
     this.#naverMapsPolygon = null;
     this.#naverMapsPolygonListeners = null;
     this.#stylePolygonBorderFocus = null;
@@ -179,13 +153,6 @@ class HexagonGroup {
     this.#eventListenerMap.set(HEXAGON_EVENT.FOCUS, new Map());
     this.#eventListenerMap.set(HEXAGON_EVENT.CLICK, new Map());
     this.#eventListenerMap.set(HEXAGON_EVENT.CHANGE, new Map());
-    // this.#onFocus = onFocus; // REMOVE ME
-    // this.#onBlur = onBlur; // REMOVE ME
-    // this.#onClick = onClick; // REMOVE ME
-    // this.#onDisabled = onDisabled; // REMOVE ME
-    // this.#onUnselected = onUnselected; // REMOVE ME
-    // this.#onChange = onChange; // REMOVE ME
-    this.#isEditable = isEditable;
   }
 
   /**
@@ -211,27 +178,6 @@ class HexagonGroup {
     }
     return [...this.#hexagonMap.keys()];
   }
-
-  /**
-   * Naver 맵의 줌 레벨을 설정합니다.
-   *
-   * @param {number} 변경된 줌 레벨
-   *
-   * @return {void} 없음
-   */
-  // eslint-disable-next-line no-unused-vars
-  setZoomLevel({ map, zoomLevel }) { // REMOVE ME - 이제 줌 레벨이 크게 의미가 없다. 삭제.
-    this.#zoomLevel = zoomLevel;
-  }
-
-  /**
-   * HexagonGroup의 change 이벤트 핸들러를 설정합니다.
-   *
-   * @return {void} 없음
-   */
-  // setOnChange(onChange) { // REMOVE ME
-  //   this.#onChange = onChange;
-  // }
 
   /**
    * HexagonGroup의 bound를 가져옵니다.
@@ -273,10 +219,7 @@ class HexagonGroup {
     }
     // 4. 새로 만든 hexagon 객체를 지도 위에 polygon으로 그린다.
     this.draw(map);
-    // 5. Hexagon 갯수가 변했으므로 콜백으로 알린다. // REMOVE ME
-    // if (this.#onChange) {
-    //   this.#onChange(this);
-    // }
+    // 5. Hexagon 갯수가 변했으므로 eventListener들에게 알린다.
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.CHANGE);
     notifyEventListeners({
       eventListenerMap,
@@ -459,10 +402,6 @@ class HexagonGroup {
     if (this.#naverMapsPolygon) {
       this.#naverMapsPolygon.setStyles(this.getStylePolygonBorderFocus());
     }
-    // REMOVE ME
-    // if (this.#onFocus) {
-    //   this.#onFocus(this);
-    // }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.FOCUS);
     notifyEventListeners({
       eventListenerMap,
@@ -504,9 +443,6 @@ class HexagonGroup {
    * @return {void} 없음
    */
   click(meta = {}) {
-    // if (this.#onClick) { // REMOVE ME
-    //   this.#onClick(this);
-    // }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.CLICK);
     notifyEventListeners({
       eventListenerMap,
@@ -526,9 +462,6 @@ class HexagonGroup {
     if (this.#naverMapsPolygon) {
       this.#naverMapsPolygon.setStyles(this.getStylePolygonBorderBlur());
     }
-    // if (this.#onDisabled) { // REMOVE ME
-    //   this.#onDisabled(this);
-    // }
   }
 
   /**
@@ -542,9 +475,6 @@ class HexagonGroup {
     if (this.#naverMapsPolygon) {
       this.#naverMapsPolygon.setStyles(this.getStylePolygonBorderBlur());
     }
-    // if (this.#onUnselected) { // REMOVE ME
-    //   this.#onUnselected(this);
-    // }
   }
 
   /**
@@ -561,17 +491,6 @@ class HexagonGroup {
     }
     this.#naverMapsPolygon = null;
     this.#naverMapsPolygonListeners = null;
-
-    if (this.#eventListenerMap.size > 0) {
-      utils.convertMapToList(this.#eventListenerMap).forEach((map) => map.clear());
-      this.#eventListenerMap.clear();
-    }
-    this.#eventListenerMap = null;
-
-    if (this.#hexagonMap.size > 0) {
-      this.#hexagonMap.clear();
-    }
-    this.#hexagonMap = null;
   }
 
   /**
@@ -581,40 +500,29 @@ class HexagonGroup {
    */
   destroy() {
     this.remove();
-    // this.#onFocus = null; // REMOVE ME
-    // this.#onBlur = null; // REMOVE ME
-    // this.#onClick = null; // REMOVE ME
-    // this.#onDisabled = null; // REMOVE ME
-    // this.#onUnselected = null; // REMOVE ME
-    // this.#onChange = null; // REMOVE ME
+    // eventListener 제거
+    if (this.#eventListenerMap && this.#eventListenerMap.size > 0) {
+      utils.convertMapToList(this.#eventListenerMap).forEach((map) => map.clear());
+      this.#eventListenerMap.clear();
+    }
+    this.#eventListenerMap = null;
+    // hexagon 맵 제거
+    if (this.#hexagonMap && this.#hexagonMap.size > 0) {
+      this.#hexagonMap.clear();
+    }
+    this.#hexagonMap = null;
   }
 }
 
 export default {
   // 1. create
   createHexagonGroup({
-    hexagonGroupName,
     h3Indexes = [],
     meta = {},
-    // onFocus = () => {}, // REMOVE ME 콜백 제거 필요
-    // onBlur = () => {}, // REMOVE ME 콜백 제거 필요
-    // onClick = () => {}, // REMOVE ME 콜백 제거 필요
-    // onDisabled = () => {}, // REMOVE ME 콜백 제거 필요
-    // onUnselected = () => {}, // REMOVE ME 콜백 제거 필요
-    // onChange = () => {}, // REMOVE ME 콜백 제거 필요
-    isEditable = false,
   }) {
     return new HexagonGroup({
-      hexagonGroupName,
       h3Indexes,
       meta,
-      // onFocus,
-      // onBlur,
-      // onClick,
-      // onDisabled,
-      // onUnselected,
-      // onChange,
-      isEditable,
     });
   },
   // 2. read
@@ -632,10 +540,7 @@ export default {
   addHexagonGroup({
     hexagonGroups,
   }) {
-    const hg = this.createHexagonGroup({
-      hexagonGroupName: '',
-      isEditable: true,
-    });
+    const hg = this.createHexagonGroup({});
     hexagonGroups.push(hg);
   },
   // 3-2. draw
