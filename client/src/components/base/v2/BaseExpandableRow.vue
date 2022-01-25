@@ -6,7 +6,13 @@
       >
         <template v-slot:left>
           <div class="pa-1">
+            <BaseText
+              v-if="small"
+              bold
+              :text="title"
+            />
             <BaseHeading
+              v-else
               :text="title"
             />
           </div>
@@ -15,9 +21,14 @@
           <v-btn
             icon
             :disabled="!expandable"
+            :small="small"
             @click="onClick"
           >
-            <v-icon>{{ expandable && show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+            <v-icon
+              :small="small"
+            >
+              {{ expandable && show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+            </v-icon>
           </v-btn>
         </template>
       </BaseContentHorizontalLayout>
@@ -31,12 +42,14 @@
 <script>
 import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
 import BaseHeading from '@/components/base/v1/BaseHeading';
+import BaseText from '@/components/base/v1/BaseText';
 
 export default {
   name: 'BaseExpandableRow',
   components: {
     BaseContentHorizontalLayout,
     BaseHeading,
+    BaseText,
   },
   props: {
     title: {
@@ -53,6 +66,9 @@ export default {
     meta: {
       type: Object,
       default: () => ({}),
+    },
+    small: {
+      type: Boolean,
     },
   },
   methods: {
