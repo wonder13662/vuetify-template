@@ -46,6 +46,12 @@ import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
 import utils from '@/lib/naverMapV2/lib/utils';
 
 // TODO 빵꾸(hollow) 표현을 해야 함!
+// TODO 경계 h3Index를 받는다면, 외부와 내부의 h3Index를 어떻게 구분할 것인지?
+// TODO point가 선택된 h3Index들 안에 있는지 판단할 수 있는 가장 빠른 방법은?
+// 1. point로 기준 resolution의 h3Index를 구한 다음에 h3Index 배열에 있는지 1:1 비교(느림)
+// 2. h3Index들을 부모 h3Index와의 연결관계를 만들어서 가장 큰 부모 h3Index부터 차례대로 비교(빠름).
+// 2-1. 최소 resolution부터 최대 resolution의 단계 횟수만큼 비교하면 됨. 다만 이 연결관계를 만드는 데 시간이 걸림.
+// 3. 경계에 있는 h3Index들의 모음들로 해당 point가 외부인지 내부인지 판단하는 더 나은 방법이 있지 않을까?
 
 export default {
   name: 'HexRing',
