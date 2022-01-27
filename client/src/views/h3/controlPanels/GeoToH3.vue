@@ -134,7 +134,7 @@ export default {
           value: 12,
         },
       ],
-      hexagonNaverPolygon: null,
+      naverPolygon: null,
     };
   },
   computed: {
@@ -169,6 +169,12 @@ export default {
         this.lat = null;
         this.lng = null;
         this.h3Index = '';
+
+        if (this.naverPolygon) {
+          this.naverPolygon.destroy();
+          this.naverPolygon = null;
+        }
+
         this.$emit('change-overlays', []);
         this.$emit('change-h3-index', { h3Index: null });
       }
@@ -195,14 +201,14 @@ export default {
     },
     setHexagonPolygon(h3Index) {
       // 1. hexagon polygon 만들기
-      if (!this.hexagonNaverPolygon) {
+      if (!this.naverPolygon) {
         // 1-1. hexagon polygon이 없다면 새로 만든다
-        this.hexagonNaverPolygon = hexagonHandler.createHexagon({
+        this.naverPolygon = hexagonHandler.createHexagon({
           h3Index,
         });
       } else {
         // 1-2. hexagon polygon이 있다면 h3Index만 업데이트해준다.
-        this.hexagonNaverPolygon.setH3Index(h3Index);
+        this.naverPolygon.setH3Index(h3Index);
       }
     },
     updateH3Index() {
@@ -213,7 +219,7 @@ export default {
     },
     emitOverlays() {
       this.$emit('change-overlays', [
-        this.hexagonNaverPolygon,
+        this.naverPolygon,
       ]);
     },
     emitH3Index() {

@@ -2,7 +2,7 @@
   <v-app id="inspire">
     <v-main>
       <BaseContentHorizontalLayout
-        col-width-right="600px"
+        col-width-right="300px"
         divider
       >
         <template v-slot:left>

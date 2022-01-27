@@ -75,6 +75,14 @@ export default {
     show(v) {
       if (!v) {
         this.h3Index = null;
+        if (this.kRingOriginNaverPolygon) {
+          this.kRingOriginNaverPolygon.destroy();
+          this.kRingOriginNaverPolygon = null;
+        }
+        if (this.kRingNeighboringIndicesNaverPolygon) {
+          this.kRingNeighboringIndicesNaverPolygon.destroy();
+          this.kRingNeighboringIndicesNaverPolygon = null;
+        }
         this.$emit('change-overlays', []);
       }
     },

@@ -157,6 +157,19 @@ class Hexagon {
     });
     this.status = STATUS_NONE;
   }
+
+  /**
+   * Hexagon 객체를 없앱니다.
+   *
+   * @return {void} 없음
+   */
+  destroy() {
+    this.remove();
+    // eventListener 제거
+    this.listeners = [];
+    // hexagon 제거
+    this.naverMapsPolygon = null;
+  }
 }
 
 export default {
