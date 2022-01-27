@@ -65,7 +65,6 @@ export default {
     return {
       h3Index: null,
       kDistance: 1,
-      // kRingNaverPolygon: null,
       kRingOriginNaverPolygon: null,
       kRingNeighboringIndicesNaverPolygon: null,
       polygons: [],
