@@ -232,6 +232,7 @@ export default {
           console.error(error);
         },
       });
+      this.naverMap.init();
     },
     setCallbackOnBoundChanged(callback) {
       this.naverMap.setCallbackOnBoundChanged(callback);
