@@ -89,7 +89,8 @@ export default {
         return;
       }
       this.h3Index = h3Index;
-      this.updateKRingPolygon();
+      this.updatePolygon(this.h3Index, this.kDistance);
+      this.emitOverlays();
     },
     onChangeOverlays(overlays) {
       this.overlaysFromGeoToH3 = overlays;
@@ -99,9 +100,10 @@ export default {
         return;
       }
       this.kDistance = v;
-      this.updateKRingPolygon();
+      this.updatePolygon(this.h3Index, this.kDistance);
+      this.emitOverlays();
     },
-    setKRingPolygon(h3Index, kDistance) {
+    updatePolygon(h3Index, kDistance) {
       // 2. k-ring polygon 만들기
       // 2-1. k-ring에 해당하는 h3Index의 배열을 구한다.
       const kRingH3Indexes = kRing(h3Index, kDistance);
@@ -116,8 +118,7 @@ export default {
         this.kRingNaverPolygon.setH3Indexes(kRingH3Indexes);
       }
     },
-    updateKRingPolygon() {
-      this.setKRingPolygon(this.h3Index, this.kDistance);
+    emitOverlays() {
       this.$emit('change-overlays', [
         this.kRingNaverPolygon,
       ]);

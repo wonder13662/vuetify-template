@@ -156,7 +156,12 @@ export default {
           && utils.isLongitude(v.point.lng)) {
         this.lat = v.point.lat;
         this.lng = v.point.lng;
-        this.updateHexagonPolygon();
+
+        this.updateH3Index();
+        this.updatePolygon();
+
+        this.emitOverlays();
+        this.emitH3Index();
       }
     },
     show(v) {
@@ -178,7 +183,12 @@ export default {
     },
     onChangeResolution(v) {
       this.resolution = v;
-      this.updateHexagonPolygon();
+
+      this.updateH3Index();
+      this.updatePolygon();
+
+      this.emitOverlays();
+      this.emitH3Index();
     },
     setH3Index(lat, lng, resolution) {
       this.h3Index = geoToH3(lat, lng, resolution);
@@ -195,12 +205,18 @@ export default {
         this.hexagonNaverPolygon.setH3Index(h3Index);
       }
     },
-    updateHexagonPolygon() {
+    updateH3Index() {
       this.setH3Index(this.lat, this.lng, this.resolution.value);
+    },
+    updatePolygon() {
       this.setHexagonPolygon(this.h3Index);
+    },
+    emitOverlays() {
       this.$emit('change-overlays', [
         this.hexagonNaverPolygon,
       ]);
+    },
+    emitH3Index() {
       this.$emit('change-h3-index', {
         h3Index: this.h3Index,
       });
