@@ -51,15 +51,16 @@ class PickupDropPoints {
 
   constructor(pickupPoint, dropPoint, driverPoint) {
     this.#pickupPoint = { ...pickupPoint };
-    this.#dropPoint = { ...dropPoint };
-    if (driverPoint) {
-      this.#driverPoint = { ...driverPoint };
-    }
     this.#pickupPointMarker = createPickupPointMarker(this.#pickupPoint);
+    this.#dropPoint = { ...dropPoint };
     this.#dropPointMarker = createDropPointMarker(this.#dropPoint);
     this.#distanceLine = createDistanceLine(this.#pickupPoint, this.#dropPoint);
+    this.#driverPoint = driverPoint ? { ...driverPoint } : null;
     if (this.#driverPoint) {
       this.#driverPointMarker = createDriverPointMarker(this.#driverPoint);
+    } else {
+      // NOTE: driverPoint 정보가 없는 경우에는 driverPoint를 pickupPoint 위치로 임시로 둠
+      this.#driverPointMarker = createDriverPointMarker(this.#pickupPoint);
     }
   }
 
@@ -71,8 +72,9 @@ class PickupDropPoints {
     this.#pickupPointMarker.draw(map);
     this.#dropPointMarker.draw(map);
     this.#distanceLine.draw(map);
-    if (this.#driverPointMarker) {
-      this.#driverPointMarker.draw(map);
+    this.#driverPointMarker.draw(map);
+    if (!this.#driverPoint) {
+      this.#driverPointMarker.setVisible(false);
     }
   }
 
@@ -80,9 +82,91 @@ class PickupDropPoints {
     this.#pickupPointMarker.remove();
     this.#dropPointMarker.remove();
     this.#distanceLine.remove();
-    if (this.#driverPointMarker) {
-      this.#driverPointMarker.remove();
+    this.#driverPointMarker.remove();
+  }
+
+  /**
+   * 픽업지 마커의 위치를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {number} lat - 위도
+   * @param {number} lng - 경도
+   *
+   * @return {void} 반환값 없음
+   */
+  setPickupPointLatLng({ lat, lng }) {
+    if (!utils.isLatitude(lat)) {
+      throw new Error(`lat:${lat} / 유효하지 않습니다.`);
     }
+    if (!utils.isLongitude(lng)) {
+      throw new Error(`lng:${lng} / 유효하지 않습니다.`);
+    }
+    if (!this.#pickupPointMarker) {
+      throw new Error(`this.#pickupPointMarker:${this.#pickupPointMarker} / 유효하지 않습니다.`);
+    }
+    this.#pickupPoint = {
+      ...this.#pickupPoint,
+      lat,
+      lng,
+    };
+    this.#pickupPointMarker.setPosition(lat, lng);
+    this.#distanceLine.setPath(this.#pickupPoint, this.#dropPoint);
+  }
+
+  /**
+   * 드랍지 마커의 위치를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {number} lat - 위도
+   * @param {number} lng - 경도
+   *
+   * @return {void} 반환값 없음
+   */
+  setDropPointLatLng({ lat, lng }) {
+    if (!utils.isLatitude(lat)) {
+      throw new Error(`lat:${lat} / 유효하지 않습니다.`);
+    }
+    if (!utils.isLongitude(lng)) {
+      throw new Error(`lng:${lng} / 유효하지 않습니다.`);
+    }
+    if (!this.#dropPointMarker) {
+      throw new Error(`this.#dropPointMarker:${this.#dropPointMarker} / 유효하지 않습니다.`);
+    }
+    this.#dropPoint = {
+      ...this.#dropPoint,
+      lat,
+      lng,
+    };
+    this.#dropPointMarker.setPosition(lat, lng);
+    this.#distanceLine.setPath(this.#pickupPoint, this.#dropPoint);
+  }
+
+  /**
+   * 드랍지 마커의 위치를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {number} lat - 위도
+   * @param {number} lng - 경도
+   *
+   * @return {void} 반환값 없음
+   */
+  setDriverPointLatLng({ lat, lng }) {
+    if (!utils.isLatitude(lat)) {
+      throw new Error(`lat:${lat} / 유효하지 않습니다.`);
+    }
+    if (!utils.isLongitude(lng)) {
+      throw new Error(`lng:${lng} / 유효하지 않습니다.`);
+    }
+    if (!this.#driverPointMarker) {
+      throw new Error(`this.#driverPointMarker:${this.#driverPointMarker} / 유효하지 않습니다.`);
+    }
+    this.#driverPoint = {
+      ...this.#driverPoint,
+      lat,
+      lng,
+    };
+    this.#driverPointMarker.setPosition(lat, lng);
+    this.#driverPointMarker.setVisible(true);
   }
 }
 
