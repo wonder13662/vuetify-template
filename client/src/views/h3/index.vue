@@ -49,6 +49,13 @@
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
+                <KRingDistances
+                  :meta="kRingDistances.meta"
+                  :show="kRingDistances.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
+                <v-divider />
                 <HexRing
                   :meta="hexRing.meta"
                   :show="hexRing.show"
@@ -73,6 +80,7 @@ import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalL
 import BaseHeading from '@/components/base/v1/BaseHeading';
 import GeoToH3 from './controlPanels/GeoToH3';
 import KRing from './controlPanels/KRing';
+import KRingDistances from './controlPanels/KRingDistances';
 import HexRing from './controlPanels/HexRing';
 import H3Line from './controlPanels/H3Line';
 /*
@@ -88,12 +96,13 @@ export default {
     BaseHeading,
     GeoToH3,
     KRing,
+    KRingDistances,
     HexRing,
     H3Line,
   },
   data() {
     return {
-      keys: ['geoToH3', 'kRing', 'hexRing'],
+      keys: ['geoToH3', 'kRing', 'kRingDistances', 'hexRing'],
       geoToH3: {
         meta: {
           key: 'geoToH3',
@@ -107,6 +116,16 @@ export default {
       kRing: {
         meta: {
           key: 'kRing',
+          point: {
+            lat: null,
+            lng: null,
+          },
+        },
+        show: false,
+      },
+      kRingDistances: {
+        meta: {
+          key: 'kRingDistances',
           point: {
             lat: null,
             lng: null,

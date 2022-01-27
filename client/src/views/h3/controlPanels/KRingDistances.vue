@@ -1,6 +1,6 @@
 <template>
   <GeoToH3
-    title="KRing"
+    title="KRingDistances"
     :show="show"
     :meta="meta"
     @change="onChange"
@@ -37,7 +37,7 @@
 
 <script>
 import {
-  kRing, // https://h3geo.org/docs/api/traversal#kring
+  kRingDistances, // https://h3geo.org/docs/api/traversal/#kringdistances
 } from 'h3-js';
 import GeoToH3 from './GeoToH3';
 import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
@@ -65,7 +65,10 @@ export default {
     return {
       h3Index: null,
       kDistance: 1,
-      kRingNaverPolygon: null,
+      // kRingNaverPolygon: null,
+      kRingOriginNaverPolygon: null,
+      kRingNeighboringIndicesNaverPolygon: null,
+      polygons: [],
       overlaysFromGeoToH3: [],
     };
   },
@@ -101,25 +104,29 @@ export default {
       this.kDistance = v;
       this.updateKRingPolygon();
     },
-    setKRingPolygon(h3Index, kDistance) {
-      // 2. k-ring polygon 만들기
-      // 2-1. k-ring에 해당하는 h3Index의 배열을 구한다.
-      const kRingH3Indexes = kRing(h3Index, kDistance);
-      if (!this.kRingNaverPolygon) {
-        // 2-2. k-ring polygon이 없다면 새로 만든다.
-        this.kRingNaverPolygon = hexagonGroupHandler.createHexagonGroup({
-          hexagonGroupName: 'k-ring',
-          h3Indexes: kRingH3Indexes,
-        });
-      } else {
-        // 2-3. k-ring polygon이 있다면 k-ring의 h3Index 배열만 업데이트해준다.
-        this.kRingNaverPolygon.setH3Indexes(kRingH3Indexes);
-      }
+    setKRingDistancePolygon(h3Index, kDistance) {
+      // 2. k-ring distance polygon 만들기
+      // 2-1. k-ring distance 에 해당하는 h3Index의 배열을 구한다.
+      const kRingH3Indexes = kRingDistances(h3Index, kDistance);
+
+      // 2-2. 이전에 그린 모든 polygon을 지운다.
+      this.polygons.forEach((v) => {
+        v.destroy();
+      });
+      this.polygons = [];
+
+      // 2-3. polygon을 새로 그린다.
+      kRingH3Indexes.forEach((v, idx) => {
+        this.polygons.push(hexagonGroupHandler.createHexagonGroup({
+          hexagonGroupName: `polygon-${idx}`,
+          h3Indexes: v,
+        }));
+      });
     },
     updateKRingPolygon() {
-      this.setKRingPolygon(this.h3Index, this.kDistance);
+      this.setKRingDistancePolygon(this.h3Index, this.kDistance);
       this.$emit('change-overlays', [
-        this.kRingNaverPolygon,
+        ...this.polygons,
       ]);
     },
   },
