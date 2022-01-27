@@ -55,6 +55,8 @@
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
+                <v-divider />
+                <H3Line />
               </div>
             </template>
           </BaseContentVerticalLayout>
@@ -72,6 +74,7 @@ import BaseHeading from '@/components/base/v1/BaseHeading';
 import GeoToH3 from './controlPanels/GeoToH3';
 import KRing from './controlPanels/KRing';
 import HexRing from './controlPanels/HexRing';
+import H3Line from './controlPanels/H3Line';
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
 - https://h3geo.org/
@@ -86,6 +89,7 @@ export default {
     GeoToH3,
     KRing,
     HexRing,
+    H3Line,
   },
   data() {
     return {
