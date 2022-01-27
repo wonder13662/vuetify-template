@@ -120,7 +120,6 @@ export default {
       this.setKRingPolygon(this.h3Index, this.kDistance);
       this.$emit('change-overlays', [
         this.kRingNaverPolygon,
-        ...this.overlaysFromGeoToH3,
       ]);
     },
   },

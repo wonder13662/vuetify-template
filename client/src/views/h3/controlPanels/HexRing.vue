@@ -113,8 +113,6 @@ export default {
       // 2. k-ring polygon 만들기
       // 2-1. k-ring에 해당하는 h3Index의 배열을 구한다.
       const hexRingH3Indexes = hexRing(h3Index, kDistance);
-      // eslint-disable-next-line no-console
-      console.log('hexRingH3Indexes:', hexRingH3Indexes);
       if (!this.hexRingNaverPolygon) {
         // 2-2. k-ring polygon이 없다면 새로 만든다.
         this.hexRingNaverPolygon = hexagonGroupHandler.createHexagonGroup({
@@ -130,7 +128,6 @@ export default {
       this.setHexRingPolygon(this.h3Index, this.kDistance);
       this.$emit('change-overlays', [
         this.hexRingNaverPolygon,
-        ...this.overlaysFromGeoToH3,
       ]);
     },
   },

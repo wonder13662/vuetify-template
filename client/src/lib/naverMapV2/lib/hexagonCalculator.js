@@ -284,9 +284,14 @@ export default {
       throw new Error('naver: 유효하지 않음');
     }
 
-    const multiPolygon = h3SetToMultiPolygon(h3Indexes);
-    const polygonOutline = multiPolygon[0][0];
-    const paths = polygonOutline.map((v) => (naverMapWrapper.getLatLng(v[0], v[1])));
+    const multiPolygons = h3SetToMultiPolygon(h3Indexes);
+    const paths = multiPolygons.reduce((acc, multiPolygon) => {
+      const result = multiPolygon.map((points) => {
+        const path = points.map((p) => (naverMapWrapper.getLatLng(p[0], p[1])));
+        return path;
+      });
+      return [...acc, ...result];
+    }, []);
 
     return paths;
   },
