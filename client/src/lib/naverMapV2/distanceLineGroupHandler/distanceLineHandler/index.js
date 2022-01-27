@@ -6,11 +6,39 @@ import {
 import utils from '../../lib/utils';
 import naverMapWrapper from '../../lib/naverMapWrapper';
 
+const createPath = (start, end) => ([
+  naverMapWrapper.getLatLng(start.lat, start.lng),
+  naverMapWrapper.getLatLng(end.lat, end.lng),
+]);
+
+const calculateDistanceMarkerPoint = (start, end) => {
+  const latDiff = divide(subtract(end.lat, start.lat), 2);
+  const lngDiff = divide(subtract(end.lng, start.lng), 2);
+
+  return {
+    lat: add(start.lat, latDiff),
+    lng: add(start.lng, lngDiff),
+  };
+};
+
 class DistanceLine {
   constructor({
     start,
     end,
   }) {
+    if (!utils.isLatitude(start.lat)) {
+      throw new Error(`start.lat:${start.lat} - 유효하지 않음`);
+    }
+    if (!utils.isLongitude(start.lng)) {
+      throw new Error(`start.lng:${start.lng} - 유효하지 않음`);
+    }
+    if (!utils.isLatitude(end.lat)) {
+      throw new Error(`end.lat:${end.lat} - 유효하지 않음`);
+    }
+    if (!utils.isLongitude(start.lng)) {
+      throw new Error(`end.lng:${end.lng} - 유효하지 않음`);
+    }
+
     this.start = start;
     this.end = end;
 
@@ -33,23 +61,20 @@ class DistanceLine {
       throw new Error('map: 유효하지 않음');
     }
 
+    // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
+    this.remove();
+
     this.polyline = naverMapWrapper.getPolyline({
       strokeColor: '#f00',
       strokeWeight: 4,
       strokeOpacity: 0.8,
       endIcon: naverMapWrapper.pointingIconOpenArrow(),
-      path: [
-        naverMapWrapper.getLatLng(this.start.lat, this.start.lng),
-        naverMapWrapper.getLatLng(this.end.lat, this.end.lng),
-      ],
+      path: createPath(this.start, this.end),
       map,
     });
 
     // 거리를 나타내는 위치는 출발과 도착의 중간 위치이어야 합니다.
-    const latDiff = divide(subtract(this.end.lat, this.start.lat), 2);
-    const lngDiff = divide(subtract(this.end.lng, this.start.lng), 2);
-    const lat = add(this.start.lat, latDiff);
-    const lng = add(this.start.lng, lngDiff);
+    const { lat, lng } = calculateDistanceMarkerPoint(this.start, this.end);
     const distanceMarkerPoint = naverMapWrapper.getLatLng(lat, lng);
 
     // 폴리라인의 거리를 미터 단위로 반환합니다.
@@ -68,9 +93,65 @@ class DistanceLine {
   remove() {
     if (this.polyline) {
       this.polyline.setMap(null);
+      this.polyline = null;
     }
     if (this.distanceMarker) {
       this.distanceMarker.setMap(null);
+      this.distanceMarker = null;
+    }
+  }
+
+  /**
+   * distanceLine이 그려질 path를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Polyline.html#setPath__anchor
+   *
+   * @param {object} start - distanceLine의 출발점 좌표. { lat, lng }
+   * @param {object} end - distanceLine의 도착점 좌표. { lat, lng }
+   *
+   * @return {void} 반환값 없음
+   */
+  setPath(start, end) {
+    if (!utils.isLatitude(start.lat)) {
+      throw new Error(`start.lat:${start.lat} - 유효하지 않음`);
+    }
+    if (!utils.isLongitude(start.lng)) {
+      throw new Error(`start.lng:${start.lng} - 유효하지 않음`);
+    }
+    if (!utils.isLatitude(end.lat)) {
+      throw new Error(`end.lat:${end.lat} - 유효하지 않음`);
+    }
+    if (!utils.isLongitude(start.lng)) {
+      throw new Error(`end.lng:${end.lng} - 유효하지 않음`);
+    }
+
+    this.start = start;
+    this.end = end;
+
+    if (!this.polyline || !this.distanceMarker) {
+      return;
+    }
+
+    const path = createPath(this.start, this.end);
+    this.polyline.setPath(path);
+
+    const { lat, lng } = calculateDistanceMarkerPoint(this.start, this.end);
+    this.distanceMarker.setPosition(lat, lng);
+  }
+
+  /**
+   * 마커의 노출 허용 여부를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {boolean} visible - 마커 노출 허용 여부
+   *
+   * @return {void} 반환값 없음
+   */
+  setVisible(visible) {
+    if (this.marker) {
+      this.marker.setVisible(visible);
+    }
+    if (this.label) {
+      this.label.setVisible(visible);
     }
   }
 }
