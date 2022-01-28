@@ -3,7 +3,7 @@
     :class="{ 'd-flex':!vertical, 'flex-wrap':!vertical }"
   >
     <v-checkbox
-      v-for="({ text, value }, idx) in items"
+      v-for="({ text, value, disabled: disabledItem }, idx) in items"
       :key="value"
       v-model="selected"
       class="pa-0 ma-0"
@@ -11,7 +11,7 @@
       :label="text"
       :value="value"
       :rules="rules"
-      :disabled="disabled"
+      :disabled="disabled || disabledItem"
       dense
       hide-details
       @change="onChange"
