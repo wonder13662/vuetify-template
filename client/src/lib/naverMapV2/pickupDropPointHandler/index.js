@@ -1,5 +1,6 @@
 import markerHandler from '../markerGroupHandler/markerHandler';
 import distanceLineHandler from '../distanceLineGroupHandler/distanceLineHandler';
+import boundHandler from '../lib/boundHandler';
 import utils from '../lib/utils';
 
 const createPickupPointMarker = (point) => (markerHandler.createBaseMarker({
@@ -167,6 +168,19 @@ class PickupDropPoints {
     };
     this.#driverPointMarker.setPosition(lat, lng);
     this.#driverPointMarker.setVisible(true);
+  }
+
+  /**
+   * 픽업지, 드랍지, 드라이버의 마커의 bounds를 구합니다.
+   *
+   * @return {object} bounds 객체
+   */
+  bounds() {
+    return boundHandler.createBoundsByPoints([
+      this.#pickupPoint,
+      this.#dropPoint,
+      this.#driverPoint,
+    ]);
   }
 }
 
