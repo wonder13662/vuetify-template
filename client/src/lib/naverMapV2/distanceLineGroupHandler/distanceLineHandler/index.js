@@ -42,7 +42,7 @@ const getDistanceMarkerStyleBlur = () => [
   ...distanceMarkerStyles,
   `font-weight: ${FONT_WEIGHT_BLUR};`,
   `background: ${STROKE_COLOR_BLUR};`,
-].join();
+].join('');
 const getDistanceMarkerAnchor = () => naverMapWrapper.getPoint(20, 15);
 const getDistanceMarkerIconStyleBlur = (distanceInMeter) => ({
   content: `<div style="${getDistanceMarkerStyleBlur()}"><span>${distanceInMeter}m</span></div>`,
@@ -62,7 +62,7 @@ const getDistanceMarkerStyleFocus = () => [
   ...distanceMarkerStyles,
   `font-weight: ${FONT_WEIGHT_FOCUS};`,
   `background: ${STROKE_COLOR_FOCUS};`,
-].join();
+].join('');
 const getDistanceMarkerIconStyleFocus = (distanceInMeter) => ({
   content: `<div style="${getDistanceMarkerStyleFocus()}"><span>${distanceInMeter}m</span></div>`,
   anchor: getDistanceMarkerAnchor(),
