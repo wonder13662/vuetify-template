@@ -21,6 +21,54 @@ const calculateDistanceMarkerPoint = (start, end) => {
   };
 };
 
+const distanceMarkerStyles = [
+  'display:inline-block;',
+  'padding: 1px 5px;',
+  'text-align:center;',
+  'font-size:.6rem;',
+  'color: white;',
+  'border-radius: 10px;',
+];
+const STROKE_COLOR_BLUR = '#757575'; // vuetify:grey darken-1
+const STROKE_WEIGTH_BLUR = 4;
+const STROKE_OPACITY_BLUR = 0.8;
+const FONT_WEIGHT_BLUR = 'normal';
+const getPolylineStyleBlur = () => ({
+  strokeColor: STROKE_COLOR_BLUR,
+  strokeWeight: STROKE_WEIGTH_BLUR,
+  strokeOpacity: STROKE_OPACITY_BLUR,
+});
+const getDistanceMarkerStyleBlur = () => [
+  ...distanceMarkerStyles,
+  `font-weight: ${FONT_WEIGHT_BLUR};`,
+  `background: ${STROKE_COLOR_BLUR};`,
+].join();
+const getDistanceMarkerAnchor = () => naverMapWrapper.getPoint(20, 15);
+const getDistanceMarkerIconStyleBlur = (distanceInMeter) => ({
+  content: `<div style="${getDistanceMarkerStyleBlur()}"><span>${distanceInMeter}m</span></div>`,
+  anchor: getDistanceMarkerAnchor(),
+});
+
+const STROKE_COLOR_FOCUS = '#f00';
+const STROKE_WEIGTH_FOCUS = 8;
+const STROKE_OPACITY_FOCUS = 1;
+const FONT_WEIGHT_FOCUS = 'bold';
+const getPolylineStyleFocus = () => ({
+  strokeColor: STROKE_COLOR_FOCUS,
+  strokeWeight: STROKE_WEIGTH_FOCUS,
+  strokeOpacity: STROKE_OPACITY_FOCUS,
+});
+const getDistanceMarkerStyleFocus = () => [
+  ...distanceMarkerStyles,
+  `font-weight: ${FONT_WEIGHT_FOCUS};`,
+  `background: ${STROKE_COLOR_FOCUS};`,
+].join();
+const getDistanceMarkerIconStyleFocus = (distanceInMeter) => ({
+  content: `<div style="${getDistanceMarkerStyleFocus()}"><span>${distanceInMeter}m</span></div>`,
+  anchor: getDistanceMarkerAnchor(),
+});
+
+
 class DistanceLine {
   constructor({
     start,
@@ -43,16 +91,6 @@ class DistanceLine {
     this.end = end;
 
     this.polyline = null;
-    this.style = [
-      'display:inline-block;',
-      'padding: 1px 5px;',
-      'text-align:center;',
-      'font-size:.6rem;',
-      'color: white;',
-      'font-weight: bold;',
-      'background: red;',
-      'border-radius: 10px;',
-    ].join('');
     this.distanceMarker = null;
   }
 
@@ -64,10 +102,10 @@ class DistanceLine {
     // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
     this.remove();
 
+    // https://navermaps.github.io/maps.js/docs/naver.maps.Polyline.html#toc25__anchor
     this.polyline = naverMapWrapper.getPolyline({
-      strokeColor: '#f00',
-      strokeWeight: 4,
-      strokeOpacity: 0.8,
+      ...getPolylineStyleBlur(),
+      startIcon: naverMapWrapper.pointingIconCircle(),
       endIcon: naverMapWrapper.pointingIconOpenArrow(),
       path: createPath(this.start, this.end),
       map,
@@ -79,13 +117,9 @@ class DistanceLine {
 
     // 폴리라인의 거리를 미터 단위로 반환합니다.
     const distanceInMeter = Math.round(this.polyline.getDistance());
-
     this.distanceMarker = naverMapWrapper.getMarker({
       position: distanceMarkerPoint,
-      icon: {
-        content: `<div style="${this.style}"><span>${distanceInMeter}m</span></div>`,
-        anchor: naverMapWrapper.getPoint(20, 15),
-      },
+      icon: getDistanceMarkerIconStyleBlur(distanceInMeter),
       map,
     });
   }
@@ -152,6 +186,44 @@ class DistanceLine {
     }
     if (this.label) {
       this.label.setVisible(visible);
+    }
+  }
+
+  /**
+   * distanceLine을 focus시킵니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  focus() {
+    if (this.polyline) {
+      this.polyline.setStyles({
+        ...getPolylineStyleFocus(),
+      });
+    }
+    if (this.distanceMarker) {
+      const distanceInMeter = Math.round(this.polyline.getDistance());
+      this.distanceMarker.setOptions({
+        icon: getDistanceMarkerIconStyleFocus(distanceInMeter),
+      });
+    }
+  }
+
+  /**
+   * distanceLine을 blur시킵니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  blur() {
+    if (this.polyline) {
+      this.polyline.setStyles({
+        ...getPolylineStyleBlur(),
+      });
+    }
+    if (this.distanceMarker) {
+      const distanceInMeter = Math.round(this.polyline.getDistance());
+      this.distanceMarker.setOptions({
+        icon: getDistanceMarkerIconStyleBlur(distanceInMeter),
+      });
     }
   }
 }
