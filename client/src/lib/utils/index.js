@@ -82,6 +82,9 @@ export default {
   convertMapKeysToList(map) {
     return Array.from(new Map(map).keys());
   },
+  convertObjValuesToList(obj) {
+    return Array.from(Object.values(obj));
+  },
   // '2021-06-28'
   getNowYYYYMMDD() {
     return moment().format(YYYYMMDD);
