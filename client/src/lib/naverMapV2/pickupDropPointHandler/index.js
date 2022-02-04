@@ -50,7 +50,9 @@ class PickupDropPoints {
 
   #driverPointMarker
 
-  constructor(pickupPoint, dropPoint, driverPoint) {
+  #meta
+
+  constructor(pickupPoint, dropPoint, driverPoint, meta) {
     this.#pickupPoint = { ...pickupPoint };
     this.#pickupPointMarker = createPickupPointMarker(this.#pickupPoint);
     this.#dropPoint = { ...dropPoint };
@@ -63,6 +65,7 @@ class PickupDropPoints {
       // NOTE: driverPoint 정보가 없는 경우에는 driverPoint를 pickupPoint 위치로 임시로 둠
       this.#driverPointMarker = createDriverPointMarker(this.#pickupPoint);
     }
+    this.#meta = meta;
   }
 
   draw(map) {
@@ -182,10 +185,48 @@ class PickupDropPoints {
       this.#driverPoint,
     ]);
   }
+
+  /**
+   * distanceLine을 focus시킵니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  focus() {
+    if (this.#distanceLine) {
+      this.#distanceLine.focus();
+    }
+  }
+
+  /**
+   * distanceLine을 blur시킵니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  blur() {
+    if (this.#distanceLine) {
+      this.#distanceLine.blur();
+    }
+  }
+
+  /**
+   * meta의 복사본을 줍니다.
+   *
+   * @return {object} meta의 복사본
+   */
+  get meta() {
+    return {
+      ...this.#meta,
+    };
+  }
 }
 
 export default {
-  create({ pickupPoint, dropPoint, driverPoint }) {
+  create({
+    pickupPoint,
+    dropPoint,
+    driverPoint,
+    meta = {},
+  }) {
     if (!utils.isLatitude(pickupPoint.lat)) {
       throw new Error(`pickupPoint.lat:${pickupPoint.lat} / 유효하지 않습니다.`);
     }
@@ -207,6 +248,6 @@ export default {
       }
     }
 
-    return new PickupDropPoints(pickupPoint, dropPoint, driverPoint);
+    return new PickupDropPoints(pickupPoint, dropPoint, driverPoint, meta);
   },
 };
