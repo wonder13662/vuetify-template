@@ -21,9 +21,14 @@ const createDropPointMarker = (point) => (markerHandler.createBaseMarker({
   info: '정보없음',
 }));
 
-const createDistanceLine = (pickupPoint, dropPoint) => distanceLineHandler.createDistanceLine({
-  start: pickupPoint,
-  end: dropPoint,
+const createDistanceLine = ({
+  start,
+  end,
+  meta = {},
+}) => distanceLineHandler.createDistanceLine({
+  start,
+  end,
+  meta,
 });
 
 const createDriverPointMarker = (point) => (markerHandler.createBaseMarker({
@@ -57,7 +62,11 @@ class PickupDropPoints {
     this.#pickupPointMarker = createPickupPointMarker(this.#pickupPoint);
     this.#dropPoint = { ...dropPoint };
     this.#dropPointMarker = createDropPointMarker(this.#dropPoint);
-    this.#distanceLine = createDistanceLine(this.#pickupPoint, this.#dropPoint);
+    this.#distanceLine = createDistanceLine({
+      start: this.#pickupPoint,
+      end: this.#dropPoint,
+      meta: { ...meta },
+    });
     this.#driverPoint = driverPoint ? { ...driverPoint } : null;
     if (this.#driverPoint) {
       this.#driverPointMarker = createDriverPointMarker(this.#driverPoint);
@@ -217,6 +226,44 @@ class PickupDropPoints {
     return {
       ...this.#meta,
     };
+  }
+
+  /**
+   * focus 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - focus 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addFocusListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#distanceLine) {
+      throw new Error('this.#distanceLine/유효하지 않습니다.');
+    }
+
+    const id = this.#distanceLine.addFocusListener(listener);
+    return id;
+  }
+
+  /**
+   * blur 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - blur 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addBlurListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#distanceLine) {
+      throw new Error('this.#distanceLine/유효하지 않습니다.');
+    }
+
+    const id = this.#distanceLine.addBlurListener(listener);
+    return id;
   }
 }
 
