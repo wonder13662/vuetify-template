@@ -102,13 +102,9 @@ const removeEventListener = ({
  * @return {void} 반환값 없음
  */
 const focus = ({
-  status,
   eventListenerMapMap,
   payload,
 }) => {
-  if (status === OVERLAY_STATUS.FOCUS) {
-    return;
-  }
   emit({
     eventListenerMapMap,
     key: OVERLAY_EVENT.FOCUS,
@@ -126,13 +122,9 @@ const focus = ({
  * @return {void} 반환값 없음
  */
 const blur = ({
-  status,
   eventListenerMapMap,
   payload,
 }) => {
-  if (status === OVERLAY_STATUS.BLUR) {
-    return;
-  }
   emit({
     eventListenerMapMap,
     key: OVERLAY_EVENT.BLUR,
@@ -175,16 +167,25 @@ class OverlayEventController {
 
   #onClick
 
+  #meta
+
   constructor({
-    overlay,
     onFocus,
     onBlur,
     onClick,
+    meta,
   }) {
     this.#onFocus = onFocus;
     this.#onBlur = onBlur;
     this.#onClick = onClick;
-    this.setOverlay(overlay);
+    this.#meta = meta;
+
+    this.#naverMapEventListeners = [];
+
+    this.#eventListenerMapMap = new Map();
+    this.#eventListenerMapMap.set(OVERLAY_EVENT.BLUR, new Map());
+    this.#eventListenerMapMap.set(OVERLAY_EVENT.FOCUS, new Map());
+    this.#eventListenerMapMap.set(OVERLAY_EVENT.CLICK, new Map());
   }
 
   setOverlay(overlay) {
@@ -192,23 +193,24 @@ class OverlayEventController {
       throw new Error(`overlay:${overlay}/유효하지 않습니다.`);
     }
 
-    this.remove();
-
     this.#overlay = overlay;
 
-    this.#eventListenerMapMap = new Map();
-    this.#eventListenerMapMap.set(OVERLAY_EVENT.BLUR, new Map());
-    this.#eventListenerMapMap.set(OVERLAY_EVENT.FOCUS, new Map());
-    this.#eventListenerMapMap.set(OVERLAY_EVENT.CLICK, new Map());
+    if (utils.isValidArray(this.#naverMapEventListeners)) {
+      naverMapWrapper.removeListener(this.#naverMapEventListeners);
+      this.#naverMapEventListeners = [];
+    }
 
-    this.#naverMapEventListeners = [];
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mouseover', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
       this.#onFocus(e);
       focus({
-        status: `${this.#status}`,
-        eventListenerMapMap: new Map(this.#eventListenerMapMap),
-        payload: e,
+        eventListenerMapMap: this.#eventListenerMapMap,
+        payload: {
+          ...e,
+          meta: {
+            ...this.#meta,
+          },
+        },
       });
       this.#status = OVERLAY_STATUS.FOCUS;
     }));
@@ -216,9 +218,13 @@ class OverlayEventController {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
       this.#onBlur(e);
       blur({
-        status: `${this.#status}`,
-        eventListenerMapMap: new Map(this.#eventListenerMapMap),
-        payload: e,
+        eventListenerMapMap: this.#eventListenerMapMap,
+        payload: {
+          ...e,
+          meta: {
+            ...this.#meta,
+          },
+        },
       });
       this.#status = OVERLAY_STATUS.BLUR;
     }));
@@ -226,8 +232,13 @@ class OverlayEventController {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
       this.#onClick(e);
       click({
-        eventListenerMapMap: new Map(this.#eventListenerMapMap),
-        payload: e,
+        eventListenerMapMap: this.#eventListenerMapMap,
+        payload: {
+          ...e,
+          meta: {
+            ...this.#meta,
+          },
+        },
       });
     }));
 
@@ -420,24 +431,24 @@ export default {
   /**
    * 네이버 오버레이 객체의 이벤트를 관리하는 OverlayEventController 객체를 만들어 줍니다.
    *
-   * @param {object} overlay - 네이버 지도 Api로 만든 네이버 오버레이 객체
    * @param {function} onFocus - focus 이벤트 콜백
    * @param {function} onBlur - blur 이벤트 콜백
    * @param {function} onClick - click 이벤트 콜백
+   * @param {object} meta - 오버레이의 메타정보
    *
    * @return {OverlayEventController} OverlayEventController 인스턴스 반환
    */
   createOverlayEventController({
-    overlay,
     onFocus,
     onBlur,
     onClick,
+    meta,
   }) {
     return new OverlayEventController({
-      overlay,
       onFocus,
       onBlur,
       onClick,
+      meta,
     });
   },
 };
