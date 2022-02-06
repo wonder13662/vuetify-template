@@ -63,7 +63,12 @@
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
-                <H3Line />
+                <H3Line
+                  :meta="h3Line.meta"
+                  :show="h3Line.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
               </div>
             </template>
           </BaseContentVerticalLayout>
@@ -87,8 +92,29 @@ import H3Line from './controlPanels/H3Line';
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
 - https://h3geo.org/
 */
+const CONTROL_PANEL_KEYS = [
+  'geoToH3',
+  'kRing',
+  'kRingDistances',
+  'hexRing',
+  'h3Line',
+];
+const createControlPanelMap = () => CONTROL_PANEL_KEYS.reduce((acc, key) => {
+  acc[key] = {
+    meta: {
+      key,
+      point: {
+        lat: null,
+        lng: null,
+      },
+    },
+    show: false,
+  };
+  return acc;
+}, {});
+
 export default {
-  name: 'Map',
+  name: 'H3',
   components: {
     BaseNaverMap,
     BaseContentHorizontalLayout,
@@ -102,47 +128,8 @@ export default {
   },
   data() {
     return {
-      keys: ['geoToH3', 'kRing', 'kRingDistances', 'hexRing'],
-      geoToH3: {
-        meta: {
-          key: 'geoToH3',
-          point: {
-            lat: null,
-            lng: null,
-          },
-        },
-        show: false,
-      },
-      kRing: {
-        meta: {
-          key: 'kRing',
-          point: {
-            lat: null,
-            lng: null,
-          },
-        },
-        show: false,
-      },
-      kRingDistances: {
-        meta: {
-          key: 'kRingDistances',
-          point: {
-            lat: null,
-            lng: null,
-          },
-        },
-        show: false,
-      },
-      hexRing: {
-        meta: {
-          key: 'hexRing',
-          point: {
-            lat: null,
-            lng: null,
-          },
-        },
-        show: false,
-      },
+      keys: CONTROL_PANEL_KEYS,
+      ...createControlPanelMap(),
       overlays: [],
     };
   },
