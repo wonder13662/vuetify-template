@@ -15,15 +15,29 @@ export const HEXAGON_MODE = {
   DISABLED: 'DISABLED',
 };
 export const HEXAGON_MODE_SET = utils.convertObjToSet(HEXAGON_MODE);
+// @ depreacted - OVERLAY_STATUS 사용해주세요
 export const HEXAGON_STATUS = {
   FOCUS: 'FOCUS',
   BLUR: 'BLUR',
 };
 export const HEXAGON_STATUS_SET = utils.convertObjToSet(HEXAGON_STATUS);
+// @ depreacted - OVERLAY_EVENT 사용해주세요
 export const HEXAGON_EVENT = {
   FOCUS: 'FOCUS',
   BLUR: 'BLUR',
   CLICK: 'CLICK',
-  CHANGE: 'CHANGE',
 };
 export const HEXAGON_EVENT_SET = utils.convertObjToSet(HEXAGON_EVENT);
+
+export const OVERLAY_EVENT = {
+  FOCUS: 'FOCUS',
+  BLUR: 'BLUR',
+  CLICK: 'CLICK',
+};
+export const OVERLAY_EVENT_SET = utils.convertObjToSet(OVERLAY_EVENT);
+export const OVERLAY_STATUS = {
+  FOCUS: 'FOCUS',
+  BLUR: 'BLUR',
+  NO_STATUS: 'NO_STATUS',
+};
+export const OVERLAY_STATUS_SET = utils.convertObjToSet(HEXAGON_STATUS);

@@ -5,6 +5,11 @@ import {
 } from 'mathjs';
 import utils from '../../lib/utils';
 import naverMapWrapper from '../../lib/naverMapWrapper';
+import {
+  OVERLAY_EVENT,
+  OVERLAY_STATUS,
+} from '../../lib/constants';
+import overlayEventHandler from '../../overlayEventHandler';
 
 const createPath = (start, end) => ([
   naverMapWrapper.getLatLng(start.lat, start.lng),
@@ -68,8 +73,19 @@ const getDistanceMarkerIconStyleFocus = (distanceInMeter) => ({
   anchor: getDistanceMarkerAnchor(),
 });
 
-
 class DistanceLine {
+  #start
+
+  #end
+
+  #overlayPolyline
+
+  #overlayMarkerDistance
+
+  #eventListenerMap
+
+  #overlayPolylineEventController
+
   constructor({
     start,
     end,
@@ -87,11 +103,16 @@ class DistanceLine {
       throw new Error(`end.lng:${end.lng} - 유효하지 않음`);
     }
 
-    this.start = start;
-    this.end = end;
+    this.#start = start;
+    this.#end = end;
 
-    this.polyline = null;
-    this.distanceMarker = null;
+    this.#overlayPolyline = null;
+    this.#overlayMarkerDistance = null;
+
+    this.#eventListenerMap = new Map();
+    this.#eventListenerMap.set(OVERLAY_EVENT.BLUR, new Map());
+    this.#eventListenerMap.set(OVERLAY_EVENT.FOCUS, new Map());
+    this.#eventListenerMap.set(OVERLAY_EVENT.CLICK, new Map());
   }
 
   draw(map) {
@@ -102,22 +123,38 @@ class DistanceLine {
     // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
     this.remove();
 
+    // 1-1. polyline 그리기
     // https://navermaps.github.io/maps.js/docs/naver.maps.Polyline.html#toc25__anchor
-    this.polyline = naverMapWrapper.getPolyline({
+    const polyline = naverMapWrapper.getPolyline({
       ...getPolylineStyleBlur(),
+      clickable: true, // NOTE: 이 옵션이 켜져 있어야 mouseover, mouseout등의 이벤트들 받을 수 있습니다.
       startIcon: naverMapWrapper.pointingIconCircle(),
       endIcon: naverMapWrapper.pointingIconOpenArrow(),
-      path: createPath(this.start, this.end),
+      path: createPath(this.#start, this.#end),
       map,
     });
+    this.#overlayPolyline = polyline;
 
+    // 1-2. overlayPolylineEventController 생성
+    this.#overlayPolylineEventController = overlayEventHandler.createOverlayEventController({
+      overlay: this.#overlayPolyline,
+      onFocus: () => {
+        this.focus();
+      },
+      onBlur: () => {
+        this.blur();
+      },
+      onClick: () => ({}),
+    });
+
+    // 2-1. distanceMarker 그리기
     // 거리를 나타내는 위치는 출발과 도착의 중간 위치이어야 합니다.
-    const { lat, lng } = calculateDistanceMarkerPoint(this.start, this.end);
+    const { lat, lng } = calculateDistanceMarkerPoint(this.#start, this.#end);
     const distanceMarkerPoint = naverMapWrapper.getLatLng(lat, lng);
 
     // 폴리라인의 거리를 미터 단위로 반환합니다.
-    const distanceInMeter = Math.round(this.polyline.getDistance());
-    this.distanceMarker = naverMapWrapper.getMarker({
+    const distanceInMeter = Math.round(this.#overlayPolyline.getDistance());
+    this.#overlayMarkerDistance = naverMapWrapper.getMarker({
       position: distanceMarkerPoint,
       icon: getDistanceMarkerIconStyleBlur(distanceInMeter),
       map,
@@ -125,13 +162,17 @@ class DistanceLine {
   }
 
   remove() {
-    if (this.polyline) {
-      this.polyline.setMap(null);
-      this.polyline = null;
+    if (this.#overlayPolyline) {
+      this.#overlayPolyline.setMap(null);
+      this.#overlayPolyline = null;
     }
-    if (this.distanceMarker) {
-      this.distanceMarker.setMap(null);
-      this.distanceMarker = null;
+    if (this.#overlayMarkerDistance) {
+      this.#overlayMarkerDistance.setMap(null);
+      this.#overlayMarkerDistance = null;
+    }
+    if (this.#overlayPolylineEventController) {
+      this.#overlayPolylineEventController.remove();
+      this.#overlayPolylineEventController = null;
     }
   }
 
@@ -158,18 +199,18 @@ class DistanceLine {
       throw new Error(`end.lng:${end.lng} - 유효하지 않음`);
     }
 
-    this.start = start;
-    this.end = end;
+    this.#start = start;
+    this.#end = end;
 
-    if (!this.polyline || !this.distanceMarker) {
+    if (!this.#overlayPolyline || !this.#overlayMarkerDistance) {
       return;
     }
 
-    const path = createPath(this.start, this.end);
-    this.polyline.setPath(path);
+    const path = createPath(this.#start, this.#end);
+    this.#overlayPolyline.setPath(path);
 
-    const { lat, lng } = calculateDistanceMarkerPoint(this.start, this.end);
-    this.distanceMarker.setPosition(lat, lng);
+    const { lat, lng } = calculateDistanceMarkerPoint(this.#start, this.#end);
+    this.#overlayMarkerDistance.setPosition(lat, lng);
   }
 
   /**
@@ -195,17 +236,26 @@ class DistanceLine {
    * @return {void} 반환값 없음
    */
   focus() {
-    if (this.polyline) {
-      this.polyline.setStyles({
+    if (!this.#overlayPolylineEventController) {
+      throw new Error('this.#overlayPolylineEventController/유효하지 않습니다.');
+    }
+    if (this.#overlayPolylineEventController.isFocus()) {
+      return;
+    }
+
+    if (this.#overlayPolyline) {
+      this.#overlayPolyline.setStyles({
         ...getPolylineStyleFocus(),
       });
     }
-    if (this.distanceMarker) {
-      const distanceInMeter = Math.round(this.polyline.getDistance());
-      this.distanceMarker.setOptions({
+    if (this.#overlayMarkerDistance) {
+      const distanceInMeter = Math.round(this.#overlayPolyline.getDistance());
+      this.#overlayMarkerDistance.setOptions({
         icon: getDistanceMarkerIconStyleFocus(distanceInMeter),
       });
     }
+
+    this.#overlayPolylineEventController.setStatus(OVERLAY_STATUS.FOCUS);
   }
 
   /**
@@ -214,17 +264,100 @@ class DistanceLine {
    * @return {void} 반환값 없음
    */
   blur() {
-    if (this.polyline) {
-      this.polyline.setStyles({
+    if (!this.#overlayPolylineEventController) {
+      throw new Error('this.#overlayPolylineEventController/유효하지 않습니다.');
+    }
+    if (this.#overlayPolylineEventController.isBlur()) {
+      return;
+    }
+
+    if (this.#overlayPolyline) {
+      this.#overlayPolyline.setStyles({
         ...getPolylineStyleBlur(),
       });
     }
-    if (this.distanceMarker) {
-      const distanceInMeter = Math.round(this.polyline.getDistance());
-      this.distanceMarker.setOptions({
+    if (this.#overlayMarkerDistance) {
+      const distanceInMeter = Math.round(this.#overlayPolyline.getDistance());
+      this.#overlayMarkerDistance.setOptions({
         icon: getDistanceMarkerIconStyleBlur(distanceInMeter),
       });
     }
+
+    this.#overlayPolylineEventController.setStatus(OVERLAY_STATUS.BLUR);
+  }
+
+  /**
+   * DistanceLine에 focus 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - focus 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addFocusListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#overlayPolylineEventController) {
+      throw new Error('this.#overlayPolylineEventController/유효하지 않습니다.');
+    }
+
+    const id = this.#overlayPolylineEventController.addFocusListener(listener);
+    return id;
+  }
+
+  /**
+   * DistanceLine에 focus 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeFocusListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    if (!this.#overlayPolylineEventController) {
+      throw new Error('this.#overlayPolylineEventController/유효하지 않습니다.');
+    }
+
+    this.#overlayPolylineEventController.removeFocusListener(id);
+  }
+
+  /**
+   * DistanceLine에 blur 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - blur 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addBlurListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#overlayPolylineEventController) {
+      throw new Error('this.#overlayPolylineEventController/유효하지 않습니다.');
+    }
+
+    const id = this.#overlayPolylineEventController.addBlurListener(listener);
+    return id;
+  }
+
+  /**
+   * DistanceLine에 blur 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeBlurListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    if (!this.#overlayPolylineEventController) {
+      throw new Error('this.#overlayPolylineEventController/유효하지 않습니다.');
+    }
+
+    this.#overlayPolylineEventController.removeBlurListener(id);
   }
 }
 
@@ -258,25 +391,25 @@ export default {
    * 네이버 맵 위에 DistanceLine 인스턴스를 그립니다.
    *
    * @param {object} map - (required)Naver 지도 클래스로 만든 Naver 지도 instance
-   * @param {object} distacneLine - (required)DistanceLine 인스턴스
+   * @param {object} distanceLine - (required)DistanceLine 인스턴스
    *
    * @return {void} 반환값 없음
    */
-  drawDistanceLine(map, distacneLine) {
+  drawDistanceLine(map, distanceLine) {
     if (!map) {
       throw new Error('map: 유효하지 않음');
     }
-    if (!distacneLine) {
-      throw new Error('distacneLine: 유효하지 않음');
+    if (!distanceLine) {
+      throw new Error('distanceLine: 유효하지 않음');
     }
 
-    distacneLine.draw(map);
+    distanceLine.draw(map);
   },
-  removeDistanceLine(distacneLine) {
-    if (!distacneLine) {
-      throw new Error('distacneLine: 유효하지 않음');
+  removeDistanceLine(distanceLine) {
+    if (!distanceLine) {
+      throw new Error('distanceLine: 유효하지 않음');
     }
 
-    distacneLine.remove();
+    distanceLine.remove();
   },
 };
