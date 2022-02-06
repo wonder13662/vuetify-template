@@ -73,6 +73,23 @@ const scriptLoad = ({
   } else throw new Error('script loading failed');
 };
 
+const NAVER_MAP_SCRIPT_LOADING_STATUS__READY = 'READY';
+const NAVER_MAP_SCRIPT_LOADING_STATUS__LOADING = 'LOADING';
+const NAVER_MAP_SCRIPT_LOADING_STATUS__DONE = 'DONE';
+let scriptLoadingStatus = NAVER_MAP_SCRIPT_LOADING_STATUS__READY;
+
+const callbackMapsOnNaverMapScriptLoaded = [];
+const addCallbackMapOnNaverMapScriptLoaded = (aCallbackMap) => {
+  const { resolve, reject } = aCallbackMap;
+  if (!resolve || typeof resolve !== 'function') {
+    throw new Error(`resolve:${resolve} / 유효하지 않습니다.`);
+  }
+  if (!reject || typeof reject !== 'function') {
+    throw new Error(`reject:${reject} / 유효하지 않습니다.`);
+  }
+  callbackMapsOnNaverMapScriptLoaded.push(aCallbackMap);
+};
+
 export default {
   /**
    * 네이버 맵 인스턴스를 만듭니다
@@ -96,10 +113,9 @@ export default {
     naverMapWrapper.once(map, 'init_stylemap', () => (onCreated(map)));
   },
   /**
-   * 네이버 맵 API를 로드합니다.
+   * @deprecated 네이버 맵 API를 동기(sync)로 로드합니다.
    *
    * @param {string} clientId - (required)naver map api를 사용할 권한을 가진 clientid
-   * @param {object} document - (required)브라우저의 document 객체
    * @param {string} id - (required)script tag에 추가될 id. 이것으로 동일한 script tag가 이미 추가되었는지 확인할 수 있습니다
    * @param {function} onLoad - (optional)스크립트 다운로드 완료시 콜백 함수
    * @param {function} onError - (optional)스크립트 다운로드 실패시 콜백 함수
@@ -125,6 +141,59 @@ export default {
       url: naverMapUrl,
       onLoad: () => (onLoad()),
       onError,
+    });
+  },
+  /**
+   * 네이버 맵 API를 비동기(async)로 로드합니다.
+   *
+   * @param {string} clientId - (required)naver map api를 사용할 권한을 가진 clientid
+   * @param {string} id - (required)script tag에 추가될 id. 이것으로 동일한 script tag가 이미 추가되었는지 확인할 수 있습니다
+   * @param {function} onLoad - (optional)스크립트 다운로드 완료시 콜백 함수
+   * @param {function} onError - (optional)스크립트 다운로드 실패시 콜백 함수
+   *
+   * @return {string} naver map api를 다운로드하는 url
+   */
+  loadScriptNaverMapApiAsync({
+    clientId,
+    id,
+  }) {
+    return new Promise((resolve, reject) => {
+      if (scriptLoadingStatus === NAVER_MAP_SCRIPT_LOADING_STATUS__READY) {
+        // 1. 아직 스크립트 로딩을 시작하지 않음
+        scriptLoadingStatus = NAVER_MAP_SCRIPT_LOADING_STATUS__LOADING;
+        // 1-1. 스크립트 로딩을 시작!
+        // 2. naverMap이 DOM에 없다. 새로 만든다.
+        const naverMapUrl = getNaverMapUrl({ clientId });
+        scriptLoad({
+          document,
+          id,
+          url: naverMapUrl,
+          onLoad: (v) => {
+            resolve(v);
+            callbackMapsOnNaverMapScriptLoaded.forEach((callback) => {
+              callback.resolve(v);
+            });
+          },
+          onError: (error) => {
+            reject(error);
+            callbackMapsOnNaverMapScriptLoaded.forEach((callback) => {
+              callback.reject(error);
+            });
+          },
+        });
+        return;
+      }
+
+      if (scriptLoadingStatus === NAVER_MAP_SCRIPT_LOADING_STATUS__LOADING) {
+        // 2. 누군가 이미 스크립트 로딩을 시작함. 하지만 아직 완료되지 않음.
+        // 2-1. 스크립트 로딩이 완료되는 시점의 콜백을 등록함. 이 콜백에서 성공시 resolve, 실패시 reject를 호출
+        addCallbackMapOnNaverMapScriptLoaded({ resolve, reject });
+      }
+
+      if (scriptLoadingStatus === NAVER_MAP_SCRIPT_LOADING_STATUS__DONE) {
+        // 3. 스크립트 로딩이 완료됨.
+        resolve();
+      }
     });
   },
   setEventListeners({

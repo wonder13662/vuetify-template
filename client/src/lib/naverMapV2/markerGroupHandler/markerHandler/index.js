@@ -1,4 +1,5 @@
 import naverMapWrapper from '../../lib/naverMapWrapper';
+import utils from '../../lib/utils';
 
 const getStyle = (color, bgColor) => {
   const styleContainer = 'opacity:.8;';
@@ -224,6 +225,10 @@ class BaseMarker {
     if (!map) {
       throw new Error('map: 유효하지 않음');
     }
+
+    // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
+    this.remove();
+
     // 1. 인스턴스 생성
     this.marker = getMarker({
       map,
@@ -264,14 +269,27 @@ class BaseMarker {
 
   /**
    * 기본 마커를 네이버 지도 객체 위에서 제거합니다.
+   * draw()로 했던 모든 작업을 반대로 수행합니다.
    *
    * @return {void} 반환값 없음
    */
   remove() {
-    naverMapWrapper.removeListener(this.listeners);
-    this.marker.setMap(null);
-    this.label.setMap(null);
-    this.customInfoWindow.setMap(null);
+    if (this.listeners && this.listeners.length > 0) {
+      naverMapWrapper.removeListener(this.listeners);
+      this.listeners = [];
+    }
+    if (this.marker) {
+      this.marker.setMap(null);
+      this.marker = null;
+    }
+    if (this.label) {
+      this.label.setMap(null);
+      this.label = null;
+    }
+    if (this.customInfoWindow) {
+      this.customInfoWindow.setMap(null);
+      this.customInfoWindow = null;
+    }
   }
 
   /**
@@ -305,6 +323,12 @@ class BaseMarker {
   blur(map) {
     if (!map) {
       throw new Error('map: 유효하지 않음');
+    }
+    if (!this.marker) {
+      throw new Error('this.marker: 유효하지 않음');
+    }
+    if (!this.customInfoWindow) {
+      throw new Error('this.customInfoWindow: 유효하지 않음');
     }
     this.marker.setIcon(getIcon(this.style, getSize(), getAnchor()));
     this.customInfoWindow.setMap(null);
@@ -342,6 +366,50 @@ class BaseMarker {
       throw new Error('this.infoWindow: 유효하지 않음');
     }
     this.infoWindow.close();
+  }
+
+  /**
+   * 마커의 위치를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {number} lat - 위도
+   * @param {number} lng - 경도
+   *
+   * @return {void} 반환값 없음
+   */
+  setPosition(lat, lng) {
+    if (!utils.isLatitude(lat)) {
+      throw new Error(`lat:${lat} - 유효하지 않음`);
+    }
+    if (!utils.isLongitude(lng)) {
+      throw new Error(`lng:${lng} - 유효하지 않음`);
+    }
+    this.lat = lat;
+    this.lng = lng;
+
+    if (this.marker) {
+      this.marker.setPosition({ lat, lng });
+    }
+    if (this.label) {
+      this.label.setPosition({ lat, lng });
+    }
+  }
+
+  /**
+   * 마커의 노출 허용 여부를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {boolean} visible - 마커 노출 허용 여부
+   *
+   * @return {void} 반환값 없음
+   */
+  setVisible(visible) {
+    if (this.marker) {
+      this.marker.setVisible(visible);
+    }
+    if (this.label) {
+      this.label.setVisible(visible);
+    }
   }
 }
 

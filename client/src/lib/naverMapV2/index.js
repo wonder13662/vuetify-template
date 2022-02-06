@@ -13,6 +13,8 @@ const removeMapHTMLStyle = () => {
 };
 
 class NaverMap {
+  #clientId
+
   constructor({
     mapId,
     clientId,
@@ -28,6 +30,7 @@ class NaverMap {
     }
 
     this.map = null;
+    this.#clientId = clientId;
     this.mapId = mapId;
     this.mapOptions = mapOptions;
 
@@ -67,25 +70,15 @@ class NaverMap {
     ];
     this.onCompleted = onCompleted;
     this.onError = onError;
+  }
 
+  async init() {
     try {
-      naverMapHelper.loadScriptNaverMapApi({
-        clientId,
-        document: window.document,
+      await naverMapHelper.loadScriptNaverMapApiAsync({
+        clientId: this.#clientId,
         id: NAVER_MAPS_SRC_ID,
-        onLoad: () => {
-          const { naver } = window;
-          // https://navermaps.github.io/maps.js.ncp/docs/naver.maps.html#toc9__anchor
-          if (naver.maps.jsContentLoaded) {
-            this.createNaverMapInstance();
-          } else {
-            naver.maps.onJSContentLoaded = () => {
-              this.naverJSContentLoaded = true;
-              this.createNaverMapInstance();
-            };
-          }
-        },
       });
+      this.createNaverMapInstance();
     } catch (error) {
       this.onError(error);
     }

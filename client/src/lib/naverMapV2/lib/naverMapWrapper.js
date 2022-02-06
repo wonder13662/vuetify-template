@@ -211,6 +211,17 @@ export default {
     return naver.maps.PointingIcon.OPEN_ARROW;
   },
   /**
+   * PointingIcon 객체는 폴리라인의 끝 점의 강조 아이콘을 사전에 정의한 것입니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.html#toc10__anchor
+   * OPEN_ARROW | BLOCK_ARROW | CIRCLE | DIAMOND
+   *
+   * @return {string} PointingIcon.CIRCLE
+   */
+  pointingIconCircle() {
+    const naver = getNaver();
+    return naver.maps.PointingIcon.CIRCLE;
+  },
+  /**
    * 지도 위에 polygon을 그립니다.
    *
    * @param {object} map naver map 인스턴스
@@ -222,6 +233,7 @@ export default {
   drawPolygon({
     map,
     naverPolygonPaths,
+    visible = true,
     style = {},
     onMouseover = () => {},
     onMouseout = () => {},
@@ -239,6 +251,7 @@ export default {
     const polygon = this.getPolygon({
       map,
       paths: naverPolygonPaths,
+      visible,
       clickable: true,
       ...style,
     });

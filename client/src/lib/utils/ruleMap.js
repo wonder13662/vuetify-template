@@ -87,20 +87,6 @@ const RULE_MAP = {
       message: i18n.t('common.error.email.notValidFormat'),
     },
   },
-  [RULE_KEY.DIRECTOR_GROUP_NAME]: {
-    required: {
-      rule: (v) => !!v,
-      message: i18n.t('common.error.directorGroupList.required'),
-    },
-    mustGreaterThanOrEqual2Letters: {
-      rule: (v) => v && v.length >= 2,
-      message: i18n.t('common.error.directorGroupList.mustGreaterThanOrEqual2Letters'),
-    },
-    mustLessThanOrEqual10Letters: {
-      rule: (v) => v && v.length <= 10,
-      message: i18n.t('common.error.directorGroupList.mustLessThanOrEqual10Letters'),
-    },
-  },
 };
 
 export default {

@@ -1,7 +1,7 @@
 <template>
   <div
     class="text-caption base-text"
-    :class="{ 'red--text':warning, 'font-weight-bold':bold, 'base-text-align-center':center }"
+    :class="classObject"
   >
     {{ text }}
   </div>
@@ -23,6 +23,19 @@ export default {
     },
     center: {
       type: Boolean,
+    },
+    white: {
+      type: Boolean,
+    },
+  },
+  computed: {
+    classObject() {
+      return {
+        'red--text': this.warning,
+        'font-weight-bold': this.bold,
+        'base-text-align-center': this.center,
+        'white--text': this.white,
+      };
     },
   },
 };

@@ -2,7 +2,7 @@
   <BaseApp>
     <template v-slot:nav-drawer>
       <BaseContentVerticalLayout
-        :has-tail="false"
+        body-height="calc(100vh - 100px)"
       >
         <template v-slot:head>
           Head
@@ -17,12 +17,10 @@
     </template>
     <template v-slot:content>
       <BaseContentHorizontalLayout
-        fixed-col-width="400px"
-        :fixed-col-left="false"
+        col-width-right="400px"
       >
         <template v-slot:left>
           <BaseContentVerticalLayout
-            :has-tail="true"
             body-height="calc(100vh - 96px)"
           >
             <template v-slot:head>
@@ -44,7 +42,6 @@
         </template>
         <template v-slot:right>
           <BaseContentVerticalLayout
-            :has-tail="false"
             body-height="calc(100vh - 72px)"
           >
             <template v-slot:head>

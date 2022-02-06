@@ -100,25 +100,15 @@ export class HexagonSelector {
    * @return {string} group의 uuid
    */
   addH3Group(h3Indexes, groupName) {
-    /* eslint-disable no-console */
-
-    console.log('addH3Group / 00');
-
     const h3IndexGroupId = this.addH3IndexGroupToUserDataLayer(h3Indexes, groupName);
-
-    console.log('addH3Group / 00-1');
     const geoJSON = h3Helper.convertH3IndexToGeoJsonByUserSelect(
       h3Indexes,
       h3IndexGroupId,
     );
 
-    console.log('addH3Group / 01');
-
     // https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Data.html
     const { map } = this;
     map.data.addGeoJson(geoJSON);
-
-    console.log('addH3Group / 02');
 
     return h3IndexGroupId;
   }

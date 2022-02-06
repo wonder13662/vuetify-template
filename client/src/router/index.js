@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import auth from './auth';
 import book from './book';
+import h3 from './h3';
 import system from './system';
 import template from './template';
 import store from '@/store';
@@ -27,6 +28,7 @@ VueRouter.prototype.push = function push(location) {
 const routes = [
   ...auth,
   ...book,
+  ...h3,
   ...system,
   ...template,
 ];

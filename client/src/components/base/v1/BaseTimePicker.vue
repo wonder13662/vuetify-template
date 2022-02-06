@@ -16,9 +16,10 @@
         prepend-inner-icon="mdi-clock-time-four-outline"
         outlined
         dense
-        hide-details
+        hide-details="auto"
         readonly
         :disabled="disabled"
+        :error-messages="errorMessage"
         v-bind="attrs"
         v-on="on"
       />
@@ -27,6 +28,8 @@
       v-if="menu"
       v-model="timeData"
       full-width
+      format="24hr"
+      :use-seconds="useSecond"
     >
       <v-spacer />
       <v-btn
@@ -57,10 +60,17 @@ export default {
     },
     width: {
       type: String,
-      default: '280px',
+      default: '320px',
     },
     disabled: {
       type: Boolean,
+    },
+    useSecond: {
+      type: Boolean,
+    },
+    errorMessage: {
+      type: String,
+      default: '',
     },
   },
   data() {

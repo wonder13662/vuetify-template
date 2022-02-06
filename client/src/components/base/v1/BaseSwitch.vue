@@ -3,7 +3,9 @@
     inset
     dense
     class="pa-0 ma-0"
+    hide-details="auto"
     :label="label"
+    :disabled="disabled"
     :input-value="value"
     @change="onChange"
   />
@@ -18,6 +20,9 @@ export default {
       required: true,
     },
     value: {
+      type: Boolean,
+    },
+    disabled: {
       type: Boolean,
     },
   },

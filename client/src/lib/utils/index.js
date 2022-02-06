@@ -11,6 +11,8 @@ export { default as rules } from './rules';
 export { default as ruleMap } from './ruleMap';
 
 const YYYYMMDD = 'YYYY-MM-DD';
+const YYYYMMDDHHmmss = 'YYYY-MM-DD HH:mm:ss';
+const HHmmss = 'HH:mm:ss';
 
 export default {
   isValidArray(v, minLength = 0) {
@@ -80,6 +82,9 @@ export default {
   convertMapKeysToList(map) {
     return Array.from(new Map(map).keys());
   },
+  convertObjValuesToList(obj) {
+    return Array.from(Object.values(obj));
+  },
   // '2021-06-28'
   getNowYYYYMMDD() {
     return moment().format(YYYYMMDD);
@@ -111,7 +116,7 @@ export default {
     // ex: "2020-10-09T00:00:00Z"
     return this.convertDateNHourToMoment(yyyymmdd, hour).utc().format();
   },
-  convertYYYYMMDDStrToUTCTime(yyyymmdd) { // REMOVE ME
+  convertYYYYMMDDStrToUTCTime(yyyymmdd) {
     return moment(yyyymmdd, 'YYYY-MM-DD').utc().toISOString();
   },
   convertYYYYMMDDStrToUTCStartOfTime(yyyymmdd) {
@@ -124,13 +129,25 @@ export default {
     // '2021-06-28' to '2021-06-28T23:59:59.000Z'
     return moment(yyyymmdd, 'YYYY-MM-DD').endOf('day').utc().toISOString();
   },
+  convertLocalYYYYMMDDHHmmssStrToUTC(str) {
+    return moment(str, YYYYMMDDHHmmss).utc().toISOString();
+  },
+  convertUTCToLocalYYYYMMDDHHmmss(utc) {
+    // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
+    return moment(utc).format(YYYYMMDDHHmmss);
+  },
   convertUTCToLocalYYYYMMDD(utc) {
     // '2021-06-28T06:03:01.291Z' to '2021-06-28'
     return moment(utc).format(YYYYMMDD);
   },
+  convertUTCToLocalHHmmss(utc) {
+    // '2021-06-28T06:03:01.291Z' to '06:03:01'
+    return moment(utc).format(HHmmss);
+  },
   // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
+  // @ Deprecated
   convertUnixTimeToReadable(unixTime) {
-    return moment(unixTime).format('YYYY-MM-DD HH:mm:ss');
+    return this.convertUTCToLocalYYYYMMDDHHmmss(unixTime);
   },
   convertTimeToReadable(time) {
     const timeSafe = (typeof time !== 'string') ? Number(time) : time;

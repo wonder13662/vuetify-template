@@ -205,8 +205,7 @@ export default {
           this.naverMap.addCallbackOnBoundChanged(this.onBoundChanged);
           this.naverMap.addCallbackOnZoomChanged(this.onZoomChanged);
           this.naverMap.addCallbackOnClick((v) => {
-            // eslint-disable-next-line no-console
-            console.log('click / v:', v);
+            this.$emit('click', v);
           });
 
           if (this.bound) {
@@ -233,6 +232,7 @@ export default {
           console.error(error);
         },
       });
+      this.naverMap.init();
     },
     setCallbackOnBoundChanged(callback) {
       this.naverMap.setCallbackOnBoundChanged(callback);

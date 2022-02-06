@@ -1,5 +1,6 @@
 import markerHandler from '../markerGroupHandler/markerHandler';
 import distanceLineHandler from '../distanceLineGroupHandler/distanceLineHandler';
+import boundHandler from '../lib/boundHandler';
 import utils from '../lib/utils';
 
 const createPickupPointMarker = (point) => (markerHandler.createBaseMarker({
@@ -20,9 +21,14 @@ const createDropPointMarker = (point) => (markerHandler.createBaseMarker({
   info: '정보없음',
 }));
 
-const createDistanceLine = (pickupPoint, dropPoint) => distanceLineHandler.createDistanceLine({
-  start: pickupPoint,
-  end: dropPoint,
+const createDistanceLine = ({
+  start,
+  end,
+  meta = {},
+}) => distanceLineHandler.createDistanceLine({
+  start,
+  end,
+  meta,
 });
 
 const createDriverPointMarker = (point) => (markerHandler.createBaseMarker({
@@ -49,18 +55,26 @@ class PickupDropPoints {
 
   #driverPointMarker
 
-  constructor(pickupPoint, dropPoint, driverPoint) {
+  #meta
+
+  constructor(pickupPoint, dropPoint, driverPoint, meta) {
     this.#pickupPoint = { ...pickupPoint };
-    this.#dropPoint = { ...dropPoint };
-    if (driverPoint) {
-      this.#driverPoint = { ...driverPoint };
-    }
     this.#pickupPointMarker = createPickupPointMarker(this.#pickupPoint);
+    this.#dropPoint = { ...dropPoint };
     this.#dropPointMarker = createDropPointMarker(this.#dropPoint);
-    this.#distanceLine = createDistanceLine(this.#pickupPoint, this.#dropPoint);
+    this.#distanceLine = createDistanceLine({
+      start: this.#pickupPoint,
+      end: this.#dropPoint,
+      meta: { ...meta },
+    });
+    this.#driverPoint = driverPoint ? { ...driverPoint } : null;
     if (this.#driverPoint) {
       this.#driverPointMarker = createDriverPointMarker(this.#driverPoint);
+    } else {
+      // NOTE: driverPoint 정보가 없는 경우에는 driverPoint를 pickupPoint 위치로 임시로 둠
+      this.#driverPointMarker = createDriverPointMarker(this.#pickupPoint);
     }
+    this.#meta = meta;
   }
 
   draw(map) {
@@ -71,8 +85,9 @@ class PickupDropPoints {
     this.#pickupPointMarker.draw(map);
     this.#dropPointMarker.draw(map);
     this.#distanceLine.draw(map);
-    if (this.#driverPointMarker) {
-      this.#driverPointMarker.draw(map);
+    this.#driverPointMarker.draw(map);
+    if (!this.#driverPoint) {
+      this.#driverPointMarker.setVisible(false);
     }
   }
 
@@ -80,14 +95,185 @@ class PickupDropPoints {
     this.#pickupPointMarker.remove();
     this.#dropPointMarker.remove();
     this.#distanceLine.remove();
-    if (this.#driverPointMarker) {
-      this.#driverPointMarker.remove();
+    this.#driverPointMarker.remove();
+  }
+
+  /**
+   * 픽업지 마커의 위치를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {number} lat - 위도
+   * @param {number} lng - 경도
+   *
+   * @return {void} 반환값 없음
+   */
+  setPickupPointLatLng({ lat, lng }) {
+    if (!utils.isLatitude(lat)) {
+      throw new Error(`lat:${lat} / 유효하지 않습니다.`);
     }
+    if (!utils.isLongitude(lng)) {
+      throw new Error(`lng:${lng} / 유효하지 않습니다.`);
+    }
+    if (!this.#pickupPointMarker) {
+      throw new Error(`this.#pickupPointMarker:${this.#pickupPointMarker} / 유효하지 않습니다.`);
+    }
+    this.#pickupPoint = {
+      ...this.#pickupPoint,
+      lat,
+      lng,
+    };
+    this.#pickupPointMarker.setPosition(lat, lng);
+    this.#distanceLine.setPath(this.#pickupPoint, this.#dropPoint);
+  }
+
+  /**
+   * 드랍지 마커의 위치를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {number} lat - 위도
+   * @param {number} lng - 경도
+   *
+   * @return {void} 반환값 없음
+   */
+  setDropPointLatLng({ lat, lng }) {
+    if (!utils.isLatitude(lat)) {
+      throw new Error(`lat:${lat} / 유효하지 않습니다.`);
+    }
+    if (!utils.isLongitude(lng)) {
+      throw new Error(`lng:${lng} / 유효하지 않습니다.`);
+    }
+    if (!this.#dropPointMarker) {
+      throw new Error(`this.#dropPointMarker:${this.#dropPointMarker} / 유효하지 않습니다.`);
+    }
+    this.#dropPoint = {
+      ...this.#dropPoint,
+      lat,
+      lng,
+    };
+    this.#dropPointMarker.setPosition(lat, lng);
+    this.#distanceLine.setPath(this.#pickupPoint, this.#dropPoint);
+  }
+
+  /**
+   * 드랍지 마커의 위치를 설정합니다.
+   * https://navermaps.github.io/maps.js/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {number} lat - 위도
+   * @param {number} lng - 경도
+   *
+   * @return {void} 반환값 없음
+   */
+  setDriverPointLatLng({ lat, lng }) {
+    if (!utils.isLatitude(lat)) {
+      throw new Error(`lat:${lat} / 유효하지 않습니다.`);
+    }
+    if (!utils.isLongitude(lng)) {
+      throw new Error(`lng:${lng} / 유효하지 않습니다.`);
+    }
+    if (!this.#driverPointMarker) {
+      throw new Error(`this.#driverPointMarker:${this.#driverPointMarker} / 유효하지 않습니다.`);
+    }
+    this.#driverPoint = {
+      ...this.#driverPoint,
+      lat,
+      lng,
+    };
+    this.#driverPointMarker.setPosition(lat, lng);
+    this.#driverPointMarker.setVisible(true);
+  }
+
+  /**
+   * 픽업지, 드랍지, 드라이버의 마커의 bounds를 구합니다.
+   *
+   * @return {object} bounds 객체
+   */
+  bounds() {
+    return boundHandler.createBoundsByPoints([
+      this.#pickupPoint,
+      this.#dropPoint,
+      this.#driverPoint,
+    ]);
+  }
+
+  /**
+   * distanceLine을 focus시킵니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  focus() {
+    if (this.#distanceLine) {
+      this.#distanceLine.focus();
+    }
+  }
+
+  /**
+   * distanceLine을 blur시킵니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  blur() {
+    if (this.#distanceLine) {
+      this.#distanceLine.blur();
+    }
+  }
+
+  /**
+   * meta의 복사본을 줍니다.
+   *
+   * @return {object} meta의 복사본
+   */
+  get meta() {
+    return {
+      ...this.#meta,
+    };
+  }
+
+  /**
+   * focus 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - focus 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addFocusListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#distanceLine) {
+      throw new Error('this.#distanceLine/유효하지 않습니다.');
+    }
+
+    const id = this.#distanceLine.addFocusListener(listener);
+    return id;
+  }
+
+  /**
+   * blur 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - blur 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addBlurListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#distanceLine) {
+      throw new Error('this.#distanceLine/유효하지 않습니다.');
+    }
+
+    const id = this.#distanceLine.addBlurListener(listener);
+    return id;
   }
 }
 
 export default {
-  create({ pickupPoint, dropPoint, driverPoint }) {
+  create({
+    pickupPoint,
+    dropPoint,
+    driverPoint,
+    meta = {},
+  }) {
     if (!utils.isLatitude(pickupPoint.lat)) {
       throw new Error(`pickupPoint.lat:${pickupPoint.lat} / 유효하지 않습니다.`);
     }
@@ -109,6 +295,6 @@ export default {
       }
     }
 
-    return new PickupDropPoints(pickupPoint, dropPoint, driverPoint);
+    return new PickupDropPoints(pickupPoint, dropPoint, driverPoint, meta);
   },
 };

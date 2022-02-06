@@ -39,7 +39,10 @@
       >
         <slot /><!-- 여기에 Dialog에 필요한 내용이 부모컴포넌트에서 주입됩니다. -->
         <v-divider />
-        <BaseListItemDense>
+        <v-list-item
+          dense
+          class="px-2"
+        >
           <v-spacer />
           <v-btn
             x-small
@@ -59,19 +62,14 @@
           >
             {{ submitBtnName }}
           </v-btn>
-        </BaseListItemDense>
+        </v-list-item>
       </v-list>
     </v-form>
   </v-dialog>
 </template>
 
 <script>
-import BaseListItemDense from '@/components/base/v1/BaseListItemDense';
-
 export default {
-  components: {
-    BaseListItemDense,
-  },
   props: {
     activatorHidden: {
       type: Boolean,

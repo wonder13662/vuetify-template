@@ -1,5 +1,6 @@
 import hexagonCalculator from '../../lib/hexagonCalculator';
 import naverMapWrapper from '../../lib/naverMapWrapper';
+import utils from '../../lib/utils';
 
 const STATUS_NONE = 'STATUS_NONE';
 const STATUS_FOCUS = 'STATUS_FOCUS';
@@ -8,14 +9,49 @@ const STATUS_BLUR = 'STATUS_BLUR';
 class Hexagon {
   constructor({
     h3Index,
+    visible,
     onRemove = () => {},
   }) {
     this.h3Index = h3Index;
+    this.visible = visible;
     this.naverMapsPolygon = null;
     this.status = STATUS_NONE;
     this.listeners = [];
     this.onRemove = onRemove;
   }
+
+  /**
+   * 지도 위의 naver polygon의 visible 상태값을 설정합니다.
+   *
+   * @param {boolean} visible naver polygon의 visible 상태 여부
+   *
+   * @return {void} 없음
+   */
+  setVisible(visible) {
+    this.visible = visible;
+    if (this.naverMapsPolygon) {
+      this.naverMapsPolygon.setVisible(visible);
+    }
+  }
+
+  /**
+   * 지도 위의 naver polygon의 h3Index를 설정합니다.
+   *
+   * @param {string} h3Index 도형 좌표 목록
+   *
+   * @return {void} 없음
+   */
+  setH3Index(h3Index) {
+    if (!utils.h3IsValid(h3Index)) {
+      throw new Error(`h3Index:${h3Index} 유효하지 않음`);
+    }
+    this.h3Index = h3Index;
+    if (this.naverMapsPolygon) {
+      const paths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([this.h3Index]);
+      this.naverMapsPolygon.setPaths(paths);
+    }
+  }
+
 
   /**
    * 지도 위의 Hexagon이 focus(mouseover) 상태인지 알려줍니다
@@ -85,6 +121,7 @@ class Hexagon {
     const { polygon, listeners } = naverMapWrapper.drawPolygon({
       map,
       naverPolygonPaths,
+      visible: this.visible,
       style,
       onMouseover: () => {
         this.focus();
@@ -120,14 +157,29 @@ class Hexagon {
     });
     this.status = STATUS_NONE;
   }
+
+  /**
+   * Hexagon 객체를 없앱니다.
+   *
+   * @return {void} 없음
+   */
+  destroy() {
+    this.remove();
+    // eventListener 제거
+    this.listeners = [];
+    // hexagon 제거
+    this.naverMapsPolygon = null;
+  }
 }
 
 export default {
   createHexagon: ({
     h3Index,
+    visible,
     onRemove = () => {},
   }) => (new Hexagon({
     h3Index,
+    visible,
     onRemove,
   })),
 };
