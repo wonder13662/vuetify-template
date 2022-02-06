@@ -151,7 +151,6 @@ export default {
       this.overlays = overlays;
     },
     onChange({ meta, show }) {
-      // const { key } = meta;
       this.keys.forEach((key) => {
         if (key === meta.key) {
           this[key] = {
