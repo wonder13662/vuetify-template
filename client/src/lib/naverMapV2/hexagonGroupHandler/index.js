@@ -420,10 +420,6 @@ class HexagonGroup {
     if (this.#naverMapsPolygon) {
       this.#naverMapsPolygon.setStyles(this.getStylePolygonBorderBlur());
     }
-    // REMOVE ME
-    // if (this.#onBlur) {
-    //   this.#onBlur(this);
-    // }
     const eventListenerMap = this.#eventListenerMap.get(HEXAGON_EVENT.BLUR);
     notifyEventListeners({
       eventListenerMap,
