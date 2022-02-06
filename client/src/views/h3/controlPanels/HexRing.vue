@@ -45,7 +45,6 @@ import BaseText from '@/components/base/v1/BaseText';
 import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
 import utils from '@/lib/naverMapV2/lib/utils';
 
-// TODO 빵꾸(hollow) 표현을 해야 함!
 // TODO 경계 h3Index를 받는다면, 외부와 내부의 h3Index를 어떻게 구분할 것인지?
 // TODO point가 선택된 h3Index들 안에 있는지 판단할 수 있는 가장 빠른 방법은?
 // 1. point로 기준 resolution의 h3Index를 구한 다음에 h3Index 배열에 있는지 1:1 비교(느림)
