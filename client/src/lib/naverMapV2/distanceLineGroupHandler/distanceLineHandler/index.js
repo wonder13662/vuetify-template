@@ -6,7 +6,6 @@ import {
 import utils from '../../lib/utils';
 import naverMapWrapper from '../../lib/naverMapWrapper';
 import {
-  OVERLAY_EVENT,
   OVERLAY_STATUS,
 } from '../../lib/constants';
 import overlayEventHandler from '../../overlayEventHandler';
@@ -82,13 +81,14 @@ class DistanceLine {
 
   #overlayMarkerDistance
 
-  #eventListenerMap
-
   #overlayPolylineEventController
+
+  #meta
 
   constructor({
     start,
     end,
+    meta = {},
   }) {
     if (!utils.isLatitude(start.lat)) {
       throw new Error(`start.lat:${start.lat} - 유효하지 않음`);
@@ -105,14 +105,22 @@ class DistanceLine {
 
     this.#start = start;
     this.#end = end;
+    this.#meta = meta;
 
     this.#overlayPolyline = null;
     this.#overlayMarkerDistance = null;
 
-    this.#eventListenerMap = new Map();
-    this.#eventListenerMap.set(OVERLAY_EVENT.BLUR, new Map());
-    this.#eventListenerMap.set(OVERLAY_EVENT.FOCUS, new Map());
-    this.#eventListenerMap.set(OVERLAY_EVENT.CLICK, new Map());
+    // 1-2. overlayPolylineEventController 생성
+    this.#overlayPolylineEventController = overlayEventHandler.createOverlayEventController({
+      onFocus: () => {
+        this.focus();
+      },
+      onBlur: () => {
+        this.blur();
+      },
+      onClick: () => ({}),
+      meta: { ...this.#meta },
+    });
   }
 
   draw(map) {
@@ -135,17 +143,8 @@ class DistanceLine {
     });
     this.#overlayPolyline = polyline;
 
-    // 1-2. overlayPolylineEventController 생성
-    this.#overlayPolylineEventController = overlayEventHandler.createOverlayEventController({
-      overlay: this.#overlayPolyline,
-      onFocus: () => {
-        this.focus();
-      },
-      onBlur: () => {
-        this.blur();
-      },
-      onClick: () => ({}),
-    });
+    // 1-2. overlayPolylineEventController의 overlay 설정
+    this.#overlayPolylineEventController.setOverlay(this.#overlayPolyline);
 
     // 2-1. distanceMarker 그리기
     // 거리를 나타내는 위치는 출발과 도착의 중간 위치이어야 합니다.
@@ -170,6 +169,10 @@ class DistanceLine {
       this.#overlayMarkerDistance.setMap(null);
       this.#overlayMarkerDistance = null;
     }
+  }
+
+  destroy() {
+    this.remove();
     if (this.#overlayPolylineEventController) {
       this.#overlayPolylineEventController.remove();
       this.#overlayPolylineEventController = null;
@@ -374,6 +377,7 @@ export default {
   createDistanceLine({
     start,
     end,
+    meta = {},
   }) {
     if (!start || !utils.isLatitude(start.lat) || !utils.isLongitude(start.lng)) {
       throw new Error('start: 유효하지 않음');
@@ -385,6 +389,7 @@ export default {
     return new DistanceLine({
       start,
       end,
+      meta,
     });
   },
   /**
