@@ -1,7 +1,4 @@
 import naverMapHelper from './naverMapHelper';
-import hexagonGroupHandler from './hexagonGroupHandler';
-import markerGroupHandler from './markerGroupHandler';
-import distanceLineGroupHandler from './distanceLineGroupHandler';
 
 const NAVER_MAPS_SRC_ID = 'naver-map-src';
 
@@ -35,39 +32,14 @@ class NaverMap {
     this.mapOptions = mapOptions;
 
     this.overlays = [];
-    // @ Deprecated
-    this.polylinesOnMap = []; // REMOVE ME
-    // this.polylines = []; // TODO hexagonGroups와 동일한 방식으로 제어하도록 수정하자!
-    // @ Deprecated
-    this.markerGroups = [];
-    // @ Deprecated
-    this.distanceLineGroups = [];
-    // @ Deprecated
-    this.hexagonGroups = [];
 
     this.mapEventListenerOnBoundChanged = null;
     this.mapEventListenerOnZoomChanged = null;
     this.mapEventListenerOnClick = null;
     this.eventListeners = [];
     this.callbacksOnBoundChanged = [];
-    this.callbacksOnZoomChanged = [
-      (v) => {
-        hexagonGroupHandler.setZoomLevel({
-          map: this.map,
-          hexagonGroups: this.hexagonGroups,
-          zoomLevel: v,
-        });
-      },
-    ];
-    this.callbacksOnClick = [
-      (v) => {
-        hexagonGroupHandler.setClickedPoint({
-          map: this.map,
-          hexagonGroups: this.hexagonGroups,
-          point: v,
-        });
-      },
-    ];
+    this.callbacksOnZoomChanged = [];
+    this.callbacksOnClick = [];
     this.onCompleted = onCompleted;
     this.onError = onError;
   }
@@ -108,22 +80,6 @@ class NaverMap {
   }
 
   draw() {
-    // @ Deprecated
-    markerGroupHandler.drawMarkerGroups({
-      map: this.map,
-      markerGroups: this.markerGroups,
-    });
-    // @ Deprecated
-    distanceLineGroupHandler.drawDistanceLineGroup({
-      map: this.map,
-      markerGroups: this.distanceLineGroups,
-    });
-    // @ Deprecated
-    hexagonGroupHandler.drawHexagonGroups({
-      map: this.map,
-      hexagonGroups: this.hexagonGroups,
-    });
-
     this.overlays.forEach((v) => v.draw(this.map));
   }
 
@@ -197,127 +153,6 @@ class NaverMap {
     }
   }
 
-  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
-  /**
-   * 네이버 맵 위에 출발, 도착 지점을 잇는 선들의 집합(DistanceLineGroup)을 그립니다.
-   *
-   * @param {object} distanceLineGroup - DistanceLineGroup의 인스턴스
-   *
-   * @return {void} 반환값 없음
-   */
-  addDistanceLineGroups(distanceLineGroups) { // TODO 얘네들 모두 set으로 바꾸자.
-    try {
-      const { map } = this;
-      if (!map) {
-        throw new Error('map: 유효하지 않음');
-      }
-      if (!distanceLineGroups || distanceLineGroups.length === 0) {
-        throw new Error('distanceLine: 유효하지 않음');
-      }
-      this.distanceLineGroups = distanceLineGroups;
-      distanceLineGroupHandler.drawDistanceLineGroup({
-        map,
-        distanceLineGroups: this.distanceLineGroups,
-      });
-    } catch (error) {
-      this.onError(error);
-    }
-  }
-
-  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
-  /**
-   * 네이버 맵 위에 출발, 도착 지점을 잇는 선들의 집합(DistanceLineGroup)을 지웁니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeDistanceLineGroups() {
-    try {
-      distanceLineGroupHandler.removeDistanceLineGroups(this.distanceLineGroups);
-    } catch (error) {
-      this.onError(error);
-    }
-  }
-
-  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
-  /**
-   * MarkerGroup의 인스턴스의 배열을 추가합니다.
-   *
-   * @param {array} markerGroups - MarkerGroup의 배열
-   *
-   * @return {void} 반환값 없음
-   */
-  addMarkerGroups(markerGroups) {
-    try {
-      const { map } = this;
-      if (!map) {
-        throw new Error('map: 유효하지 않음');
-      }
-      if (!markerGroups || markerGroups.length === 0) {
-        throw new Error('markerGroups: 유효하지 않음');
-      }
-      this.markerGroups = markerGroups;
-      markerGroupHandler.drawMarkerGroups(this.markerGroups);
-    } catch (error) {
-      this.onError(error);
-    }
-  }
-
-  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
-  /**
-   * MarkerGroup의 인스턴스의 배열을 맵 위에서 삭제합니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeMarkerGroups() {
-    try {
-      markerGroupHandler.removeMarkerGroups(this.markerGroups);
-    } catch (error) {
-      this.onError(error);
-    }
-  }
-
-  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
-  /**
-   * HexagonGroup의 인스턴스의 배열을 추가합니다.
-   *
-   * @param {array} hexagonGroups - HexagonGroup의 배열
-   *
-   * @return {void} 반환값 없음
-   */
-  addHexagonGroups(hexagonGroups) {
-    try {
-      const { map } = this;
-      if (!map) {
-        throw new Error('map: 유효하지 않음');
-      }
-      if (!hexagonGroups || hexagonGroups.length === 0) {
-        throw new Error('지도에 그릴 hexagonGroup 정보가 유효하지 않습니다.');
-      }
-
-      hexagonGroupHandler.drawHexagonGroups({
-        map,
-        hexagonGroups,
-      });
-      this.hexagonGroups = hexagonGroups;
-    } catch (error) {
-      this.onError(error);
-    }
-  }
-
-  // @ Deprecated - Overlays를 이용해 지도 위에 그려주세요
-  /**
-   * HexagonGroup의 인스턴스의 배열을 맵 위에서 삭제합니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeHexagonGroups() {
-    try {
-      hexagonGroupHandler.removeHexagonGroups(this.hexagonGroups);
-    } catch (error) {
-      this.onError(error);
-    }
-  }
-
   fitBounds(bound) {
     const { map } = this;
     if (!map) {
@@ -352,17 +187,8 @@ class NaverMap {
     try {
       removeMapHTMLStyle();
       naverMapHelper.removeEventListener(this.eventListeners);
-
-      markerGroupHandler.removeMarkerGroups(this.markerGroups);
-      this.markerGroups = [];
-
-      distanceLineGroupHandler.removeDistanceLineGroup(this.distanceLineGroups);
-      this.distanceLineGroups = [];
-
-      hexagonGroupHandler.removeHexagonGroups(this.hexagonGroups);
-      this.hexagonGroups = [];
-
-      if (!this.map) throw new Error('네이버 맵 객체가 유효하지 않습니다.'); // TODO CUSTOM_ERROR, ERROR_CODE 매핑
+      // TODO 등록된 overlays를 한꺼번에 삭제하는 방법은?
+      if (!this.map) throw new Error('네이버 맵 객체가 유효하지 않습니다.');
       // https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Map.html
       this.map.destroy();
     } catch (error) {

@@ -92,23 +92,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    // @ Deprecated - overlays로 전달해주세요.
-    // 마커 배열
-    markerGroups: {
-      type: Array,
-      default: () => ([]),
-    },
-    // @ Deprecated - overlays로 전달해주세요.
-    // 거리 polyline 배열
-    distanceLineGroups: {
-      type: Array,
-      default: () => ([]),
-    },
-    // @ Deprecated - overlays로 전달해주세요.
-    hexagonGroups: {
-      type: Array,
-      default: () => ([]),
-    },
     // 지도 위에 그려지는 오버레이 객체의 배열
     // 마커, 거리폴리라인, hexagonGroups도 모두 오버레이 객체입니다.
     // 앞으로 overlays로 받아서 지도에 그리도록 합니다.
@@ -137,39 +120,12 @@ export default {
         this.naverMap.addOverlays(v);
       }
     },
-    markerGroups(val) { // REMOVE ME @deprecated
-      if (!this.naverMap) {
-        return;
-      }
-      this.naverMap.removeMarkerGroups();
-      if (val && val.length > 0) {
-        this.naverMap.addMarkerGroups(val);
-      }
-    },
-    distanceLineGroups(val) { // REMOVE ME @deprecated
-      if (!this.naverMap) {
-        return;
-      }
-      this.naverMap.removeDistanceLineGroups();
-      if (val && val.length > 0) {
-        this.naverMap.addDistanceLineGroups(val);
-      }
-    },
     bound(val) {
       if (!this.naverMap) {
         return;
       }
       if (val) {
         this.naverMap.fitBounds(val);
-      }
-    },
-    hexagonGroups(val) { // REMOVE ME @deprecated
-      if (!this.naverMap) {
-        return;
-      }
-      this.naverMap.removeHexagonGroups();
-      if (val && val.length > 0) {
-        this.naverMap.addHexagonGroups(val);
       }
     },
   },
@@ -207,21 +163,8 @@ export default {
           this.naverMap.addCallbackOnClick((v) => {
             this.$emit('click', v);
           });
-
           if (this.bound) {
             this.naverMap.fitBounds(this.bound);
-          }
-          // @ Deprecated
-          if (this.markerGroups && this.markerGroups.length > 0) {
-            this.naverMap.addMarkerGroups(this.markerGroups);
-          }
-          // @ Deprecated
-          if (this.distanceLineGroups && this.distanceLineGroups.length > 0) {
-            this.naverMap.addDistanceLineGroups(this.distanceLineGroups);
-          }
-          // @ Deprecated
-          if (this.hexagonGroups && this.hexagonGroups.length > 0) {
-            this.naverMap.addHexagonGroups(this.hexagonGroups);
           }
           if (this.overlays && this.overlays.length > 0) {
             this.naverMap.addOverlays(this.overlays);
