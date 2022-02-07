@@ -6,22 +6,66 @@
     @change="onChange"
     @change-h3-index="onChangeH3Index"
   >
-    <div>내부구현필요</div>
+    <!-- 1. 라디오버튼: 출발,도착 -->
+    <BaseContentHorizontalLayout
+      col-width-left="100px"
+    >
+      <template v-slot:left>
+        <div class="pa-1">
+          <BaseText
+            bold
+            text="대상"
+          />
+        </div>
+      </template>
+      <template v-slot:right>
+        <div class="pa-1">
+          <BaseRadioGroup
+            :items="items"
+            :selected-value="selectedValue"
+            @change="onChangeRadioGroup"
+          />
+        </div>
+      </template>
+    </BaseContentHorizontalLayout>
+    <!-- 2. h3Index: 출발 -->
+    <ControlPanelRow
+      label="출발"
+      :value="h3IndexStart"
+    />
+    <!-- 3. h3Index: 도착 -->
+    <ControlPanelRow
+      label="도착"
+      :value="h3IndexEnd"
+    />
   </GeoToH3>
 </template>
 
 <script>
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseRadioGroup from '@/components/base/BaseRadioGroup';
+import BaseText from '@/components/base/BaseText';
 import GeoToH3 from './GeoToH3';
+import ControlPanelRow from './ControlPanelRow';
 import mapUtils from '@/lib/naverMapV2/lib/utils';
+import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
 
 // https://h3geo.org/docs/api/traversal/#h3line
 // TODO 2개의 클릭 좌표를 받아야 함
 // 현재는 클릭한 1개의 좌표만 받을 수 있음
 // 사용자가 선택한 point에 좌표가 새로 들어오는 구조로 만들어보자
+
+const START_POINT = 'START_POINT';
+const END_POINT = 'END_POINT';
+
 export default {
   name: 'H3Line',
   components: {
+    BaseContentHorizontalLayout,
+    BaseRadioGroup,
+    BaseText,
     GeoToH3,
+    ControlPanelRow,
   },
   props: {
     show: {
@@ -31,6 +75,25 @@ export default {
       type: Object,
       default: () => ({}),
     },
+  },
+  data() {
+    return {
+      items: [
+        {
+          text: '출발',
+          value: START_POINT,
+        },
+        {
+          text: '도착',
+          value: END_POINT,
+        },
+      ],
+      selectedValue: START_POINT,
+      h3IndexStart: '',
+      h3IndexStartOverlay: null,
+      h3IndexEnd: '',
+      h3IndexEndOverlay: null,
+    };
   },
   methods: {
     onChange({ meta, show }) {
@@ -43,8 +106,35 @@ export default {
       if (!mapUtils.h3IsValid(h3Index)) {
         return;
       }
-      // eslint-disable-next-line no-console
-      console.log('onChangeH3Index / h3Index:', h3Index);
+      // 1. h3Index를 업데이트한다.
+      if (this.selectedValue === START_POINT) {
+        this.h3IndexStart = h3Index;
+      } else if (this.selectedValue === END_POINT) {
+        this.h3IndexEnd = h3Index;
+      }
+
+      // 2. hexagon을 업데이트한다
+      const overlay = hexagonHandler.createHexagon({
+        h3Index,
+      });
+      if (this.selectedValue === START_POINT) {
+        this.h3IndexStartOverlay = overlay;
+      } else if (this.selectedValue === END_POINT) {
+        this.h3IndexEndOverlay = overlay;
+      }
+
+      // 3. 업데이트한 hexagon을 부모에게 emit 한다
+      const overlays = [];
+      if (this.h3IndexStartOverlay) {
+        overlays.push(this.h3IndexStartOverlay);
+      }
+      if (this.h3IndexEndOverlay) {
+        overlays.push(this.h3IndexEndOverlay);
+      }
+      this.$emit('change-overlays', overlays);
+    },
+    onChangeRadioGroup(v) {
+      this.selectedValue = v;
     },
   },
 };
