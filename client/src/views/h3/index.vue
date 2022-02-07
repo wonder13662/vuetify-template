@@ -14,7 +14,7 @@
               draggable
               zoom-control
               scroll-wheel
-              @click="onClick"
+              @click="onClickAtNaverMap"
             />
           </div>
         </template>
@@ -137,15 +137,12 @@ export default {
     onChangeOverlays(overlays) {
       this.overlays = overlays;
     },
+    // TODO 여기서 자식 컴포넌트가 클릭한 좌표 정보를 알아야할 이유가 있을까? 없어도 될 것 같은데?
     onChange({ meta, show }) {
       this.keys.forEach((key) => {
         if (key === meta.key) {
           this[key] = {
             ...this[key],
-            meta: {
-              ...meta,
-              point: !show ? { lat: null, lng: null } : meta.point,
-            },
             show,
           };
         } else {
@@ -156,7 +153,8 @@ export default {
         }
       });
     },
-    onClick({ lat, lng }) {
+    // eslint-disable-next-line no-unused-vars
+    onClickAtNaverMap({ lat, lng }) {
       const foundOpenPanelKey = this.keys.find((key) => (this[key] && this[key].show));
       if (foundOpenPanelKey) {
         this[foundOpenPanelKey] = {
