@@ -7,17 +7,29 @@ const STATUS_FOCUS = 'STATUS_FOCUS';
 const STATUS_BLUR = 'STATUS_BLUR';
 
 class Hexagon {
+  #h3Index
+
+  #visible
+
+  #naverMapsPolygon
+
+  #status
+
+  #listeners
+
+  #onRemove
+
   constructor({
     h3Index,
     visible,
     onRemove = () => {},
   }) {
-    this.h3Index = h3Index;
-    this.visible = visible;
-    this.naverMapsPolygon = null;
-    this.status = STATUS_NONE;
-    this.listeners = [];
-    this.onRemove = onRemove;
+    this.#h3Index = h3Index;
+    this.#visible = visible;
+    this.#naverMapsPolygon = null;
+    this.#status = STATUS_NONE;
+    this.#listeners = [];
+    this.#onRemove = onRemove;
   }
 
   /**
@@ -28,9 +40,9 @@ class Hexagon {
    * @return {void} 없음
    */
   setVisible(visible) {
-    this.visible = visible;
-    if (this.naverMapsPolygon) {
-      this.naverMapsPolygon.setVisible(visible);
+    this.#visible = visible;
+    if (this.#naverMapsPolygon) {
+      this.#naverMapsPolygon.setVisible(visible);
     }
   }
 
@@ -45,10 +57,10 @@ class Hexagon {
     if (!utils.h3IsValid(h3Index)) {
       throw new Error(`h3Index:${h3Index} 유효하지 않음`);
     }
-    this.h3Index = h3Index;
-    if (this.naverMapsPolygon) {
-      const paths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([this.h3Index]);
-      this.naverMapsPolygon.setPaths(paths);
+    this.#h3Index = h3Index;
+    if (this.#naverMapsPolygon) {
+      const paths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([this.#h3Index]);
+      this.#naverMapsPolygon.setPaths(paths);
     }
   }
 
@@ -59,7 +71,7 @@ class Hexagon {
    * @return {boolean} focus(mouseover) 상태 여부
    */
   isFocus() {
-    return this.status === STATUS_FOCUS;
+    return this.#status === STATUS_FOCUS;
   }
 
   /**
@@ -68,7 +80,7 @@ class Hexagon {
    * @return {boolean} blur(mouseout) 상태 여부
    */
   isBlur() {
-    return this.status === STATUS_BLUR;
+    return this.#status === STATUS_BLUR;
   }
 
   /**
@@ -77,13 +89,13 @@ class Hexagon {
    * @return {void} 없음
    */
   focus() {
-    if (!this.naverMapsPolygon) {
-      throw new Error('this.naverMapsPolygon: 유효하지 않음');
+    if (!this.#naverMapsPolygon) {
+      throw new Error('this.#naverMapsPolygon: 유효하지 않음');
     }
 
-    this.status = STATUS_FOCUS;
+    this.#status = STATUS_FOCUS;
     // https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setStyles__anchor
-    this.naverMapsPolygon.setStyles(hexagonCalculator.getStyleHexagonFocus());
+    this.#naverMapsPolygon.setStyles(hexagonCalculator.getStyleHexagonFocus());
   }
 
   /**
@@ -92,13 +104,13 @@ class Hexagon {
    * @return {void} 없음
    */
   blur() {
-    if (!this.naverMapsPolygon) {
-      throw new Error('this.naverMapsPolygon: 유효하지 않음');
+    if (!this.#naverMapsPolygon) {
+      throw new Error('this.#naverMapsPolygon: 유효하지 않음');
     }
 
-    this.status = STATUS_BLUR;
+    this.#status = STATUS_BLUR;
     // https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setStyles__anchor
-    this.naverMapsPolygon.setStyles(hexagonCalculator.getStyleHexagonBlur());
+    this.#naverMapsPolygon.setStyles(hexagonCalculator.getStyleHexagonBlur());
   }
 
   /**
@@ -115,13 +127,13 @@ class Hexagon {
     }
 
     // eslint-disable-next-line max-len
-    const naverPolygonPaths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([this.h3Index]);
+    const naverPolygonPaths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([this.#h3Index]);
     const style = hexagonCalculator.getStyleHexagonBlur();
-    this.status = STATUS_BLUR;
+    this.#status = STATUS_BLUR;
     const { polygon, listeners } = naverMapWrapper.drawPolygon({
       map,
       naverPolygonPaths,
-      visible: this.visible,
+      visible: this.#visible,
       style,
       onMouseover: () => {
         this.focus();
@@ -133,12 +145,12 @@ class Hexagon {
         // 1. 지도 위에 hexagon을 지운다.
         this.remove();
         // 2. 부모 hexagonGroup에 hexagon이 지워졌다는 것을 알려준다.
-        this.onRemove(this.h3Index);
+        this.#onRemove(this.#h3Index);
       },
     });
 
-    this.naverMapsPolygon = polygon;
-    this.listeners = listeners;
+    this.#naverMapsPolygon = polygon;
+    this.#listeners = listeners;
   }
 
   /**
@@ -147,15 +159,15 @@ class Hexagon {
    * @return {void} 없음
    */
   remove() {
-    if (!this.naverMapsPolygon) {
+    if (!this.#naverMapsPolygon) {
       return;
     }
 
     naverMapWrapper.removePolygon({
-      polygon: this.naverMapsPolygon,
-      listeners: this.listeners,
+      polygon: this.#naverMapsPolygon,
+      listeners: this.#listeners,
     });
-    this.status = STATUS_NONE;
+    this.#status = STATUS_NONE;
   }
 
   /**
@@ -166,9 +178,9 @@ class Hexagon {
   destroy() {
     this.remove();
     // eventListener 제거
-    this.listeners = [];
+    this.#listeners = [];
     // hexagon 제거
-    this.naverMapsPolygon = null;
+    this.#naverMapsPolygon = null;
   }
 }
 
