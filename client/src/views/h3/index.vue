@@ -79,10 +79,10 @@
 </template>
 
 <script>
-import BaseNaverMap from '@/components/base/v1/BaseNaverMapV2';
-import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
-import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalLayout';
-import BaseHeading from '@/components/base/v1/BaseHeading';
+import BaseNaverMap from '@/components/base/BaseNaverMapV2';
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseContentVerticalLayout from '@/components/base/BaseContentVerticalLayout';
+import BaseHeading from '@/components/base/BaseHeading';
 import GeoToH3 from './controlPanels/GeoToH3';
 import KRing from './controlPanels/KRing';
 import KRingDistances from './controlPanels/KRingDistances';

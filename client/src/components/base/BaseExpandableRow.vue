@@ -49,9 +49,9 @@
 </template>
 
 <script>
-import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
-import BaseHeading from '@/components/base/v1/BaseHeading';
-import BaseText from '@/components/base/v1/BaseText';
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseHeading from '@/components/base/BaseHeading';
+import BaseText from '@/components/base/BaseText';
 
 export default {
   name: 'BaseExpandableRow',

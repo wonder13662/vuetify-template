@@ -67,9 +67,9 @@
 </template>
 
 <script>
-import BaseApp from '@/components/base/v2/BaseApp';
-import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalLayout';
-import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
+import BaseApp from '@/components/base/BaseApp';
+import BaseContentVerticalLayout from '@/components/base/BaseContentVerticalLayout';
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
 
 export default {
   name: 'Leo',

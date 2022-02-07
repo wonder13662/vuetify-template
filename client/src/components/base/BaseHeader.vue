@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import BaseContentHorizontalEvenLayout from '@/components/base/v2/BaseContentHorizontalEvenLayout';
-import BaseText from '@/components/base/v1/BaseText';
+import BaseContentHorizontalEvenLayout from '@/components/base/BaseContentHorizontalEvenLayout';
+import BaseText from '@/components/base/BaseText';
 
 export default {
   name: 'BaseHeader',

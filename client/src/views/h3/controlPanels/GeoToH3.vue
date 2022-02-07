@@ -57,10 +57,10 @@
 import {
   geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
 } from 'h3-js';
-import BaseExpandableRow from '@/components/base/v2/BaseExpandableRow';
-import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
-import BaseText from '@/components/base/v1/BaseText';
-import BaseSelect from '@/components/base/v1/BaseSelect';
+import BaseExpandableRow from '@/components/base/BaseExpandableRow';
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseText from '@/components/base/BaseText';
+import BaseSelect from '@/components/base/BaseSelect';
 import ControlPanelRow from './ControlPanelRow';
 import utils from '@/lib/naverMapV2/lib/utils';
 import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
