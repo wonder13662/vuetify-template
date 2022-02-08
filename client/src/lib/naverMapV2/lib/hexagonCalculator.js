@@ -254,6 +254,9 @@ export default {
    * @return {Bound} 경계 객체
    */
   convertH3IndexToBound(h3Indexes) {
+    if (!h3Indexes || h3Indexes.length === 0) {
+      return null;
+    }
     const points = convertH3IndexToPoints(h3Indexes);
     return convertPointsToBound(points);
   },

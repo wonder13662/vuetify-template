@@ -136,6 +136,9 @@ class HexagonGroup {
    * @return {object} Naver bound 객체
    */
   getBound() {
+    if (!this.h3Indexes || this.h3Indexes.length === 0) {
+      return null;
+    }
     return hexagonCalculator.convertH3IndexToBound(this.h3Indexes);
   }
 
@@ -470,7 +473,15 @@ export default {
   getBound(hexagonGroups) {
     const bounds = hexagonGroups.map((v) => v.getBound());
     const mergedBound = bounds.reduce((acc, v) => {
-      if (!acc) return v;
+      if (!acc && !v) {
+        return null;
+      }
+      if (!acc) {
+        return v;
+      }
+      if (!v) {
+        return acc;
+      }
       return acc.merge(v);
     }, null);
     return mergedBound;
