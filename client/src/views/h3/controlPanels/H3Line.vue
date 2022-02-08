@@ -44,6 +44,7 @@
 <script>
 import {
   h3Line, // https://h3geo.org/docs/api/traversal/#h3line
+  h3GetResolution, // https://h3geo.org/docs/api/traversal/#h3line
 } from 'h3-js';
 import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
 import BaseRadioGroup from '@/components/base/BaseRadioGroup';
@@ -99,10 +100,18 @@ export default {
       h3IndexEndOverlay: null,
       h3IndexesH3Line: [],
       h3IndexesH3LineOverlay: null,
-
+      h3IndexResolution: -1,
     };
   },
   methods: {
+    reset() {
+      this.h3IndexStart = '';
+      this.h3IndexStartOverlay = null;
+      this.h3IndexEnd = '';
+      this.h3IndexEndOverlay = null;
+      this.h3IndexesH3Line = [];
+      this.h3IndexesH3LineOverlay = null;
+    },
     onChange({ meta, show }) {
       this.$emit('change', {
         meta,
@@ -113,6 +122,14 @@ export default {
       if (!mapUtils.h3IsValid(h3Index)) {
         return;
       }
+      // 0. resolution 검사
+      const resolution = h3GetResolution(h3Index);
+      if (this.h3IndexResolution !== resolution) {
+        this.h3IndexResolution = resolution;
+        // 0-1. resolution이 바뀌면 모든 데이터를 초기화해야 한다.
+        this.reset();
+      }
+
       // 1. h3Index를 업데이트한다.
       if (this.selectedValue === START_POINT) {
         this.h3IndexStart = h3Index;
