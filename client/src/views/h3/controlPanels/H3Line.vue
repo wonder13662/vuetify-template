@@ -117,19 +117,18 @@ export default {
       h3IndexResolution: -1,
       h3Distance: -1,
       localIj: { i: 0, j: 0 },
+      overlays: [],
     };
   },
-  methods: {
-    reset() {
-      this.h3IndexStart = '';
-      this.h3IndexStartOverlay = null;
-      this.h3IndexEnd = '';
-      this.h3IndexEndOverlay = null;
-      this.h3IndexesH3Line = [];
-      this.h3IndexesH3LineOverlay = null;
-      this.h3Distance = -1;
-      this.localIj = { i: 0, j: 0 };
+  watch: {
+    show(v) {
+      if (!v) {
+        this.reset();
+        this.$emit('change-overlays', []);
+      }
     },
+  },
+  methods: {
     onChange({ meta, show }) {
       this.$emit('change', {
         meta,
@@ -183,20 +182,37 @@ export default {
       }
 
       // 5. 업데이트한 hexagon을 부모에게 emit 한다
-      const overlays = [];
+      this.destroyOverlays();
+      this.overlays = [];
       if (this.h3IndexesH3LineOverlay) {
-        overlays.push(this.h3IndexesH3LineOverlay);
+        this.overlays.push(this.h3IndexesH3LineOverlay);
       }
       if (this.h3IndexStartOverlay) {
-        overlays.push(this.h3IndexStartOverlay);
+        this.overlays.push(this.h3IndexStartOverlay);
       }
       if (this.h3IndexEndOverlay) {
-        overlays.push(this.h3IndexEndOverlay);
+        this.overlays.push(this.h3IndexEndOverlay);
       }
-      this.$emit('change-overlays', overlays);
+      this.$emit('change-overlays', this.overlays);
     },
     onChangeRadioGroup(v) {
       this.selectedValue = v;
+    },
+    reset() {
+      this.destroyOverlays();
+      this.h3IndexStart = '';
+      this.h3IndexStartOverlay = null;
+      this.h3IndexEnd = '';
+      this.h3IndexEndOverlay = null;
+      this.h3IndexesH3Line = [];
+      this.h3IndexesH3LineOverlay = null;
+      this.h3Distance = -1;
+      this.localIj = { i: 0, j: 0 };
+    },
+    destroyOverlays() {
+      if (this.overlays && this.overlays.length > 0) {
+        this.overlays.forEach((o) => o.destroy());
+      }
     },
   },
 };
