@@ -36,36 +36,43 @@
               <div>
                 <!-- 3. 리스트: H3 Api 목록 -->
                 <GeoToH3
-                  :meta="geoToH3.meta"
-                  :show="geoToH3.show"
+                  :meta="GeoToH3.meta"
+                  :show="GeoToH3.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
                 <KRing
-                  :meta="kRing.meta"
-                  :show="kRing.show"
+                  :meta="KRing.meta"
+                  :show="KRing.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
                 <KRingDistances
-                  :meta="kRingDistances.meta"
-                  :show="kRingDistances.show"
+                  :meta="KRingDistances.meta"
+                  :show="KRingDistances.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
                 <HexRing
-                  :meta="hexRing.meta"
-                  :show="hexRing.show"
+                  :meta="HexRing.meta"
+                  :show="HexRing.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
                 <H3Line
-                  :meta="h3Line.meta"
-                  :show="h3Line.show"
+                  :meta="H3Line.meta"
+                  :show="H3Line.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
+                <v-divider />
+                <H3ToParent
+                  :meta="H3ToParent.meta"
+                  :show="H3ToParent.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
@@ -88,16 +95,18 @@ import KRing from './controlPanels/KRing';
 import KRingDistances from './controlPanels/KRingDistances';
 import HexRing from './controlPanels/HexRing';
 import H3Line from './controlPanels/H3Line';
+import H3ToParent from './controlPanels/H3ToParent';
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
 - https://h3geo.org/
 */
 const CONTROL_PANEL_KEYS = [
-  'geoToH3',
-  'kRing',
-  'kRingDistances',
-  'hexRing',
-  'h3Line',
+  'GeoToH3',
+  'KRing',
+  'KRingDistances',
+  'HexRing',
+  'H3Line',
+  'H3ToParent',
 ];
 const createControlPanelMap = () => CONTROL_PANEL_KEYS.reduce((acc, key) => {
   acc[key] = {
@@ -125,6 +134,7 @@ export default {
     KRingDistances,
     HexRing,
     H3Line,
+    H3ToParent,
   },
   data() {
     return {
