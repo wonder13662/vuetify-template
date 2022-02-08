@@ -170,6 +170,11 @@ export default {
         this.lng = null;
         this.h3Index = '';
 
+        this.resolution = {
+          text: '9',
+          value: 9,
+        };
+
         if (this.naverPolygon) {
           this.naverPolygon.destroy();
           this.naverPolygon = null;
