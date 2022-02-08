@@ -42,6 +42,9 @@
 </template>
 
 <script>
+import {
+  h3Line, // https://h3geo.org/docs/api/traversal/#h3line
+} from 'h3-js';
 import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
 import BaseRadioGroup from '@/components/base/BaseRadioGroup';
 import BaseText from '@/components/base/BaseText';
@@ -49,6 +52,7 @@ import GeoToH3 from './GeoToH3';
 import ControlPanelRow from './ControlPanelRow';
 import mapUtils from '@/lib/naverMapV2/lib/utils';
 import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
+import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
 
 // https://h3geo.org/docs/api/traversal/#h3line
 // TODO 2개의 클릭 좌표를 받아야 함
@@ -93,6 +97,9 @@ export default {
       h3IndexStartOverlay: null,
       h3IndexEnd: '',
       h3IndexEndOverlay: null,
+      h3IndexesH3Line: [],
+      h3IndexesH3LineOverlay: null,
+
     };
   },
   methods: {
@@ -113,7 +120,22 @@ export default {
         this.h3IndexEnd = h3Index;
       }
 
-      // 2. hexagon을 업데이트한다
+      // 2. 출발 h3Index, 도착 h3Index가 모두 있다면, h3Line을 구한다
+      if (this.h3IndexStart && this.h3IndexEnd) {
+        this.h3IndexesH3Line = h3Line(this.h3IndexStart, this.h3IndexEnd);
+      }
+
+      // 3. H3Line의 overlay를 구한다.
+      if (this.h3IndexesH3Line && this.h3IndexesH3Line.length > 0) {
+        this.h3IndexesH3LineOverlay = hexagonGroupHandler.createHexagonGroup({
+          h3Indexes: this.h3IndexesH3Line,
+          meta: {
+            hexagonGroupName: 'H3Line',
+          },
+        });
+      }
+
+      // 4. hexagon을 업데이트한다
       const overlay = hexagonHandler.createHexagon({
         h3Index,
       });
@@ -123,8 +145,11 @@ export default {
         this.h3IndexEndOverlay = overlay;
       }
 
-      // 3. 업데이트한 hexagon을 부모에게 emit 한다
+      // 5. 업데이트한 hexagon을 부모에게 emit 한다
       const overlays = [];
+      if (this.h3IndexesH3LineOverlay) {
+        overlays.push(this.h3IndexesH3LineOverlay);
+      }
       if (this.h3IndexStartOverlay) {
         overlays.push(this.h3IndexStartOverlay);
       }

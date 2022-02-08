@@ -74,6 +74,9 @@ export default {
       return acc;
     }, new Set());
   },
+  convertSetToList(aSet) {
+    return Array.from(aSet);
+  },
   convertMapToList(map) {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#relation_with_array_objects
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#cloning_and_merging_maps
