@@ -43,6 +43,16 @@
       label="h3Distance"
       :value="h3Distance"
     />
+    <!-- 5. local I -->
+    <ControlPanelRow
+      label="local I"
+      :value="localIj.i"
+    />
+    <!-- 6. local J -->
+    <ControlPanelRow
+      label="local J"
+      :value="localIj.j"
+    />
   </GeoToH3>
 </template>
 
@@ -51,6 +61,7 @@ import {
   h3Line, // https://h3geo.org/docs/api/traversal/#h3line
   h3GetResolution, // https://h3geo.org/docs/api/traversal/#h3line
   h3Distance, // https://h3geo.org/docs/api/traversal/#h3distance
+  experimentalH3ToLocalIj, // https://h3geo.org/docs/api/traversal/#experimentalh3tolocalij
 } from 'h3-js';
 import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
 import BaseRadioGroup from '@/components/base/BaseRadioGroup';
@@ -105,6 +116,7 @@ export default {
       h3IndexesH3LineOverlay: null,
       h3IndexResolution: -1,
       h3Distance: -1,
+      localIj: { i: 0, j: 0 },
     };
   },
   methods: {
@@ -116,6 +128,7 @@ export default {
       this.h3IndexesH3Line = [];
       this.h3IndexesH3LineOverlay = null;
       this.h3Distance = -1;
+      this.localIj = { i: 0, j: 0 };
     },
     onChange({ meta, show }) {
       this.$emit('change', {
@@ -146,6 +159,7 @@ export default {
       if (this.h3IndexStart && this.h3IndexEnd) {
         this.h3IndexesH3Line = h3Line(this.h3IndexStart, this.h3IndexEnd);
         this.h3Distance = h3Distance(this.h3IndexStart, this.h3IndexEnd);
+        this.localIj = experimentalH3ToLocalIj(this.h3IndexStart, this.h3IndexEnd);
       }
 
       // 3. H3Line의 overlay를 구한다.
