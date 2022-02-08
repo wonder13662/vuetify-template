@@ -56,9 +56,6 @@ import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler'
 import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
 
 // https://h3geo.org/docs/api/traversal/#h3line
-// TODO 2개의 클릭 좌표를 받아야 함
-// 현재는 클릭한 1개의 좌표만 받을 수 있음
-// 사용자가 선택한 point에 좌표가 새로 들어오는 구조로 만들어보자
 
 const START_POINT = 'START_POINT';
 const END_POINT = 'END_POINT';
