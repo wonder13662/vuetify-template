@@ -38,6 +38,11 @@
       label="도착"
       :value="h3IndexEnd"
     />
+    <!-- 4. h3Distance -->
+    <ControlPanelRow
+      label="h3Distance"
+      :value="h3Distance"
+    />
   </GeoToH3>
 </template>
 
@@ -45,6 +50,7 @@
 import {
   h3Line, // https://h3geo.org/docs/api/traversal/#h3line
   h3GetResolution, // https://h3geo.org/docs/api/traversal/#h3line
+  h3Distance, // https://h3geo.org/docs/api/traversal/#h3distance
 } from 'h3-js';
 import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
 import BaseRadioGroup from '@/components/base/BaseRadioGroup';
@@ -98,6 +104,7 @@ export default {
       h3IndexesH3Line: [],
       h3IndexesH3LineOverlay: null,
       h3IndexResolution: -1,
+      h3Distance: -1,
     };
   },
   methods: {
@@ -108,6 +115,7 @@ export default {
       this.h3IndexEndOverlay = null;
       this.h3IndexesH3Line = [];
       this.h3IndexesH3LineOverlay = null;
+      this.h3Distance = -1;
     },
     onChange({ meta, show }) {
       this.$emit('change', {
@@ -134,9 +142,10 @@ export default {
         this.h3IndexEnd = h3Index;
       }
 
-      // 2. 출발 h3Index, 도착 h3Index가 모두 있다면, h3Line을 구한다
+      // 2. 출발 h3Index, 도착 h3Index가 모두 있다면, h3Line와 h3Distance을 구한다
       if (this.h3IndexStart && this.h3IndexEnd) {
         this.h3IndexesH3Line = h3Line(this.h3IndexStart, this.h3IndexEnd);
+        this.h3Distance = h3Distance(this.h3IndexStart, this.h3IndexEnd);
       }
 
       // 3. H3Line의 overlay를 구한다.
