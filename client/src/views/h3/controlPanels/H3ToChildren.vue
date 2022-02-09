@@ -1,6 +1,6 @@
 <template>
   <GeoToH3
-    title="H3ToChild"
+    title="H3ToChildren"
     :show="show"
     :meta="meta"
     @change="onChange"

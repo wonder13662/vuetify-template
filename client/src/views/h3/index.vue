@@ -77,9 +77,9 @@
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
-                <H3ToChild
-                  :meta="H3ToChild.meta"
-                  :show="H3ToChild.show"
+                <H3ToChildren
+                  :meta="H3ToChildren.meta"
+                  :show="H3ToChildren.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
@@ -103,7 +103,7 @@ import KRingDistances from './controlPanels/KRingDistances';
 import HexRing from './controlPanels/HexRing';
 import H3Line from './controlPanels/H3Line';
 import H3ToParent from './controlPanels/H3ToParent';
-import H3ToChild from './controlPanels/H3ToChild';
+import H3ToChildren from './controlPanels/H3ToChildren';
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
 - https://h3geo.org/
@@ -115,7 +115,7 @@ const CONTROL_PANEL_KEYS = [
   'HexRing',
   'H3Line',
   'H3ToParent',
-  'H3ToChild',
+  'H3ToChildren',
 ];
 const createControlPanelMap = () => CONTROL_PANEL_KEYS.reduce((acc, key) => {
   acc[key] = {
@@ -144,7 +144,7 @@ export default {
     HexRing,
     H3Line,
     H3ToParent,
-    H3ToChild,
+    H3ToChildren,
   },
   data() {
     return {
