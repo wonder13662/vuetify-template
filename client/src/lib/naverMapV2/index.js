@@ -197,6 +197,8 @@ class NaverMap {
   }
 }
 
+export { default as pickupDropPointHandler } from './pickupDropPointHandler';
+
 export default {
   createNaverMap: ({
     mapId,
