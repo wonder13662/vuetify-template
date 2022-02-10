@@ -173,6 +173,7 @@ export default {
     }
     return id.slice(0, 8).toUpperCase();
   },
+  makeStrKey: (key) => `${key}`,
   convertServiceUserApproveStatusReadable(approveStatus) {
     if (!approveStatus || !SERVICEUSER_APPROVE_STATUS_SET.has(approveStatus)) {
       throw new Error(`approveStatus: ${i18n.t('common.error.notValid')}`);
