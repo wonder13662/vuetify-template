@@ -125,7 +125,7 @@ export default {
       // 2. Children의 H3Index의 배열을 구한다.
       this.h3IndexesChildren = h3ToChildren(this.h3IndexParent, this.h3IndexResolutionChildren);
 
-      // 3. Parent의 hexagon을 업데이트한다
+      // 3. Children의 hexagon을 업데이트한다
       const overlayChildren = this.h3IndexesChildren.reduce((acc, v) => {
         acc.push(hexagonHandler.createHexagon({
           h3Index: v,
