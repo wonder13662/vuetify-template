@@ -174,6 +174,12 @@ export default {
     return id.slice(0, 8).toUpperCase();
   },
   makeStrKey: (key) => `${key}`,
+  isSameKeys(a, b) {
+    if (!a || !b) {
+      return false;
+    }
+    return this.makeStrKey(a) === this.makeStrKey(b);
+  },
   convertServiceUserApproveStatusReadable(approveStatus) {
     if (!approveStatus || !SERVICEUSER_APPROVE_STATUS_SET.has(approveStatus)) {
       throw new Error(`approveStatus: ${i18n.t('common.error.notValid')}`);
