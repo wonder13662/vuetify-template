@@ -83,6 +83,13 @@
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
+                <v-divider />
+                <H3ToCenterChild
+                  :meta="H3ToCenterChild.meta"
+                  :show="H3ToCenterChild.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
               </div>
             </template>
           </BaseContentVerticalLayout>
@@ -104,6 +111,7 @@ import HexRing from './controlPanels/HexRing';
 import H3Line from './controlPanels/H3Line';
 import H3ToParent from './controlPanels/H3ToParent';
 import H3ToChildren from './controlPanels/H3ToChildren';
+import H3ToCenterChild from './controlPanels/H3ToCenterChild';
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
 - https://h3geo.org/
@@ -116,6 +124,7 @@ const CONTROL_PANEL_KEYS = [
   'H3Line',
   'H3ToParent',
   'H3ToChildren',
+  'H3ToCenterChild',
 ];
 const createControlPanelMap = () => CONTROL_PANEL_KEYS.reduce((acc, key) => {
   acc[key] = {
@@ -145,6 +154,7 @@ export default {
     H3Line,
     H3ToParent,
     H3ToChildren,
+    H3ToCenterChild,
   },
   data() {
     return {
