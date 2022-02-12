@@ -1,5 +1,5 @@
-import naverMapWrapper from '../../lib/naverMapWrapper';
-import utils from '../../lib/utils';
+import naverMapWrapper from '../lib/naverMapWrapper';
+import utils from '../lib/utils';
 
 const getStyle = (color, bgColor) => {
   const styleContainer = 'opacity:.8;';

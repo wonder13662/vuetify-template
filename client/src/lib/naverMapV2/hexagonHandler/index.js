@@ -1,6 +1,6 @@
-import hexagonCalculator from '../../lib/hexagonCalculator';
-import naverMapWrapper from '../../lib/naverMapWrapper';
-import utils from '../../lib/utils';
+import hexagonCalculator from '../lib/hexagonCalculator';
+import naverMapWrapper from '../lib/naverMapWrapper';
+import utils from '../lib/utils';
 
 const STATUS_NONE = 'STATUS_NONE';
 const STATUS_FOCUS = 'STATUS_FOCUS';

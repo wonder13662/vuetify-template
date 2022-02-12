@@ -3,12 +3,12 @@ import {
   subtract,
   divide,
 } from 'mathjs';
-import utils from '../../lib/utils';
-import naverMapWrapper from '../../lib/naverMapWrapper';
+import utils from '../lib/utils';
+import naverMapWrapper from '../lib/naverMapWrapper';
 import {
   OVERLAY_STATUS,
-} from '../../lib/constants';
-import overlayEventHandler from '../../overlayEventHandler';
+} from '../lib/constants';
+import overlayEventHandler from '../overlayEventHandler';
 
 const createPath = (start, end) => ([
   naverMapWrapper.getLatLng(start.lat, start.lng),

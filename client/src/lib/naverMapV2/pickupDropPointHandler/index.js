@@ -1,5 +1,5 @@
-import markerHandler from '../markerGroupHandler/markerHandler';
-import distanceLineHandler from '../distanceLineGroupHandler/distanceLineHandler';
+import markerHandler from '../markerHandler';
+import distanceLineHandler from '../distanceLineHandler';
 import boundHandler from '../lib/boundHandler';
 import utils from '../lib/utils';
 

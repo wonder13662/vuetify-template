@@ -1,4 +1,4 @@
-import distanceLineHandler from './distanceLineHandler';
+import distanceLineHandler from '../distanceLineHandler';
 
 class DistanceLineGroup {
   constructor(distanceLineSrcArr) {
