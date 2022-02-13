@@ -5,20 +5,28 @@ import {
 } from '../lib/constants';
 import utils from '../lib/utils';
 
+const getStyle = () => [
+  'width: 8px;',
+  'height: 8px;',
+  'border: solid 4px black;',
+];
+
 const getStyleBlur = () => [
   'background: red;',
+  ...getStyle(),
 ].join('');
-const getPointMarkerAnchor = () => naverMapWrapper.getPoint(0, 0);
+const getPointMarkerAnchor = () => naverMapWrapper.getPoint(8, 8);
 const getPointMarkerIconStyleBlur = () => ({
-  content: `<div style="${getStyleBlur()}"><span>TEST</span></div>`,
+  content: `<div style="${getStyleBlur()}"></div>`,
   anchor: getPointMarkerAnchor(),
 });
 
 const getStyleFocus = () => [
   'background: green;',
+  ...getStyle(),
 ].join('');
 const getPointMarkerIconStyleFocus = () => ({
-  content: `<div style="${getStyleFocus()}"><span>TEST</span></div>`,
+  content: `<div style="${getStyleFocus()}"></div>`,
   anchor: getPointMarkerAnchor(),
 });
 
