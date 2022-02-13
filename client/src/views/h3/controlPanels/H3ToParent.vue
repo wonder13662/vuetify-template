@@ -48,8 +48,10 @@ import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontal
 import BaseText from '@/components/base/BaseText';
 import GeoToH3 from './GeoToH3';
 import ControlPanelRow from './ControlPanelRow';
-import mapUtils from '@/lib/naverMapV2/lib/utils';
-import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
+import {
+  hexagonHandler,
+  mapUtils,
+} from '@/lib/naverMapV2';
 
 export default {
   name: 'H3ToParent',

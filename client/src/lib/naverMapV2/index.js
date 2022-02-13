@@ -204,6 +204,7 @@ export { default as hexagonHandler } from './hexagonHandler';
 export { default as markerGroupHandler } from './markerGroupHandler'; // REMOVE ME
 export { default as markerHandler } from './markerHandler';
 export { default as pickupDropPointHandler } from './pickupDropPointHandler';
+export { default as mapUtils } from './lib/utils';
 
 export default {
   createNaverMap: ({

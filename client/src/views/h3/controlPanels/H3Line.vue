@@ -68,9 +68,11 @@ import BaseRadioGroup from '@/components/base/BaseRadioGroup';
 import BaseText from '@/components/base/BaseText';
 import GeoToH3 from './GeoToH3';
 import ControlPanelRow from './ControlPanelRow';
-import mapUtils from '@/lib/naverMapV2/lib/utils';
-import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
-import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
+import {
+  hexagonHandler,
+  hexagonGroupHandler,
+  mapUtils,
+} from '@/lib/naverMapV2';
 
 // https://h3geo.org/docs/api/traversal/#h3line
 

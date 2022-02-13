@@ -62,8 +62,10 @@ import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontal
 import BaseText from '@/components/base/BaseText';
 import BaseSelect from '@/components/base/BaseSelect';
 import ControlPanelRow from './ControlPanelRow';
-import utils from '@/lib/naverMapV2/lib/utils';
-import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
+import {
+  hexagonHandler,
+  mapUtils,
+} from '@/lib/naverMapV2';
 
 export default {
   name: 'GeoToH3',
@@ -152,8 +154,8 @@ export default {
     meta(v) {
       if (v
           && v.point
-          && utils.isLatitude(v.point.lat)
-          && utils.isLongitude(v.point.lng)) {
+          && mapUtils.isLatitude(v.point.lat)
+          && mapUtils.isLongitude(v.point.lng)) {
         this.lat = v.point.lat;
         this.lng = v.point.lng;
 

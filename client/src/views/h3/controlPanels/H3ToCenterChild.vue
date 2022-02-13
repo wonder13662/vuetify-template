@@ -48,8 +48,10 @@ import {
 import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
 import BaseText from '@/components/base/BaseText';
 import GeoToH3 from './GeoToH3';
-import mapUtils from '@/lib/naverMapV2/lib/utils';
-import hexagonHandler from '@/lib/naverMapV2/hexagonGroupHandler/hexagonHandler';
+import {
+  hexagonHandler,
+  mapUtils,
+} from '@/lib/naverMapV2';
 import ControlPanelRow from './ControlPanelRow';
 
 export default {
