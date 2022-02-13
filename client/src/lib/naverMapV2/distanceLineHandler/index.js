@@ -109,8 +109,6 @@ class DistanceLine {
 
     this.#overlayPolyline = null;
     this.#overlayMarkerDistance = null;
-
-    // 1-2. overlayPolylineEventController 생성
     this.#overlayPolylineEventController = overlayEventHandler.createOverlayEventController({
       onFocus: () => {
         this.focus();
@@ -123,6 +121,13 @@ class DistanceLine {
     });
   }
 
+  /**
+   * 네이버 맵 위에 DistanceLine을 그립니다. Overlay 타입의 필수 구현 메서드입니다.
+   *
+   * @param {object} map - (required)네이버 맵 객체
+   *
+   * @return {void} 리턴값 없음
+   */
   draw(map) {
     if (!map) {
       throw new Error('map: 유효하지 않음');
@@ -160,6 +165,11 @@ class DistanceLine {
     });
   }
 
+  /**
+   * 네이버 맵 위에 DistanceLine을 지웁니다. Overlay 타입의 필수 구현 메서드입니다.
+   *
+   * @return {void} 리턴값 없음
+   */
   remove() {
     if (this.#overlayPolyline) {
       this.#overlayPolyline.setMap(null);
@@ -171,6 +181,11 @@ class DistanceLine {
     }
   }
 
+  /**
+   * DistanceLine을 완전히 삭제합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
   destroy() {
     this.remove();
     if (this.#overlayPolylineEventController) {
@@ -368,9 +383,9 @@ export default {
   /**
    * 네이버 맵 위에 출발, 도착 지점을 잇는 선(Naver Polyline)을 표시하는 DistanceLine 인스턴스를 만듭니다.
    *
-   * @param {object} map - (required)Naver 지도 클래스로 만든 Naver 지도 instance
    * @param {object} start - (required)출발 지점. lat, lng의 위치값을 가지는 객체
    * @param {object} end - (required)도착 지점. lat, lng의 위치값을 가지는 객체
+   * @param {object} meta - (optional)distanceLine의 meta 정보
    *
    * @return {DistanceLine} DistanceLine 인스턴스 반환
    */
@@ -392,6 +407,7 @@ export default {
       meta,
     });
   },
+  // REMOVE ME
   /**
    * 네이버 맵 위에 DistanceLine 인스턴스를 그립니다.
    *
@@ -410,6 +426,7 @@ export default {
 
     distanceLine.draw(map);
   },
+  // REMOVE ME
   removeDistanceLine(distanceLine) {
     if (!distanceLine) {
       throw new Error('distanceLine: 유효하지 않음');
