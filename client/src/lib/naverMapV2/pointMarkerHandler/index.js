@@ -5,30 +5,96 @@ import {
 } from '../lib/constants';
 import utils from '../lib/utils';
 
-const getStyle = () => [
+const MODE_ENABLED_SELECTED = 'MODE_ENABLED_SELECTED';
+const MODE_ENABLED_UNSELECTED = 'MODE_ENABLED_UNSELECTED';
+const MODE_DISABLED_SELECTED = 'MODE_DISABLED_SELECTED';
+const MODE_DISABLED_UNSELECTED = 'MODE_DISABLED_UNSELECTED';
+
+const getStyleModeSelected = () => [
   'width: 8px;',
   'height: 8px;',
   'border: solid 4px black;',
 ];
+const getStyleModeUnselected = () => [
+  'width: 8px;',
+  'height: 8px;',
+  'border: solid 4px grey;',
+];
+const getStyleModeEnabled = () => [
+  'opacity: 1;',
+];
+const getStyleModeDisabled = () => [
+  'opacity: .5;',
+];
+const getStyleModeEnabledSelected = () => [
+  ...getStyleModeEnabled(),
+  ...getStyleModeSelected(),
+];
+const getStyleModeEnabledUnselected = () => [
+  ...getStyleModeEnabled(),
+  ...getStyleModeUnselected(),
+];
+const getStyleModeDisabledSelected = () => [
+  ...getStyleModeDisabled(),
+  ...getStyleModeSelected(),
+];
+const getStyleModeDisabledUnselected = () => [
+  ...getStyleModeDisabled(),
+  ...getStyleModeUnselected(),
+];
+const getStyle = (mode) => {
+  if (mode === MODE_ENABLED_SELECTED) {
+    return getStyleModeEnabledSelected();
+  }
+  if (mode === MODE_ENABLED_UNSELECTED) {
+    return getStyleModeEnabledUnselected();
+  }
+  if (mode === MODE_DISABLED_SELECTED) {
+    return getStyleModeDisabledSelected();
+  }
+  if (mode === MODE_DISABLED_UNSELECTED) {
+    return getStyleModeDisabledUnselected();
+  }
+  return [];
+};
 
-const getStyleBlur = () => [
+const getAnchorModeSelected = () => naverMapWrapper.getPoint(8, 8);
+const getAnchorModeUnselected = () => naverMapWrapper.getPoint(8, 8);
+const getAnchor = (mode) => {
+  if (mode === MODE_ENABLED_SELECTED || mode === MODE_DISABLED_SELECTED) {
+    return getAnchorModeSelected();
+  }
+  if (mode === MODE_ENABLED_UNSELECTED || mode === MODE_DISABLED_UNSELECTED) {
+    return getAnchorModeUnselected();
+  }
+  return [];
+};
+
+const getStyleBlur = (mode) => [
   'background: red;',
-  ...getStyle(),
+  ...getStyle(mode),
 ].join('');
-const getPointMarkerAnchor = () => naverMapWrapper.getPoint(8, 8);
-const getPointMarkerIconStyleBlur = () => ({
-  content: `<div style="${getStyleBlur()}"></div>`,
-  anchor: getPointMarkerAnchor(),
+
+const getPointMarkerIconStyleBlur = (mode) => ({
+  content: `<div style="${getStyleBlur(mode)}"></div>`,
+  anchor: getAnchor(mode),
 });
 
-const getStyleFocus = () => [
-  'background: green;',
-  ...getStyle(),
+const getStyleFocus = (mode) => [
+  'background: yellow;',
+  ...getStyle(mode),
 ].join('');
-const getPointMarkerIconStyleFocus = () => ({
-  content: `<div style="${getStyleFocus()}"></div>`,
-  anchor: getPointMarkerAnchor(),
+const getPointMarkerIconStyleFocus = (mode) => ({
+  content: `<div style="${getStyleFocus(mode)}"></div>`,
+  anchor: getAnchor(mode),
 });
+
+const getPointMarkerIconStyle = (isFocus, mode) => {
+  if (isFocus) {
+    return getPointMarkerIconStyleFocus(mode);
+  }
+  return getPointMarkerIconStyleBlur(mode);
+};
 
 class PointMarker {
   #point
@@ -38,6 +104,8 @@ class PointMarker {
   #overlayPointMarker
 
   #overlayPolylineEventController
+
+  #mode
 
   constructor({
     point,
@@ -59,9 +127,12 @@ class PointMarker {
       onBlur: () => {
         this.blur();
       },
-      onClick: () => ({}),
+      onClick: () => {
+        this.click();
+      },
       meta: { ...this.#meta },
     });
+    this.#mode = MODE_ENABLED_UNSELECTED;
   }
 
   /**
@@ -81,7 +152,7 @@ class PointMarker {
 
     this.#overlayPointMarker = naverMapWrapper.getMarker({
       position,
-      icon: getPointMarkerIconStyleBlur(),
+      icon: getPointMarkerIconStyleBlur(this.#mode),
       map,
     });
     this.#overlayPolylineEventController.setOverlay(this.#overlayPointMarker);
@@ -127,7 +198,7 @@ class PointMarker {
 
     if (this.#overlayPointMarker) {
       this.#overlayPointMarker.setOptions({
-        icon: getPointMarkerIconStyleFocus(),
+        icon: getPointMarkerIconStyleFocus(this.#mode),
       });
     }
 
@@ -150,11 +221,131 @@ class PointMarker {
 
     if (this.#overlayPointMarker) {
       this.#overlayPointMarker.setOptions({
-        icon: getPointMarkerIconStyleBlur(),
+        icon: getPointMarkerIconStyleBlur(this.#mode),
       });
     }
 
     this.#overlayPolylineEventController.setStatus(OVERLAY_STATUS.BLUR);
+  }
+
+  /**
+   * PointMarker의 click 이벤트를 처리합니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  click() {
+    if (this.#mode === MODE_DISABLED_SELECTED || this.#mode === MODE_DISABLED_UNSELECTED) {
+      return;
+    }
+
+    if (this.#mode === MODE_ENABLED_SELECTED) {
+      this.#mode = MODE_ENABLED_UNSELECTED;
+    } else if (this.#mode === MODE_ENABLED_UNSELECTED) {
+      this.#mode = MODE_ENABLED_SELECTED;
+    }
+
+    if (this.#overlayPointMarker) {
+      const isFocus = this.#overlayPolylineEventController.isFocus();
+      this.#overlayPointMarker.setOptions({
+        icon: getPointMarkerIconStyle(isFocus, this.#mode),
+      });
+    }
+  }
+
+  /**
+   * PointMarker를 disabled 상태로 바꿉니다
+   *
+   * @return {void} 반환값 없음
+   */
+  setDisabled() {
+    if (this.#mode === MODE_ENABLED_SELECTED) {
+      this.#mode = MODE_DISABLED_SELECTED;
+    } else if (this.#mode === MODE_ENABLED_UNSELECTED) {
+      this.#mode = MODE_DISABLED_UNSELECTED;
+    }
+
+    if (this.#overlayPointMarker) {
+      const isFocus = this.#overlayPolylineEventController.isFocus();
+      this.#overlayPointMarker.setOptions({
+        icon: getPointMarkerIconStyle(isFocus, this.#mode),
+      });
+    }
+  }
+
+  /**
+   * PointMarker를 enabled 상태로 바꿉니다
+   *
+   * @return {void} 반환값 없음
+   */
+  setEnabled() {
+    if (this.#mode === MODE_DISABLED_SELECTED) {
+      this.#mode = MODE_ENABLED_SELECTED;
+    } else if (this.#mode === MODE_DISABLED_UNSELECTED) {
+      this.#mode = MODE_ENABLED_UNSELECTED;
+    }
+
+    if (this.#overlayPointMarker) {
+      const isFocus = this.#overlayPolylineEventController.isFocus();
+      this.#overlayPointMarker.setOptions({
+        icon: getPointMarkerIconStyle(isFocus, this.#mode),
+      });
+    }
+  }
+
+  /**
+   * PointMarker의 mode 값을 돌려줍니다.
+   *
+   * @return {string} PointMarker의 mode 값
+   */
+  get mode() {
+    return this.#mode;
+  }
+
+  /**
+   * PointMarker의 meta 값을 돌려줍니다.
+   *
+   * @return {object} PointMarker의 meta 값
+   */
+  get meta() {
+    return {
+      ...this.#meta,
+    };
+  }
+
+  /**
+   * PointMarker가 SELECTED 상태인지 여부를 알려줍니다.
+   *
+   * @return {boolean} PointMarker가 SELECTED 상태인지 여부
+   */
+  isSelected() {
+    return this.#mode === MODE_ENABLED_SELECTED || this.#mode === MODE_DISABLED_SELECTED;
+  }
+
+  /**
+   * PointMarker가 UNSELECTED 상태인지 여부를 알려줍니다.
+   *
+   * @return {boolean} PointMarker가 UNSELECTED 상태인지 여부
+   */
+  isUnselected() {
+    return this.#mode === MODE_ENABLED_UNSELECTED || this.#mode === MODE_DISABLED_UNSELECTED;
+  }
+
+  /**
+   * PointMarker가 ENABLED 상태인지 여부를 알려줍니다.
+   *
+   * @return {boolean} PointMarker가 ENABLED 상태인지 여부
+   */
+  isEnabled() {
+    return this.#mode === MODE_ENABLED_SELECTED || this.#mode === MODE_ENABLED_UNSELECTED;
+  }
+
+  /**
+   * PointMarker가 DISABLED 상태인지 여부를 알려줍니다.
+   *
+   * @return {boolean} PointMarker가 DISABLED 상태인지 여부
+   */
+  isDisabled() {
+    return this.#mode === MODE_DISABLED_SELECTED || this.#mode === MODE_DISABLED_UNSELECTED;
   }
 
   /**
@@ -229,6 +420,43 @@ class PointMarker {
     }
 
     this.#overlayPolylineEventController.removeBlurListener(id);
+  }
+
+  /**
+   * DistanceLine에 click 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - click 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addClickListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#overlayPolylineEventController) {
+      throw new Error('this.#overlayPolylineEventController/유효하지 않습니다.');
+    }
+
+    const id = this.#overlayPolylineEventController.addClickListener(listener);
+    return id;
+  }
+
+  /**
+   * DistanceLine에 click 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeClickListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    if (!this.#overlayPolylineEventController) {
+      throw new Error('this.#overlayPolylineEventController/유효하지 않습니다.');
+    }
+
+    this.#overlayPolylineEventController.removeClickListener(id);
   }
 }
 
