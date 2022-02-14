@@ -169,6 +169,7 @@ export default {
           id,
           url: naverMapUrl,
           onLoad: (v) => {
+            scriptLoadingStatus = NAVER_MAP_SCRIPT_LOADING_STATUS__DONE;
             resolve(v);
             callbackMapsOnNaverMapScriptLoaded.forEach((callback) => {
               callback.resolve(v);
