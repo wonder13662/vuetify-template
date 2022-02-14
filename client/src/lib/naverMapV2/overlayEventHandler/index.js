@@ -200,6 +200,7 @@ class OverlayEventController {
       this.#naverMapEventListeners = [];
     }
 
+    // https://navermaps.github.io/maps.js.ncp/docs/tutorial-UI-Event.html
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mouseover', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
       this.#onFocus(e);
