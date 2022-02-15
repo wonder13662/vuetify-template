@@ -107,6 +107,7 @@ export default {
         },
       ],
       overlays: [],
+      pointEditing: null,
     };
   },
   watch: {
@@ -118,12 +119,22 @@ export default {
         return;
       }
 
-      // TODO point가 변경되었을 때, 가장 가까운 좌표끼리 이어주도록 바꾼다면?(이 아이디어는 가능할 것 같다).
-
-      const key = this.createPointKey(v.point.lat, v.point.lng);
-      if (!this.pointMap[key] && (this.mode === MODE_ADD || this.mode === MODE_REMOVE)) {
-        Vue.set(this.pointMap, key, v.point);
+      if (this.mode !== MODE_ADD && this.mode !== MODE_REMOVE) {
+        return;
       }
+
+      const selected = this.overlays.find((o) => o.isSelected());
+      if (selected) {
+        // 사용자가 지도 위의 point를 선택하였다면, 새로운 좌표는 선택한 point에 적용한다.
+        selected.setPosition(v.point);
+        return;
+      }
+
+      // TODO 맵 객체에 좌표를 추가하면 바로 지도에 표시됨. 선택한 point가 변경을 완료한 시점에 맵 객체를 업데이트 해야함(이건 저녁에!)
+      // 맵에 저장된 좌표도 업데이트를 해준다.
+      this.addPointToMap(v.point.lat, v.point.lng);
+
+      // TODO 가장 가까운 point들끼리 이어준다.
     },
     pointMap(v) {
       // 0. overlays 전체 삭제
@@ -149,6 +160,8 @@ export default {
                   o.setDisabled();
                 }
               });
+              // 수정중인 point의 좌표를 등록합니다.
+              this.pointEditing = found.getPosition();
             } else if (found.isUnselected()) {
               // UNSELECTED 상태로 바뀌면, 모든 point들을 모두 enabled 상태로 바꿉니다.
               this.overlays.forEach((o) => {
@@ -156,6 +169,12 @@ export default {
                   o.setEnabled();
                 }
               });
+              // 클릭한(수정중인) point 객체의 이전 좌표를 맵에서 지웁니다.
+              this.removePointFromMap(this.pointEditing.lat, this.pointEditing.lng);
+              this.pointEditing = null;
+              // 클릭한(수정중인) point 객체의 좌표를 맵에 등록합니다.
+              const { lat, lng } = found.getPosition();
+              this.addPointToMap(lat, lng);
             }
           }
         });
@@ -178,6 +197,14 @@ export default {
     onChangeMode(v) {
       this.mode = v;
       this.pointMap = {};
+    },
+    addPointToMap(lat, lng) {
+      const key = this.createPointKey(lat, lng);
+      Vue.set(this.pointMap, key, { lat, lng });
+    },
+    removePointFromMap(lat, lng) {
+      const key = this.createPointKey(lat, lng);
+      Vue.delete(this.pointMap, key);
     },
   },
 };
