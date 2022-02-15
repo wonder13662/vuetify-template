@@ -313,6 +313,47 @@ class PointMarker {
   }
 
   /**
+   * PointMarker의 위치를 설정합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Marker.html#setPosition__anchor
+   *
+   * @param {object} point - lat, lng 속성을 가지는 객체
+   *
+   * @return {void} 반환값 없음
+   */
+  setPosition(point) {
+    if (!point) {
+      throw new Error(`point:${point}/유효하지 않습니다.`);
+    }
+    if (!utils.isLatitude(point.lat)) {
+      throw new Error(`point.lat:${point.lat}/유효하지 않습니다.`);
+    }
+    if (!utils.isLongitude(point.lng)) {
+      throw new Error(`point.lng:${point.lng}/유효하지 않습니다.`);
+    }
+
+    this.#point = point;
+    const { lat, lng } = this.#point;
+    const position = naverMapWrapper.getLatLng(lat, lng);
+    this.#overlayPointMarker.setPosition(position);
+  }
+
+  /**
+   * PointMarker의 위치를 가져옵니다.
+   *
+   * @return {Point} 위도(lat), 경도(lng) 속성을 가지는 Point 객체
+   */
+  getPosition() {
+    const {
+      lat,
+      lng,
+    } = this.#point;
+    return {
+      lat,
+      lng,
+    };
+  }
+
+  /**
    * PointMarker가 SELECTED 상태인지 여부를 알려줍니다.
    *
    * @return {boolean} PointMarker가 SELECTED 상태인지 여부
