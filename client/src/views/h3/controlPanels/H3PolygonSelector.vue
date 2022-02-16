@@ -56,6 +56,10 @@
   TODO
     - Point들 중에 하나만 선택하고 수정하는 기능은 별도의 NaverMap 모듈로 떼어내자(이 기능은 다른 곳에서도 활용할 가능성이 높다)
 */
+import {
+  pointDist, // https://h3geo.org/docs/api/misc#pointdistm
+  UNITS,
+} from 'h3-js';
 import { v4 as uuidv4 } from 'uuid';
 import Vue from 'vue';
 import BaseExpandableRow from '@/components/base/BaseExpandableRow';
@@ -135,6 +139,28 @@ export default {
       this.addPointToMap(v.point.lat, v.point.lng);
 
       // TODO 가장 가까운 point들끼리 이어준다.
+      // 거리계산 로직은 어떤 것을 쓸까? h3?
+      // const point1 = [-10, 0];
+      // const point2 = [10, 0];
+      // pointDist(point1, point2, UNITS.m)
+
+      // TODO 아래 로직을 네이버맵으로 표현할 수 있을 것 같다
+      // 1. 두개의 point를 잇는 직선들 중에서 가장 긴 직선을 찾는다
+      // 2. 가장 긴 직선의 가운데의 좌표를 구한다. 이 좌표가 중심좌표가 된다
+      // 3. 중심좌표에서 가장 긴 직선의 임의의 한 point까지 직선을 긋는다
+      // 4. 이 직선을 회전시켜서 만나는 다음 point를 결과 배열에 추가한다 -> 각도를 구하는 방법은?
+      // 5. 모든 point가 결과 배열에 추가될 때까지 4번을 반복한다
+      // 6. 결과 배열의 point들을 차례대로 직선을 잇는다
+
+      // const point1 = [-10, 0];
+      // const point2 = [10, 0];
+      // return h3.pointDist(point1, point2, h3.UNITS.rads)
+
+      // TODO 개선안
+      // 1. 시작하는 point를 지정한다
+      // 2. 시작 point와 각 좌표간의 각도를 구한다
+      // 3. 각도의 크기를 작은 순으로 정렬한다
+      // 4. 각도의 크기 순으로 정렬한 point로 그린다
     },
     pointMap(v) {
       // 0. overlays 전체 삭제
