@@ -72,10 +72,10 @@ export default {
   },
   methods: {
     async onChangePage(v) {
-      this.$emit('on-change-page', v);
+      this.$emit('change:page', v);
     },
     onClickRow(v) {
-      this.$emit('on-click-row', v);
+      this.$emit('click:row', v);
     },
   },
 };
