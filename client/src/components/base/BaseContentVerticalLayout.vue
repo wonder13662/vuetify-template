@@ -42,6 +42,7 @@ export default {
   width: 100%;
 }
 .base-content-vertial-layout-row-body {
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 </style>
