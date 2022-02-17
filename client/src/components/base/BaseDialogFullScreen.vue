@@ -14,12 +14,17 @@
       <v-list
         class="pa-0"
       >
-        <div class="base-dialog-full-screen__slot">
+        <div
+          :class="classObject"
+        >
           <slot /><!-- 여기에 Dialog에 필요한 내용이 부모컴포넌트에서 주입됩니다. -->
         </div>
         <!-- 하단 버튼 영역 시작 -->
-        <v-divider />
+        <v-divider
+          v-if="isShowBottomBtns"
+        />
         <v-list-item
+          v-if="isShowBottomBtns"
           dense
           class="px-2"
         >
@@ -63,10 +68,13 @@ export default {
     },
     isShow: {
       type: Boolean,
-      default: false,
     },
     disabledSubmitBtn: {
       type: Boolean,
+    },
+    isShowBottomBtns: {
+      type: Boolean,
+      default: true,
     },
   },
   data() {
@@ -74,6 +82,14 @@ export default {
       dialog: this.isShow,
       valid: false,
     };
+  },
+  computed: {
+    classObject() {
+      return {
+        'base-dialog-full-screen__slot': this.isShowBottomBtns,
+        'base-dialog-full-screen__slot_no_bottom_btns': !this.isShowBottomBtns,
+      };
+    },
   },
   watch: {
     isShow(v) {
@@ -128,5 +144,8 @@ export default {
 <style lang="scss" scoped>
 .base-dialog-full-screen__slot {
   height: calc(100vh - 41px);
+}
+.base-dialog-full-screen__slot_no_bottom_btns {
+  height: 100%;
 }
 </style>
