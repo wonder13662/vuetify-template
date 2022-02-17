@@ -426,6 +426,24 @@ class OverlayEventController {
     }
     this.#status = status;
   }
+
+  /**
+   * overlay 이벤트 상태를 focus로 설정합니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  setStatusFocus() {
+    this.#status = OVERLAY_STATUS.FOCUS;
+  }
+
+  /**
+   * overlay 이벤트 상태를 focus로 설정합니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  setStatusBlur() {
+    this.#status = OVERLAY_STATUS.BLUR;
+  }
 }
 
 export default {
