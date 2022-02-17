@@ -57,13 +57,17 @@ export default {
       type: String,
       default: '예',
     },
+    meta: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   methods: {
     no() {
-      this.$emit('no');
+      this.$emit('no', this.meta);
     },
     yes() {
-      this.$emit('yes');
+      this.$emit('yes', this.meta);
     },
   },
 };
