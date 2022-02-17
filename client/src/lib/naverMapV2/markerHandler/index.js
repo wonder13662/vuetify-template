@@ -1,4 +1,5 @@
 import naverMapWrapper from '../lib/naverMapWrapper';
+import overlayEventHandler from '../overlayEventHandler';
 import utils from '../lib/utils';
 
 const getStyle = (color, bgColor) => {
@@ -141,14 +142,6 @@ const getLabel = ({
   });
 };
 
-const getInfoWindow = () => (naverMapWrapper.getInfoWindow({
-  content: [
-    '<div>',
-    '정보창입니다',
-    '</div>',
-  ].join(''),
-}));
-
 const getCustomInfoWindow = ({
   style,
   map,
@@ -177,6 +170,32 @@ const getSize = () => (naverMapWrapper.getSize(24, 36));
 const getAnchor = () => (naverMapWrapper.getPoint(12, 36));
 
 class BaseMarker {
+  #lat
+
+  #lng
+
+  #name
+
+  #color
+
+  #bgColor
+
+  #info
+
+  #overlayMarkerEventController
+
+  #overlayLabelEventController
+
+  #customInfoWindow
+
+  #style
+
+  #marker
+
+  #label
+
+  #meta
+
   /**
    * 기본 마커를 만듭니다.
    *
@@ -186,6 +205,7 @@ class BaseMarker {
    * @param {string} color - (optional)마커의 색상
    * @param {string} bgColor - (optional)마커의 배경 색상
    * @param {string} info - (optional)추가 정보 텍스트. 마우스 호버시 노출됩니다.
+   * @param {object} meta - (optional)마커의 메타정보
    *
    * @return {BaseMarker} BaseMarker의 인스턴스
    */
@@ -196,22 +216,43 @@ class BaseMarker {
     color = 'red',
     bgColor = 'white',
     info = '추가 정보 텍스트. 마우스 호버시 노출됩니다',
+    meta = {},
   }) {
-    this.lat = lat;
-    this.lng = lng;
-    this.name = name;
-    this.color = color;
-    this.bgColor = bgColor;
-    this.info = info;
+    this.#lat = lat;
+    this.#lng = lng;
+    this.#name = name;
+    this.#color = color;
+    this.#bgColor = bgColor;
+    this.#info = info;
 
-    this.style = getStyle(color, bgColor);
+    this.#style = getStyle(color, bgColor);
 
-    this.marker = null;
-    this.label = null;
-    this.infoWindow = null;
-    this.customInfoWindow = null;
+    this.#marker = null;
+    this.#label = null;
+    this.#customInfoWindow = null;
+    this.#meta = meta;
 
-    this.listeners = [];
+    this.#overlayMarkerEventController = overlayEventHandler.createOverlayEventController({
+      onFocus: () => {
+        this.focus();
+      },
+      onBlur: () => {
+        this.blur();
+      },
+      onClick: () => ({}),
+      meta: { ...this.#meta },
+    });
+
+    this.#overlayLabelEventController = overlayEventHandler.createOverlayEventController({
+      onFocus: () => {
+        this.focus();
+      },
+      onBlur: () => {
+        this.blur();
+      },
+      onClick: () => ({}),
+      meta: { ...this.#meta },
+    });
   }
 
   /**
@@ -229,42 +270,32 @@ class BaseMarker {
     // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
     this.remove();
 
-    // 1. 인스턴스 생성
-    this.marker = getMarker({
+    // 인스턴스 생성 및 EventListener 추가
+    this.#marker = getMarker({
       map,
-      lat: this.lat,
-      lng: this.lng,
-      icon: getIcon(this.style, getSize(), getAnchor()),
+      lat: this.#lat,
+      lng: this.#lng,
+      icon: getIcon(this.#style, getSize(), getAnchor()),
     });
+    this.#overlayMarkerEventController.setOverlay(this.#marker);
 
-    this.label = getLabel({
-      style: this.style,
+    this.#label = getLabel({
+      style: this.#style,
       map,
-      lat: this.lat,
-      lng: this.lng,
-      name: this.name,
+      lat: this.#lat,
+      lng: this.#lng,
+      name: this.#name,
     });
+    this.#overlayLabelEventController.setOverlay(this.#label);
 
-    this.infoWindow = getInfoWindow();
-
-    this.customInfoWindow = getCustomInfoWindow({
-      style: this.style,
+    this.#customInfoWindow = getCustomInfoWindow({
+      style: this.#style,
       map,
-      lat: this.lat,
-      lng: this.lng,
-      info: this.info,
+      lat: this.#lat,
+      lng: this.#lng,
+      info: this.#info,
     });
-    this.customInfoWindow.setMap(null);
-    // 2. EventListener 추가
-    this.listeners.push(naverMapWrapper.addListener(this.marker, 'click', () => {
-      if (this.infoWindow.getMap()) {
-        this.infoWindow.close();
-      } else {
-        this.infoWindow.open(map, this.marker);
-      }
-    }));
-    this.listeners.push(naverMapWrapper.addListener(this.marker, 'mouseover', () => this.focus(map)));
-    this.listeners.push(naverMapWrapper.addListener(this.marker, 'mouseout', () => this.blur(map)));
+    this.#customInfoWindow.setVisible(false);
   }
 
   /**
@@ -274,98 +305,81 @@ class BaseMarker {
    * @return {void} 반환값 없음
    */
   remove() {
-    if (this.listeners && this.listeners.length > 0) {
-      naverMapWrapper.removeListener(this.listeners);
-      this.listeners = [];
+    if (this.#marker) {
+      this.#marker.setMap(null);
+      this.#marker = null;
     }
-    if (this.marker) {
-      this.marker.setMap(null);
-      this.marker = null;
+    if (this.#label) {
+      this.#label.setMap(null);
+      this.#label = null;
     }
-    if (this.label) {
-      this.label.setMap(null);
-      this.label = null;
+    if (this.#customInfoWindow) {
+      this.#customInfoWindow.setMap(null);
+      this.#customInfoWindow = null;
     }
-    if (this.customInfoWindow) {
-      this.customInfoWindow.setMap(null);
-      this.customInfoWindow = null;
+  }
+
+  /**
+   * Marker를 완전히 삭제합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  destroy() {
+    this.remove();
+    if (this.#overlayMarkerEventController) {
+      this.#overlayMarkerEventController.remove();
+      this.#overlayMarkerEventController = null;
+    }
+    if (this.#overlayLabelEventController) {
+      this.#overlayLabelEventController.remove();
+      this.#overlayLabelEventController = null;
     }
   }
 
   /**
    * 기본 마커를 Focus 상태로 표시합니다.
    *
-   * @param {object} map - Naver map 인스턴스
-   *
    * @return {void} 반환값 없음
    */
-  focus(map) {
-    if (!map) {
-      throw new Error('map: 유효하지 않음');
+  focus() {
+    if (!this.#overlayMarkerEventController) {
+      throw new Error('this.#overlayMarkerEventController/유효하지 않습니다.');
     }
-    if (!this.marker) {
-      throw new Error('this.marker: 유효하지 않음');
+    if (this.#overlayMarkerEventController.isFocus()) {
+      return;
     }
-    if (!this.customInfoWindow) {
-      throw new Error('this.customInfoWindow: 유효하지 않음');
+    if (!this.#marker) {
+      throw new Error('this.#marker: 유효하지 않음');
     }
-    this.marker.setIcon(getIconHover(this.style, getSize(), getAnchor()));
-    this.customInfoWindow.setMap(map);
+    if (!this.#customInfoWindow) {
+      throw new Error('this.#customInfoWindow: 유효하지 않음');
+    }
+    this.#marker.setIcon(getIconHover(this.#style, getSize(), getAnchor()));
+    this.#customInfoWindow.setVisible(true);
+    this.#overlayMarkerEventController.setStatusFocus();
   }
 
   /**
    * 기본 마커를 Blur 상태로 표시합니다.
    *
-   * @param {object} map - Naver map 인스턴스
-   *
    * @return {void} 반환값 없음
    */
-  blur(map) {
-    if (!map) {
-      throw new Error('map: 유효하지 않음');
+  blur() {
+    if (!this.#overlayMarkerEventController) {
+      throw new Error('this.#overlayMarkerEventController/유효하지 않습니다.');
     }
-    if (!this.marker) {
-      throw new Error('this.marker: 유효하지 않음');
+    if (this.#overlayMarkerEventController.isBlur()) {
+      return;
     }
-    if (!this.customInfoWindow) {
-      throw new Error('this.customInfoWindow: 유효하지 않음');
+    if (!this.#marker) {
+      throw new Error('this.#marker: 유효하지 않음');
     }
-    this.marker.setIcon(getIcon(this.style, getSize(), getAnchor()));
-    this.customInfoWindow.setMap(null);
-  }
-
-  /**
-   * 기본 마커의 infoWindow를 맵에 표시합니다.
-   *
-   * @param {object} map - Naver map 인스턴스
-   *
-   * @return {void} 반환값 없음
-   */
-  openInfoWindow(map) {
-    if (!map) {
-      throw new Error('map: 유효하지 않음');
+    if (!this.#customInfoWindow) {
+      throw new Error('this.#customInfoWindow: 유효하지 않음');
     }
-    if (!this.marker) {
-      throw new Error('this.marker: 유효하지 않음');
-    }
-    if (!this.infoWindow) {
-      throw new Error('this.infoWindow: 유효하지 않음');
-    }
-    this.infoWindow.open(map, this.marker);
-  }
-
-  /**
-   * 기본 마커의 infoWindow를 맵에서 지웁니다.
-   *
-   * @param {object} map - Naver map 인스턴스
-   *
-   * @return {void} 반환값 없음
-   */
-  closeInfoWindow() {
-    if (!this.infoWindow) {
-      throw new Error('this.infoWindow: 유효하지 않음');
-    }
-    this.infoWindow.close();
+    this.#marker.setIcon(getIcon(this.#style, getSize(), getAnchor()));
+    this.#customInfoWindow.setVisible(false);
+    this.#overlayMarkerEventController.setStatusBlur();
   }
 
   /**
@@ -384,14 +398,14 @@ class BaseMarker {
     if (!utils.isLongitude(lng)) {
       throw new Error(`lng:${lng} - 유효하지 않음`);
     }
-    this.lat = lat;
-    this.lng = lng;
+    this.#lat = lat;
+    this.#lng = lng;
 
-    if (this.marker) {
-      this.marker.setPosition({ lat, lng });
+    if (this.#marker) {
+      this.#marker.setPosition({ lat, lng });
     }
-    if (this.label) {
-      this.label.setPosition({ lat, lng });
+    if (this.#label) {
+      this.#label.setPosition({ lat, lng });
     }
   }
 
@@ -404,11 +418,68 @@ class BaseMarker {
    * @return {void} 반환값 없음
    */
   setVisible(visible) {
-    if (this.marker) {
-      this.marker.setVisible(visible);
+    if (this.#marker) {
+      this.#marker.setVisible(visible);
     }
-    if (this.label) {
-      this.label.setVisible(visible);
+    if (this.#label) {
+      this.#label.setVisible(visible);
+    }
+  }
+
+  /**
+   * BaseMarker에 click 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - click 이벤트 리스너
+   *
+   * @return {void} 반환값 없음
+   */
+  addClickListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (this.#overlayMarkerEventController) {
+      this.#overlayMarkerEventController.addClickListener(listener);
+    }
+    if (this.#overlayLabelEventController) {
+      this.#overlayLabelEventController.addClickListener(listener);
+    }
+  }
+
+  /**
+   * BaseMarker에 focus 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - focus 이벤트 리스너
+   *
+   * @return {void} 반환값 없음
+   */
+  addFocusListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (this.#overlayMarkerEventController) {
+      this.#overlayMarkerEventController.addFocusListener(listener);
+    }
+    if (this.#overlayLabelEventController) {
+      this.#overlayLabelEventController.addFocusListener(listener);
+    }
+  }
+
+  /**
+   * BaseMarker에 blur 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - blur 이벤트 리스너
+   *
+   * @return {void} 반환값 없음
+   */
+  addBlurListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (this.#overlayMarkerEventController) {
+      this.#overlayMarkerEventController.addBlurListener(listener);
+    }
+    if (this.#overlayLabelEventController) {
+      this.#overlayLabelEventController.addBlurListener(listener);
     }
   }
 }
