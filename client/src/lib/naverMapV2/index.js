@@ -206,6 +206,7 @@ export { default as markerHandler } from './markerHandler';
 export { default as pickupDropPointHandler } from './pickupDropPointHandler';
 export { default as pointMarkerHandler } from './pointMarkerHandler';
 export { default as mapUtils } from './lib/utils';
+export { default as boundHandler } from './lib/boundHandler';
 
 export default {
   createNaverMap: ({
