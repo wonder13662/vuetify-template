@@ -265,6 +265,35 @@ class PickupDropPoints {
     const id = this.#distanceLine.addBlurListener(listener);
     return id;
   }
+
+
+  /**
+   * 지도에서 pickupDropPointHandler를 가립니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  setVisibleOff() {
+    this.#pickupPointMarker.setVisible(false);
+    this.#dropPointMarker.setVisible(false);
+    this.#distanceLine.setVisible(false);
+    if (this.#driverPoint) {
+      this.#driverPointMarker.setVisible(false);
+    }
+  }
+
+  /**
+   * 지도에서 pickupDropPointHandler를 보이게 합니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  setVisibleOn() {
+    this.#pickupPointMarker.setVisible(true);
+    this.#dropPointMarker.setVisible(true);
+    this.#distanceLine.setVisible(true);
+    if (this.#driverPoint) {
+      this.#driverPointMarker.setVisible(true);
+    }
+  }
 }
 
 export default {
