@@ -240,12 +240,8 @@ class DistanceLine {
    * @return {void} 반환값 없음
    */
   setVisible(visible) {
-    if (this.marker) {
-      this.marker.setVisible(visible);
-    }
-    if (this.label) {
-      this.label.setVisible(visible);
-    }
+    this.#overlayPolyline.setVisible(visible);
+    this.#overlayMarkerDistance.setVisible(visible);
   }
 
   /**
