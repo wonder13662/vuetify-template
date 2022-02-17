@@ -41,3 +41,18 @@ export const OVERLAY_STATUS = {
   NO_STATUS: 'NO_STATUS',
 };
 export const OVERLAY_STATUS_SET = utils.convertObjToSet(HEXAGON_STATUS);
+
+export const DISTANCE_LINE_STROKE_STYLE = {
+  SOLID: 'solid',
+  SHORTDASH: 'shortdash',
+  SHORTDOT: 'shortdot',
+  SHORTDASHDOT: 'shortdashdot',
+  SHORTDASHDOTDOT: 'shortdashdotdot',
+  DOT: 'dot',
+  DASH: 'dash',
+  LONGDASH: 'longdash',
+  DASHDOT: 'dashdot',
+  LONGDASHDOT: 'longdashdot',
+  LONGDASHDOTDOT: 'longdashdotdot',
+};
+export const DISTANCE_LINE_STROKE_STYLE_SET = utils.convertObjToSet(DISTANCE_LINE_STROKE_STYLE);

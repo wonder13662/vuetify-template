@@ -3,12 +3,15 @@ import {
   subtract,
   divide,
 } from 'mathjs';
-import utils from '../lib/utils';
+import mapUtils from '../lib/utils';
 import naverMapWrapper from '../lib/naverMapWrapper';
 import {
   OVERLAY_STATUS,
+  DISTANCE_LINE_STROKE_STYLE,
+  DISTANCE_LINE_STROKE_STYLE_SET,
 } from '../lib/constants';
 import overlayEventHandler from '../overlayEventHandler';
+import utils from '@/lib/utils';
 
 const createPath = (start, end) => ([
   naverMapWrapper.getLatLng(start.lat, start.lng),
@@ -48,10 +51,15 @@ const getDistanceMarkerStyleBlur = () => [
   `background: ${STROKE_COLOR_BLUR};`,
 ].join('');
 const getDistanceMarkerAnchor = () => naverMapWrapper.getPoint(20, 15);
-const getDistanceMarkerIconStyleBlur = (distanceInMeter) => ({
-  content: `<div style="${getDistanceMarkerStyleBlur()}"><span>${distanceInMeter}m</span></div>`,
-  anchor: getDistanceMarkerAnchor(),
-});
+const getDistanceMarkerIconStyleBlur = (distanceInMeter) => {
+  const style = getDistanceMarkerStyleBlur();
+  const distance = utils.formatDistanceInMeterReadable(distanceInMeter);
+  const anchor = getDistanceMarkerAnchor();
+  return {
+    content: `<div style="${style}"><span>${distance}</span></div>`,
+    anchor,
+  };
+};
 
 const STROKE_COLOR_FOCUS = '#f00';
 const STROKE_WEIGTH_FOCUS = 8;
@@ -67,15 +75,22 @@ const getDistanceMarkerStyleFocus = () => [
   `font-weight: ${FONT_WEIGHT_FOCUS};`,
   `background: ${STROKE_COLOR_FOCUS};`,
 ].join('');
-const getDistanceMarkerIconStyleFocus = (distanceInMeter) => ({
-  content: `<div style="${getDistanceMarkerStyleFocus()}"><span>${distanceInMeter}m</span></div>`,
-  anchor: getDistanceMarkerAnchor(),
-});
+const getDistanceMarkerIconStyleFocus = (distanceInMeter) => {
+  const style = getDistanceMarkerStyleFocus();
+  const distance = utils.formatDistanceInMeterReadable(distanceInMeter);
+  const anchor = getDistanceMarkerAnchor();
+  return {
+    content: `<div style="${style}"><span>${distance}</span></div>`,
+    anchor,
+  };
+};
 
 class DistanceLine {
   #start
 
   #end
+
+  #strokeStyle
 
   #overlayPolyline
 
@@ -88,23 +103,28 @@ class DistanceLine {
   constructor({
     start,
     end,
+    strokeStyle,
     meta = {},
   }) {
-    if (!utils.isLatitude(start.lat)) {
+    if (!mapUtils.isLatitude(start.lat)) {
       throw new Error(`start.lat:${start.lat} - 유효하지 않음`);
     }
-    if (!utils.isLongitude(start.lng)) {
+    if (!mapUtils.isLongitude(start.lng)) {
       throw new Error(`start.lng:${start.lng} - 유효하지 않음`);
     }
-    if (!utils.isLatitude(end.lat)) {
+    if (!mapUtils.isLatitude(end.lat)) {
       throw new Error(`end.lat:${end.lat} - 유효하지 않음`);
     }
-    if (!utils.isLongitude(start.lng)) {
+    if (!mapUtils.isLongitude(start.lng)) {
       throw new Error(`end.lng:${end.lng} - 유효하지 않음`);
+    }
+    if (!DISTANCE_LINE_STROKE_STYLE_SET.has(strokeStyle)) {
+      throw new Error(`strokeStyle:${strokeStyle}/유효하지 않습니다.`);
     }
 
     this.#start = start;
     this.#end = end;
+    this.#strokeStyle = strokeStyle;
     this.#meta = meta;
 
     this.#overlayPolyline = null;
@@ -140,6 +160,7 @@ class DistanceLine {
     // https://navermaps.github.io/maps.js/docs/naver.maps.Polyline.html#toc25__anchor
     const polyline = naverMapWrapper.getPolyline({
       ...getPolylineStyleBlur(),
+      strokeStyle: this.#strokeStyle,
       clickable: true, // NOTE: 이 옵션이 켜져 있어야 mouseover, mouseout등의 이벤트들 받을 수 있습니다.
       startIcon: naverMapWrapper.pointingIconCircle(),
       endIcon: naverMapWrapper.pointingIconOpenArrow(),
@@ -204,16 +225,16 @@ class DistanceLine {
    * @return {void} 반환값 없음
    */
   setPath(start, end) {
-    if (!utils.isLatitude(start.lat)) {
+    if (!mapUtils.isLatitude(start.lat)) {
       throw new Error(`start.lat:${start.lat} - 유효하지 않음`);
     }
-    if (!utils.isLongitude(start.lng)) {
+    if (!mapUtils.isLongitude(start.lng)) {
       throw new Error(`start.lng:${start.lng} - 유효하지 않음`);
     }
-    if (!utils.isLatitude(end.lat)) {
+    if (!mapUtils.isLatitude(end.lat)) {
       throw new Error(`end.lat:${end.lat} - 유효하지 않음`);
     }
-    if (!utils.isLongitude(start.lng)) {
+    if (!mapUtils.isLongitude(start.lng)) {
       throw new Error(`end.lng:${end.lng} - 유효하지 않음`);
     }
 
@@ -381,6 +402,7 @@ export default {
    *
    * @param {object} start - (required)출발 지점. lat, lng의 위치값을 가지는 객체
    * @param {object} end - (required)도착 지점. lat, lng의 위치값을 가지는 객체
+   * @param {string} strokeStyle - (optional)선의 스타일
    * @param {object} meta - (optional)distanceLine의 meta 정보
    *
    * @return {DistanceLine} DistanceLine 인스턴스 반환
@@ -388,18 +410,23 @@ export default {
   createDistanceLine({
     start,
     end,
+    strokeStyle = DISTANCE_LINE_STROKE_STYLE.SOLID,
     meta = {},
   }) {
-    if (!start || !utils.isLatitude(start.lat) || !utils.isLongitude(start.lng)) {
+    if (!start || !mapUtils.isLatitude(start.lat) || !mapUtils.isLongitude(start.lng)) {
       throw new Error('start: 유효하지 않음');
     }
-    if (!end || !utils.isLatitude(end.lat) || !utils.isLongitude(end.lng)) {
+    if (!end || !mapUtils.isLatitude(end.lat) || !mapUtils.isLongitude(end.lng)) {
       throw new Error('end: 유효하지 않음');
+    }
+    if (!DISTANCE_LINE_STROKE_STYLE_SET.has(strokeStyle)) {
+      throw new Error(`strokeStyle:${strokeStyle}/유효하지 않습니다.`);
     }
 
     return new DistanceLine({
       start,
       end,
+      strokeStyle,
       meta,
     });
   },
