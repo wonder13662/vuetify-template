@@ -67,7 +67,6 @@ import {
   mapUtils,
 } from '@/lib/naverMapV2';
 
-// FIX ME Polygon 내부로 point를 움직이는 것이 불가능함
 // TODO point 삭제 기능이 필요함
 
 const MODE_READ = 'MODE_READ';
