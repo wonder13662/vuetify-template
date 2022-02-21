@@ -253,6 +253,19 @@ export default {
     createOuterPolygon() {
       const { points } = this;
       this.overlayOuterPolygon = polygonHandler.createPolygon({ points });
+      this.overlayOuterPolygon.addClickListener((v) => {
+        const { coord: { _lat: lat, _lng: lng } } = v;
+        const point = { lat, lng };
+        // 1. 선택된 pointMarker가 있는지 확인한다.
+        const found = this.overlaysPointMarker.find((o) => o.isSelected());
+        if (!found) {
+          return;
+        }
+        // 3. 선택된 point의 새로운 좌표를 등록합니다.
+        this.pointEditing = found.getPosition();
+        // 2. 선택된 pointMarker가 있다면 좌표를 이동시킨다.
+        found.setPosition(point);
+      });
     },
   },
 };

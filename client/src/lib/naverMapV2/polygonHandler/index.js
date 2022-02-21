@@ -229,6 +229,43 @@ class Polygon {
   }
 
   /**
+   * Naver Polygon에 click 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - click 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addClickListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#overlayEventHandler) {
+      throw new Error('this.#overlayEventHandler/유효하지 않습니다.');
+    }
+
+    const id = this.#overlayEventHandler.addClickListener(listener);
+    return id;
+  }
+
+  /**
+   * Naver Polygon에 click 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeClickListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    if (!this.#overlayEventHandler) {
+      throw new Error('this.#overlayEventHandler/유효하지 않습니다.');
+    }
+
+    this.#overlayEventHandler.removeClickListener(id);
+  }
+
+  /**
    * Polygon 객체를 완전히 삭제합니다.
    *
    * @return {void} 리턴값 없음
