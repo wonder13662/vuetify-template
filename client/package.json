@@ -12,6 +12,7 @@
   "dependencies": {
     "@apollo/client": "^3.3.19",
     "@mdi/font": "5.9.55",
+    "@turf/turf": "^6.5.0",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "geojson": "^0.5.0",
