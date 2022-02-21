@@ -3,6 +3,7 @@ import {
   pointDist, // https://h3geo.org/docs/api/misc#pointdistm
   UNITS,
 } from 'h3-js';
+import * as turf from '@turf/turf';
 
 export default {
   isLatitude(v) {
@@ -137,5 +138,49 @@ export default {
       return -1;
     }
     return pointDist([p1.lat, p1.lng], [p2.lat, p2.lng], UNITS.m);
+  },
+  /**
+   * point 배열에서 중심점 point를 구합니다.
+   *
+   * @param {array} points - point의 배열
+   *
+   * @return {Point} point 배열의 중심점 point
+   */
+  centerFromPoints(points) {
+    if (!points || points.length === 0) {
+      throw new Error(`points:${points}/유효하지 않습니다.`);
+    }
+    points.forEach((v) => {
+      if (!this.isValidPoint(v)) {
+        throw new Error(`v:${v}/유효하지 않습니다.`);
+      }
+    });
+    const features = turf.points(points.map((v) => ([v.lat, v.lng])));
+    const center = turf.center(features);
+    const coord = turf.getCoord(center);
+    return {
+      lat: coord[0],
+      lng: coord[1],
+    };
+  },
+  /**
+   * 북쪽 0도를 기준으로 두 point의 각도를 구합니다.
+   *
+   * @param {point} p1 - 각도를 나타내는 첫번째 point
+   * @param {point} p2 - 각도를 나타내는 두번째 point
+   *
+   * @return {number} 두 point의 각도
+   */
+  rhumbBearing(p1, p2) {
+    if (!this.isValidPoint(p1)) {
+      throw new Error(`p1:${p1}/유효하지 않습니다.`);
+    }
+    if (!this.isValidPoint(p2)) {
+      throw new Error(`p2:${p2}/유효하지 않습니다.`);
+    }
+    return turf.rhumbBearing(
+      turf.point([p1.lat, p1.lng]),
+      turf.point([p2.lat, p2.lng]),
+    );
   },
 };

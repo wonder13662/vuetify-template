@@ -222,6 +222,7 @@ export default {
     return naver.maps.PointingIcon.CIRCLE;
   },
   /**
+   * @depreacted
    * 지도 위에 polygon을 그립니다.
    *
    * @param {object} map naver map 인스턴스
@@ -273,6 +274,42 @@ export default {
       polygon,
       listeners,
     };
+  },
+  /**
+   * 지도 위에 polygon을 그립니다.
+   * 이벤트 리스너 작업은 여기서 하지 않습니다.
+   * 이벤트 리스너 작업은 overlayEventHandler를 사용해주세요.
+   *
+   * @param {object} map naver map 인스턴스
+   * @param {array} naverPolygonPaths naver map polygon path 배열
+   * @param {object} style naver map polygon에 적용할 css 스타일
+   *
+   * @return {object} 네이버 맵 오버레이 폴리곤 인스턴스
+   */
+  drawPolygonNoListener({
+    map,
+    naverPolygonPaths,
+    visible = true,
+    style = {},
+  }) {
+    if (!map) {
+      throw new Error('map: 유효하지 않습니다.');
+    }
+    if (!naverPolygonPaths || naverPolygonPaths.length === 0) {
+      throw new Error('naverPolygonPaths: 유효하지 않습니다.');
+    }
+
+    // https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-polygon-simple.example.html
+    /* eslint-disable no-new */
+    const polygon = this.getPolygon({
+      map,
+      paths: naverPolygonPaths,
+      visible,
+      clickable: true,
+      ...style,
+    });
+
+    return polygon;
   },
   /**
    * 지도 위에 polygon을 지웁니다.

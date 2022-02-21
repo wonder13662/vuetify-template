@@ -258,7 +258,7 @@ class BaseMarker {
   /**
    * 기본 마커를 네이버 지도 객체 위에 그립니다.
    *
-   * @param {object} map - (required)latitude 위도 ex) 남위 35도
+   * @param {object} map - (required) 네이버 맵 인스턴스
    *
    * @return {void} 반환값 없음
    */
