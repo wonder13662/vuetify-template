@@ -133,7 +133,11 @@ export default {
     // '2021-06-28' to '2021-06-28T23:59:59.000Z'
     return moment(yyyymmdd, 'YYYY-MM-DD').endOf('day').utc().toISOString();
   },
+  // @ deprecated
   convertLocalYYYYMMDDHHmmssStrToUTC(str) {
+    return this.convertLocalToUTCYYYYMMDDHHmmss(str);
+  },
+  convertLocalToUTCYYYYMMDDHHmmss(str) {
     return moment(str, YYYYMMDDHHmmss).utc().toISOString();
   },
   convertUTCToLocalYYYYMMDDHHmmss(utc) {
@@ -147,6 +151,35 @@ export default {
   convertUTCToLocalHHmmss(utc) {
     // '2021-06-28T06:03:01.291Z' to '06:03:01'
     return moment(utc).format(HHmmss);
+  },
+  /**
+   * 문자열 'HH:mm'로 표현된 시간을 UTC에서 Local로 바꿔줍니다.
+   *
+   * @param {string} UTCHHmmStr - UTC 기준의 'HH:mm' 형식의 시간 문자열
+   *
+   * @return {string} Local 기준의 'HH:mm' 형식의 시간 문자열
+   */
+  convertUTCToLocalHHmmStr(UTCHHmmStr) {
+    const UTCHHmmArr = UTCHHmmStr.split(':');
+    const hours = Number(UTCHHmmArr[0]);
+    const minutes = Number(UTCHHmmArr[1]);
+    // eslint-disable-next-line newline-per-chained-call
+    const utcISOString = moment().utc().hour(hours).minute(minutes).toISOString();
+    return moment(utcISOString).format('HH:mm');
+  },
+  /**
+   * 문자열 'HH:mm'로 표현된 시간을 UTC에서 Local로 바꿔줍니다.
+   *
+   * @param {string} UTCHHmmStr - Local 기준의 'HH:mm' 형식의 시간 문자열
+   *
+   * @return {string} Local 기준의 'HH:mm' 형식의 시간 문자열
+   */
+  convertLocalToUTCHHmmStr(LocalHHmmStr) {
+    const LocalHHmmArr = LocalHHmmStr.split(':');
+    const hours = Number(LocalHHmmArr[0]);
+    const minutes = Number(LocalHHmmArr[1]);
+    const localMoment = moment().hour(hours).minute(minutes);
+    return moment(localMoment).utc().format('HH:mm');
   },
   // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
   // @ Deprecated
