@@ -42,7 +42,8 @@ export default {
   },
   methods: {
     onChange(value) {
-      this.$emit('select-item', value);
+      this.$emit('select-item', value); // @ depreacted
+      this.$emit('change', value);
     },
   },
 };
