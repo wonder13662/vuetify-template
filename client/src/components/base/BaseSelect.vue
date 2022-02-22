@@ -1,6 +1,6 @@
 <template>
   <v-select
-    :value="select"
+    :value="value || select"
     :items="items"
     item-text="text"
     item-value="value"
@@ -18,12 +18,16 @@
 <script>
 export default {
   props: {
-    select: {
+    select: { // @ deprecated
       type: Object,
       default: null,
       validator(value) {
         return value && value.text && (value.value === 0 || value.value);
       },
+    },
+    value: {
+      type: [String, Number],
+      default: null,
     },
     items: {
       type: Array,
@@ -41,9 +45,10 @@ export default {
     },
   },
   methods: {
-    onChange(value) {
-      this.$emit('select-item', value); // @ depreacted
-      this.$emit('change', value);
+    onChange(selectedItem) {
+      // @ depreacted
+      this.$emit('select-item', selectedItem);
+      this.$emit('change', selectedItem.value);
     },
   },
 };
