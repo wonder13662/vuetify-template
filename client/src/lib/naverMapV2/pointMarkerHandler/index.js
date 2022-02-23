@@ -3,7 +3,7 @@ import overlayEventHandler from '../overlayEventHandler';
 import {
   OVERLAY_STATUS,
 } from '../lib/constants';
-import utils from '../lib/utils';
+import mapUtils from '../lib/utils';
 
 const MODE_ENABLED_SELECTED = 'MODE_ENABLED_SELECTED';
 const MODE_ENABLED_UNSELECTED = 'MODE_ENABLED_UNSELECTED';
@@ -111,10 +111,10 @@ class PointMarker {
     point,
     meta = {},
   }) {
-    if (!utils.isLatitude(point.lat)) {
+    if (!mapUtils.isLatitude(point.lat)) {
       throw new Error(`point.lat:${point.lat} - 유효하지 않음`);
     }
-    if (!utils.isLongitude(point.lng)) {
+    if (!mapUtils.isLongitude(point.lng)) {
       throw new Error(`point.lng:${point.lng} - 유효하지 않음`);
     }
     this.#point = point;
@@ -136,7 +136,8 @@ class PointMarker {
   }
 
   /**
-   * 네이버 맵 위에 PointMarker를 그립니다. Overlay 타입의 필수 구현 메서드입니다.
+   * 네이버 맵 위에 PointMarker를 그립니다.
+   * Overlay 타입의 필수 구현 메서드입니다.
    *
    * @param {object} map - (required)네이버 맵 객체
    *
@@ -324,10 +325,10 @@ class PointMarker {
     if (!point) {
       throw new Error(`point:${point}/유효하지 않습니다.`);
     }
-    if (!utils.isLatitude(point.lat)) {
+    if (!mapUtils.isLatitude(point.lat)) {
       throw new Error(`point.lat:${point.lat}/유효하지 않습니다.`);
     }
-    if (!utils.isLongitude(point.lng)) {
+    if (!mapUtils.isLongitude(point.lng)) {
       throw new Error(`point.lng:${point.lng}/유효하지 않습니다.`);
     }
 
