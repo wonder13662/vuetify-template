@@ -202,6 +202,9 @@ class Polygon {
     if (!map) {
       throw new Error(`map:${map}/유효하지 않음`);
     }
+    if (!this.#points || this.#points.length === 0) {
+      throw new Error(`this.#points:${this.#points}/유효하지 않음`);
+    }
 
     // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
     this.remove();
@@ -226,6 +229,42 @@ class Polygon {
       this.#naverPolygon.setMap(null);
       this.#naverPolygon = null;
     }
+  }
+
+  /**
+   * Polygon 객체를 완전히 삭제합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  destroy() {
+    this.remove();
+    if (this.#overlayEventHandler) {
+      this.#overlayEventHandler.remove();
+      this.#overlayEventHandler = null;
+    }
+  }
+
+  /**
+   * Polygon 객체의 Path를 설정합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setPath__anchor
+   *
+   * @param {array} points - Point 객체의 배열
+   *
+   * @return {void} 리턴값 없음
+   */
+  setPath(points) {
+    if (!points || points.length === 0) {
+      throw new Error(`points:${points}/유효하지 않음`);
+    }
+    points.forEach((p) => {
+      if (!mapUtils.isValidPoint(p)) {
+        throw new Error(`p:${p}/유효하지 않음`);
+      }
+    });
+    this.#points = points;
+
+    const path = this.#points.map((p) => naverMapWrapper.getLatLng(p.lat, p.lng));
+    this.#naverPolygon.setPath(path);
   }
 
   /**
@@ -263,19 +302,6 @@ class Polygon {
     }
 
     this.#overlayEventHandler.removeClickListener(id);
-  }
-
-  /**
-   * Polygon 객체를 완전히 삭제합니다.
-   *
-   * @return {void} 리턴값 없음
-   */
-  destroy() {
-    this.remove();
-    if (this.#overlayEventHandler) {
-      this.#overlayEventHandler.remove();
-      this.#overlayEventHandler = null;
-    }
   }
 }
 
