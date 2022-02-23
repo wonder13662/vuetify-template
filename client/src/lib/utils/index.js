@@ -137,12 +137,25 @@ export default {
   convertLocalYYYYMMDDHHmmssStrToUTC(str) {
     return this.convertLocalToUTCYYYYMMDDHHmmss(str);
   },
-  convertLocalToUTCYYYYMMDDHHmmss(str) {
-    return moment(str, YYYYMMDDHHmmss).utc().toISOString();
+  /**
+   * local 시각 문자열(YYYYMMDDHHmmss)을 UTC unixTime 시각 문자열로 바꿔줍니다.
+   *
+   * @param {string} localTimeStr - local 기준의 YYYYMMDDHHmmss 포맷의 시각 문자열(ex: '2021-06-28 06:03:01')
+   *
+   * @return {string} UTC 기준의 unixTime 문자열(ex: '2021-06-28T06:03:01.291Z')
+   */
+  convertLocalToUTCYYYYMMDDHHmmss(localTimeStr) {
+    return moment(localTimeStr, YYYYMMDDHHmmss).utc().toISOString();
   },
-  convertUTCToLocalYYYYMMDDHHmmss(utc) {
-    // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
-    return moment(utc).format(YYYYMMDDHHmmss);
+  /**
+   * UTC unixTime 시각 문자열을 local의 시간으로 포맷(YYYYMMDDHHmmss)에 맞게 바꿔줍니다.
+   *
+   * @param {string} utcTimeStr - UTC 기준의 unixTime 문자열(ex: '2021-06-28T06:03:01.291Z')
+   *
+   * @return {string} local 기준의 YYYYMMDDHHmmss 포맷의 시각 문자열(ex: '2021-06-28 06:03:01')
+   */
+  convertUTCToLocalYYYYMMDDHHmmss(utcTimeStr) {
+    return moment(utcTimeStr).format(YYYYMMDDHHmmss);
   },
   convertUTCToLocalYYYYMMDD(utc) {
     // '2021-06-28T06:03:01.291Z' to '2021-06-28'
