@@ -9,6 +9,9 @@ const removeMapHTMLStyle = () => {
   document.getElementsByTagName('html')[0].style = '';
 };
 
+// 네이버 지도 공식 문서
+// https://navermaps.github.io/maps.js.ncp/docs/
+
 class NaverMap {
   #clientId
 
@@ -80,7 +83,14 @@ class NaverMap {
   }
 
   draw() {
-    this.overlays.forEach((v) => v.draw(this.map));
+    this.overlays.forEach((v) => {
+      if (v.setNaverMap) {
+        // 매번 새로 그려야 하는 부하를 줄이기 위해 naver map 인스턴스르 직접 전달
+        v.setNaverMap(this.map);
+        return;
+      }
+      v.draw(this.map);
+    });
   }
 
   createNaverMapInstance() {
@@ -129,9 +139,16 @@ class NaverMap {
       ];
       // 2. 새로 추가된 overlays만 화면에 그려진다.
       const { map } = this;
-      if (map) {
-        overlays.forEach((v) => v.draw(map));
+      if (!map) {
+        return;
       }
+      overlays.forEach((v) => {
+        if (v.setNaverMap) {
+          v.setNaverMap(map);
+          return;
+        }
+        v.draw(map);
+      });
     } catch (error) {
       this.onError(error);
     }
@@ -206,6 +223,7 @@ export { default as markerHandler } from './markerHandler';
 export { default as polygonHandler } from './polygonHandler';
 export { default as pickupDropPointHandler } from './pickupDropPointHandler';
 export { default as pointMarkerHandler } from './pointMarkerHandler';
+export { default as polygonSelectorHandler } from './polygonSelectorHandler';
 export { default as mapUtils } from './lib/utils';
 export { default as boundHandler } from './lib/boundHandler';
 
