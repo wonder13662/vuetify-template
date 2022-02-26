@@ -6,10 +6,10 @@ import {
 import * as turf from '@turf/turf';
 
 export default {
-  isLatitude(v) {
+  isLatitude(v) { // 위도, 남위, 북위
     return Number.isFinite(v) && v >= -90 && v <= 90;
   },
-  isLongitude(v) {
+  isLongitude(v) { // 경도, 동경, 서경
     return Number.isFinite(v) && v >= -180 && v <= 180;
   },
   /**

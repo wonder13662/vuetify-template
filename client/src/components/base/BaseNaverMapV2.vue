@@ -6,6 +6,11 @@
 </template>
 
 <script>
+import {
+  constants,
+// eslint-disable-next-line import/no-duplicates
+} from '@/lib/naverMapV2';
+// eslint-disable-next-line import/no-duplicates
 import naverMapV2 from '@/lib/naverMapV2';
 
 export default {
@@ -46,6 +51,15 @@ export default {
     bound: {
       type: Object,
       default: null,
+    },
+    // https://navermaps.github.io/maps.js.ncp/docs/naver.maps.html#toc15__anchor
+    // https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-map-maxbounds.example.html
+    // https://navermaps.github.io/maps.js.ncp/docs/global.html#toc33__anchor
+    // LatLngBoundsObjectLiteral로 변환합니다.
+    // 지도에서 보이는 최대 좌표 경계
+    maxBounds: {
+      type: Object,
+      default: () => (constants.NAVER_LAT_LNG_BOUNDS_OBJECT_LITERAL),
     },
     // 마우스 또는 손가락을 이용한 지도 이동(패닝) 허용 여부입니다.
     draggable: {
@@ -91,6 +105,16 @@ export default {
     zoomControl: {
       type: Boolean,
       default: false,
+    },
+    // 지도의 최대 줌 레벨
+    maxZoom: {
+      type: Number,
+      default: 18,
+    },
+    // 지도의 최소 줌 레벨
+    minZoom: {
+      type: Number,
+      default: 14, // 읍,면,동
     },
     // 지도 위에 그려지는 오버레이 객체의 배열
     // 마커, 거리폴리라인, hexagonGroups도 모두 오버레이 객체입니다.
@@ -155,6 +179,9 @@ export default {
           scaleControl: this.scaleControl,
           scrollWheel: this.scrollWheel,
           zoomControl: this.zoomControl,
+          maxBounds: this.maxBounds,
+          maxZoom: this.maxZoom,
+          minZoom: this.minZoom,
         },
         onCompleted: () => {
           this.onLoaded();

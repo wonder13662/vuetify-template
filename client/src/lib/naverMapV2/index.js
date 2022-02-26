@@ -1,4 +1,5 @@
 import naverMapHelper from './naverMapHelper';
+import * as mapConstants from './lib/constants';
 
 const NAVER_MAPS_SRC_ID = 'naver-map-src';
 
@@ -226,6 +227,7 @@ export { default as pointMarkerHandler } from './pointMarkerHandler';
 export { default as polygonSelectorHandler } from './polygonSelectorHandler';
 export { default as mapUtils } from './lib/utils';
 export { default as boundHandler } from './lib/boundHandler';
+export const constants = mapConstants;
 
 export default {
   createNaverMap: ({

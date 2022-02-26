@@ -1,4 +1,5 @@
 import utils from '@/lib/utils';
+import boundHandler from './boundHandler';
 
 export const H3_RESOLUTION = 9;
 export const MIN_ZOOM = 13;
@@ -56,3 +57,28 @@ export const DISTANCE_LINE_STROKE_STYLE = {
   LONGDASHDOTDOT: 'longdashdotdot',
 };
 export const DISTANCE_LINE_STROKE_STYLE_SET = utils.convertObjToSet(DISTANCE_LINE_STROKE_STYLE);
+
+export const BOUNDS_SOUTH_KOREA = boundHandler.createBoundsByPoints([
+  {
+    lat: 38.61217111597735,
+    lng: 129.71931194346803,
+  },
+  {
+    lat: 33.13034473005606,
+    lng: 124.65179445354838,
+  },
+]);
+
+export const BOUNDS_SOUTH_KOREA_SEOUL = boundHandler.createBoundsByPoints([
+  {
+    lat: 37.72317404551789,
+    lng: 126.78808328190884,
+  },
+  {
+    lat: 37.38940720169624,
+    lng: 127.25870301004518,
+  },
+]);
+
+// eslint-disable-next-line max-len
+export const NAVER_LAT_LNG_BOUNDS_OBJECT_LITERAL = BOUNDS_SOUTH_KOREA_SEOUL.getLatLngBoundsObjectLiteral();
