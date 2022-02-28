@@ -213,8 +213,12 @@ class PolygonSelector {
    * @return {void} 리턴값 없음
    */
   remove() {
-    this.#pointMarkers.forEach((p) => p.remove());
-    this.#polygon.remove();
+    this.#pointMarkers.forEach((p) => p.destroy());
+    this.#pointMarkers = [];
+    if (this.#polygon) {
+      this.#polygon.destroy();
+      this.#polygon = null;
+    }
   }
 
   /**

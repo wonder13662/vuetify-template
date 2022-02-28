@@ -119,6 +119,8 @@ export default {
       }
     },
     mode(v) {
+      // TODO 지도에 선택된 pointMarker와 polygon을 초기화한다.
+      polygonSelector.remove();
       if (v === MODE_ADD || v === MODE_REMOVE) {
         polygonSelector.setModeEdit();
         return;
