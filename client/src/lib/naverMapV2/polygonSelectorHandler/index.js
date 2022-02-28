@@ -267,19 +267,6 @@ class PolygonSelector {
           return;
         }
 
-        if (!this.#polygon) {
-          // a. polyline 상태 -> polygon 상태로 바뀜
-          // 지도 위에 표시된 pointMarker를 클릭한 것이므로 갇힌 다각형이 된다.
-          // 이제 Polygon을 그린다.(사용자가 입력한 pointMarker의 순서대로 polygon을 그린다)
-          this.#polygon = createPolygon({
-            map: this.#map,
-            points: this.#pointMarkers.map((p) => p.getPosition()),
-            // 지도의 mousemove 이벤트를 받기 위해 폴리곤 자체의 이벤트는 받지 않습니다.
-            clickable: false,
-          });
-          return;
-        }
-
         // b. polygon 상태
         // 닫힌 상태임. 사용자에게는 폴리곤으로 표시
         const pointMarkerClicked = this.#pointMarkers.find((o) => o.meta.id === id);
@@ -321,6 +308,7 @@ class PolygonSelector {
     });
     pointMarker.draw(this.#map);
 
+    // 2. 새로운 pointMarker를 pointMarker의 목록에 어디에 넣을지 결정한다.
     if (!this.#polygon) {
       // 2-1. polygon이 아직 없다면 새로 만든 pointMarker를 배열에 추가
       this.#pointMarkers.push(pointMarker);
@@ -341,6 +329,19 @@ class PolygonSelector {
       });
       result.sort((a, b) => a.distance - b.distance);
       this.#pointMarkers.splice(result[0].next, 0, pointMarker);
+    }
+
+    // 3. polygon 업데이트
+    if (!this.#polygon) {
+      // 3-1. polygon이 없다면 만듭니다.
+      this.#polygon = createPolygon({
+        map: this.#map,
+        points: this.#pointMarkers.map((p) => p.getPosition()),
+        // 지도의 mousemove 이벤트를 받기 위해 폴리곤 자체의 이벤트는 받지 않습니다.
+        clickable: false,
+      });
+    } else {
+      // 3-2. polygon이 있다면 path를 다시 그린다.
       this.#polygon.setPath(this.#pointMarkers.map((v) => v.getPosition()));
     }
   }
