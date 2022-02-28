@@ -133,6 +133,44 @@ const blur = ({
 };
 
 /**
+ * overlay 객체에 click 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
+ *
+ * @param {Map} eventListenerMapMap - 이벤트 리스너의 맵의 맵
+ * @param {object} payload - 이벤트 객체
+ *
+ * @return {void} 반환값 없음
+ */
+const click = ({
+  eventListenerMapMap,
+  payload,
+}) => {
+  emit({
+    eventListenerMapMap,
+    key: OVERLAY_EVENT.CLICK,
+    payload,
+  });
+};
+
+/**
+ * overlay 객체에 rightclick 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
+ *
+ * @param {Map} eventListenerMapMap - 이벤트 리스너의 맵의 맵
+ * @param {object} payload - 이벤트 객체
+ *
+ * @return {void} 반환값 없음
+ */
+const rightClick = ({
+  eventListenerMapMap,
+  payload,
+}) => {
+  emit({
+    eventListenerMapMap,
+    key: OVERLAY_EVENT.RIGHT_CLICK,
+    payload,
+  });
+};
+
+/**
  * overlay 객체에 mousemove 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
  *
  * @param {string} status - 오버레이 객체의 상태
@@ -153,24 +191,22 @@ const mousemove = ({
 };
 
 /**
- * overlay 객체에 click 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
+ * 네이버 맵 이벤트 객체에서 Point 리터럴 객체를 만들어 돌려줍니다.
  *
- * @param {Map} eventListenerMapMap - 이벤트 리스너의 맵의 맵
- * @param {object} payload - 이벤트 객체
+ * @param {object} e - 네이버 맵 이벤트 객체
  *
- * @return {void} 반환값 없음
+ * @return {Point} Point 객체
  */
-const click = ({
-  eventListenerMapMap,
-  payload,
-}) => {
-  emit({
-    eventListenerMapMap,
-    key: OVERLAY_EVENT.CLICK,
-    payload,
-  });
+const getPointFromMapEvent = (e) => {
+  const {
+    _lat: lat,
+    _lng: lng,
+  } = e.coord;
+  return {
+    lat,
+    lng,
+  };
 };
-
 
 class OverlayEventController {
   #overlay
@@ -187,6 +223,8 @@ class OverlayEventController {
 
   #onClick
 
+  #onRightClick
+
   #onMousemove
 
   #meta
@@ -195,12 +233,14 @@ class OverlayEventController {
     onFocus = () => ({}),
     onBlur = () => ({}),
     onClick = () => ({}),
+    onRightClick = () => ({}),
     onMousemove = () => ({}),
     meta,
   }) {
     this.#onFocus = onFocus;
     this.#onBlur = onBlur;
     this.#onClick = onClick;
+    this.#onRightClick = onRightClick;
     this.#onMousemove = onMousemove;
     this.#meta = meta;
 
@@ -210,6 +250,8 @@ class OverlayEventController {
     this.#eventListenerMapMap.set(OVERLAY_EVENT.BLUR, new Map());
     this.#eventListenerMapMap.set(OVERLAY_EVENT.FOCUS, new Map());
     this.#eventListenerMapMap.set(OVERLAY_EVENT.CLICK, new Map());
+    this.#eventListenerMapMap.set(OVERLAY_EVENT.RIGHT_CLICK, new Map());
+    this.#eventListenerMapMap.set(OVERLAY_EVENT.MOUSE_MOVE, new Map());
   }
 
   setOverlay(overlay) {
@@ -228,10 +270,12 @@ class OverlayEventController {
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mouseover', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
       this.#onFocus(e);
+
       focus({
         eventListenerMapMap: this.#eventListenerMapMap,
         payload: {
-          ...e,
+          ...e, // @ deprecated
+          point: getPointFromMapEvent(e),
           meta: {
             ...this.#meta,
           },
@@ -245,7 +289,8 @@ class OverlayEventController {
       blur({
         eventListenerMapMap: this.#eventListenerMapMap,
         payload: {
-          ...e,
+          ...e, // @ deprecated
+          point: getPointFromMapEvent(e),
           meta: {
             ...this.#meta,
           },
@@ -259,7 +304,8 @@ class OverlayEventController {
       mousemove({
         eventListenerMapMap: this.#eventListenerMapMap,
         payload: {
-          ...e,
+          ...e, // @ deprecated
+          point: getPointFromMapEvent(e),
           meta: {
             ...this.#meta,
           },
@@ -272,7 +318,22 @@ class OverlayEventController {
       click({
         eventListenerMapMap: this.#eventListenerMapMap,
         payload: {
-          ...e,
+          ...e, // @ deprecated
+          point: getPointFromMapEvent(e),
+          meta: {
+            ...this.#meta,
+          },
+        },
+      });
+    }));
+    this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'rightclick', (e) => {
+      // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
+      this.#onRightClick(e);
+      rightClick({
+        eventListenerMapMap: this.#eventListenerMapMap,
+        payload: {
+          ...e, // @ deprecated
+          point: getPointFromMapEvent(e),
           meta: {
             ...this.#meta,
           },
@@ -296,11 +357,14 @@ class OverlayEventController {
       if (this.#eventListenerMapMap.has(OVERLAY_EVENT.FOCUS)) {
         this.#eventListenerMapMap.get(OVERLAY_EVENT.FOCUS).clear();
       }
-      if (this.#eventListenerMapMap.has(OVERLAY_EVENT.MOUSE_MOVE)) {
-        this.#eventListenerMapMap.get(OVERLAY_EVENT.MOUSE_MOVE).clear();
-      }
       if (this.#eventListenerMapMap.has(OVERLAY_EVENT.CLICK)) {
         this.#eventListenerMapMap.get(OVERLAY_EVENT.CLICK).clear();
+      }
+      if (this.#eventListenerMapMap.has(OVERLAY_EVENT.RIGHT_CLICK)) {
+        this.#eventListenerMapMap.get(OVERLAY_EVENT.RIGHT_CLICK).clear();
+      }
+      if (this.#eventListenerMapMap.has(OVERLAY_EVENT.MOUSE_MOVE)) {
+        this.#eventListenerMapMap.get(OVERLAY_EVENT.MOUSE_MOVE).clear();
       }
       this.#eventListenerMapMap.clear();
       this.#eventListenerMapMap = null;
@@ -448,6 +512,47 @@ class OverlayEventController {
     removeEventListener({
       eventListenerMapMap: this.#eventListenerMapMap,
       event: OVERLAY_EVENT.CLICK,
+      id,
+    });
+  }
+
+
+  /**
+   * overlay 객체에 rightClick 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - click 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addRightClickListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    const id = uuidv4();
+    addEventListener({
+      eventListenerMapMap: this.#eventListenerMapMap,
+      event: OVERLAY_EVENT.RIGHT_CLICK,
+      listener,
+      id,
+    });
+
+    return id;
+  }
+
+  /**
+   * overlay 객체에 rightClick 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeRightClickListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    removeEventListener({
+      eventListenerMapMap: this.#eventListenerMapMap,
+      event: OVERLAY_EVENT.RIGHT_CLICK,
       id,
     });
   }

@@ -86,46 +86,6 @@ const getPointMarkerIconStyle = (isFocus, mode) => {
   }
   return getPointMarkerIconStyleBlur(mode);
 };
-
-// 2. Button Remove Style
-const getAnchorBtnRemove = () => naverMapWrapper.getPoint(-14, 8);
-const btnRemoveStyles = [
-  'position: relative;',
-  'width: 16px;',
-  'height: 16px;',
-  'border-radius: 1rem;',
-];
-const getStyleBtnRemoveFocus = () => [
-  ...btnRemoveStyles,
-  'background: black;',
-].join('');
-const getStyleBtnRemoveBlur = () => [
-  ...btnRemoveStyles,
-  'background: red;',
-].join('');
-const getStyleBtnRemoveInnerText = () => [
-  'color: white;',
-  'position: absolute;',
-  'left: 4px;',
-  'top: -4px;',
-  'font-size: 1rem;',
-].join('');
-const getBtnRemoveIconFocus = () => ({
-  content: [
-    `<div style="${getStyleBtnRemoveFocus()}">`,
-    `<div style="${getStyleBtnRemoveInnerText()}">&times;</div>`,
-    '</div>',
-  ].join(''),
-  anchor: getAnchorBtnRemove(),
-});
-const getBtnRemoveIconBlur = () => ({
-  content: [
-    `<div style="${getStyleBtnRemoveBlur()}">`,
-    `<div style="${getStyleBtnRemoveInnerText()}">&times;</div>`,
-    '</div>',
-  ].join(''),
-  anchor: getAnchorBtnRemove(),
-});
 class PointMarker {
   #point
 
@@ -134,10 +94,6 @@ class PointMarker {
   #overlayPointMarker
 
   #overlayPointMarkerEventController
-
-  #overlayBtnRemove
-
-  #overlayBtnRemoveEventController
 
   #mode
 
@@ -166,21 +122,6 @@ class PointMarker {
       },
       meta: { ...this.#meta },
     });
-    this.#overlayBtnRemove = null;
-    this.#overlayBtnRemoveEventController = overlayEventHandler.createOverlayEventController({
-      onFocus: () => {
-        this.#overlayBtnRemove.setOptions({
-          icon: getBtnRemoveIconFocus(),
-        });
-      },
-      onBlur: () => {
-        this.#overlayBtnRemove.setOptions({
-          icon: getBtnRemoveIconBlur(),
-        });
-      },
-      onClick: () => {},
-      meta: { ...this.#meta },
-    });
     this.#mode = MODE_ENABLED_UNSELECTED;
   }
 
@@ -207,17 +148,6 @@ class PointMarker {
       map,
     });
     this.#overlayPointMarkerEventController.setOverlay(this.#overlayPointMarker);
-
-    // 2. overlayBtnRemove를 지도에 그립니다.
-    this.#overlayBtnRemove = naverMapWrapper.getMarker({
-      position,
-      icon: getBtnRemoveIconBlur(),
-      map,
-    });
-    this.#overlayBtnRemoveEventController.setOverlay(this.#overlayBtnRemove);
-    // 2-2. overlayBtnRemove를 지도에서 숨깁니다.
-    // pointMarker가 선택(SELECTED)되었을 때 지도에서 보여줍니다.
-    this.#overlayBtnRemove.setVisible(false);
   }
 
   /**
@@ -229,10 +159,6 @@ class PointMarker {
     if (this.#overlayPointMarker) {
       this.#overlayPointMarker.setMap(null);
       this.#overlayPointMarker = null;
-    }
-    if (this.#overlayBtnRemove) {
-      this.#overlayBtnRemove.setMap(null);
-      this.#overlayBtnRemove = null;
     }
   }
 
@@ -246,10 +172,6 @@ class PointMarker {
     if (this.#overlayPointMarkerEventController) {
       this.#overlayPointMarkerEventController.remove();
       this.#overlayPointMarkerEventController = null;
-    }
-    if (this.#overlayBtnRemoveEventController) {
-      this.#overlayBtnRemoveEventController.remove();
-      this.#overlayBtnRemoveEventController = null;
     }
   }
 
@@ -327,14 +249,6 @@ class PointMarker {
     this.#overlayPointMarker.setOptions({
       icon: getPointMarkerIconStyle(isFocus, this.#mode),
     });
-    // 2. btnRemove의 표시상태를 바꿉니다.
-    // 2-1. pointMarker가 선택되면 지도에서 표시
-    // 2-2. pointMarker가 선택이 해제되면 지도에서 숨김
-    if (this.#mode === MODE_ENABLED_UNSELECTED) {
-      this.#overlayBtnRemove.setVisible(false);
-    } else if (this.#mode === MODE_ENABLED_SELECTED) {
-      this.#overlayBtnRemove.setVisible(true);
-    }
   }
 
   /**
@@ -420,7 +334,6 @@ class PointMarker {
     const { lat, lng } = this.#point;
     const position = naverMapWrapper.getLatLng(lat, lng);
     this.#overlayPointMarker.setPosition(position);
-    this.#overlayBtnRemove.setPosition(position);
   }
 
   /**
@@ -476,7 +389,7 @@ class PointMarker {
   }
 
   /**
-   * DistanceLine에 focus 이벤트 리스너를 추가합니다.
+   * PointMarker에 focus 이벤트 리스너를 추가합니다.
    *
    * @param {function} listener - focus 이벤트 리스너
    *
@@ -495,7 +408,7 @@ class PointMarker {
   }
 
   /**
-   * DistanceLine에 focus 이벤트 리스너를 제거합니다.
+   * PointMarker에 focus 이벤트 리스너를 제거합니다.
    *
    * @param {string} id - listener가 등록된 id
    *
@@ -513,7 +426,7 @@ class PointMarker {
   }
 
   /**
-   * DistanceLine에 blur 이벤트 리스너를 추가합니다.
+   * PointMarker에 blur 이벤트 리스너를 추가합니다.
    *
    * @param {function} listener - blur 이벤트 리스너
    *
@@ -532,7 +445,7 @@ class PointMarker {
   }
 
   /**
-   * DistanceLine에 blur 이벤트 리스너를 제거합니다.
+   * PointMarker에 blur 이벤트 리스너를 제거합니다.
    *
    * @param {string} id - listener가 등록된 id
    *
@@ -550,7 +463,7 @@ class PointMarker {
   }
 
   /**
-   * DistanceLine에 click 이벤트 리스너를 추가합니다.
+   * PointMarker에 click 이벤트 리스너를 추가합니다.
    *
    * @param {function} listener - click 이벤트 리스너
    *
@@ -569,7 +482,7 @@ class PointMarker {
   }
 
   /**
-   * DistanceLine에 click 이벤트 리스너를 제거합니다.
+   * PointMarker에 click 이벤트 리스너를 제거합니다.
    *
    * @param {string} id - listener가 등록된 id
    *
@@ -584,6 +497,43 @@ class PointMarker {
     }
 
     this.#overlayPointMarkerEventController.removeClickListener(id);
+  }
+
+  /**
+   * PointMarker에 rightClick 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - click 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addRightClickListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#overlayPointMarkerEventController) {
+      throw new Error('this.#overlayPointMarkerEventController/유효하지 않습니다.');
+    }
+
+    const id = this.#overlayPointMarkerEventController.addRightClickListener(listener);
+    return id;
+  }
+
+  /**
+   * PointMarker에 rightClick 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeRightClickListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    if (!this.#overlayPointMarkerEventController) {
+      throw new Error('this.#overlayPointMarkerEventController/유효하지 않습니다.');
+    }
+
+    this.#overlayPointMarkerEventController.removeRightClickListener(id);
   }
 }
 

@@ -34,6 +34,7 @@ export const OVERLAY_EVENT = {
   FOCUS: 'FOCUS',
   BLUR: 'BLUR',
   CLICK: 'CLICK',
+  RIGHT_CLICK: 'RIGHT_CLICK',
   MOUSE_MOVE: 'MOUSE_MOVE',
 };
 export const OVERLAY_EVENT_SET = utils.convertObjToSet(OVERLAY_EVENT);

@@ -14,7 +14,11 @@ const MODE_EDIT = 'MODE_EDIT';
  *
  * @return {PointMarker} PointMarker의 인스턴스
  */
-const createPointMarker = (point, onClick) => {
+const createPointMarker = ({
+  point,
+  onClick = () => ({}),
+  onRightClick = () => ({}),
+}) => {
   const pointMarker = pointMarkerHandler.createPointMarker({
     point,
     meta: {
@@ -22,6 +26,7 @@ const createPointMarker = (point, onClick) => {
     },
   });
   pointMarker.addClickListener(({ meta: { id } }) => onClick(id));
+  pointMarker.addRightClickListener(({ meta: { id } }) => onRightClick(id));
   return pointMarker;
 };
 
@@ -250,46 +255,65 @@ class PolygonSelector {
     }
 
     // 1. pointMakers 추가
-    const pointMarker = createPointMarker(point, (id) => {
-      const pointMarkerClicked = this.#pointMarkers.find((o) => o.meta.id === id);
+    const pointMarker = createPointMarker({
+      point,
+      onClick: (id) => {
+        // 사용자가 pointMarker를 클릭했습니다.
+        if (!this.#polygon && this.#pointMarkers.length <= 2) {
+          return;
+        }
 
-      if (!this.#polygon && this.#pointMarkers.length <= 2) {
-        return;
-      }
+        if (!this.#polygon) {
+          // a. polyline 상태 -> polygon 상태로 바뀜
+          // 지도 위에 표시된 pointMarker를 클릭한 것이므로 갇힌 다각형이 된다.
+          // 이제 Polygon을 그린다.(사용자가 입력한 pointMarker의 순서대로 polygon을 그린다)
+          this.#polygon = createPolygon({
+            map: this.#map,
+            points: this.#pointMarkers.map((p) => p.getPosition()),
+            // 지도의 mousemove 이벤트를 받기 위해 폴리곤 자체의 이벤트는 받지 않습니다.
+            clickable: false,
+          });
+          return;
+        }
 
-      if (!this.#polygon) {
-        // a. polyline 상태 -> polygon 상태로 바뀜
-        // 지도 위에 표시된 pointMarker를 클릭한 것이므로 갇힌 다각형이 된다.
-        // 이제 Polygon을 그린다.(사용자가 입력한 pointMarker의 순서대로 polygon을 그린다)
-        this.#polygon = createPolygon({
-          map: this.#map,
-          points: this.#pointMarkers.map((p) => p.getPosition()),
-          // 지도의 mousemove 이벤트를 받기 위해 폴리곤 자체의 이벤트는 받지 않습니다.
-          clickable: false,
-        });
-        return;
-      }
-
-      // b. polygon 상태
-      // 닫힌 상태임. 사용자에게는 폴리곤으로 표시
-      if (!pointMarkerClicked || pointMarkerClicked.isDisabled()) {
-        return;
-      }
-      // 2-1. pointMarker가 SELECTED
-      if (pointMarkerClicked.isSelected()) {
-        // 2-1-1. SELECTED 상태로 바뀌면, 이외의 다른 point들은 모두 disabled 상태로 바꿉니다.
-        this.#pointMarkers.forEach((o) => {
-          if (o.meta.id !== id) {
-            o.setDisabled();
-          }
-        });
-      }
-      // 2-2. pointMarker가 UNSELECTED
-      if (pointMarkerClicked.isUnselected()) {
-        // 2-2-1. UNSELECTED 상태로 바뀌면, 모든 point들을 모두 enabled 상태로 바꿉니다.
-        this.#pointMarkers.forEach((o) => o.setEnabled());
-        // pointMarker들의 좌표를 points에 업데이트합니다.
-      }
+        // b. polygon 상태
+        // 닫힌 상태임. 사용자에게는 폴리곤으로 표시
+        const pointMarkerClicked = this.#pointMarkers.find((o) => o.meta.id === id);
+        if (!pointMarkerClicked || pointMarkerClicked.isDisabled()) {
+          return;
+        }
+        // 2-1. pointMarker가 SELECTED
+        if (pointMarkerClicked.isSelected()) {
+          // 2-1-1. SELECTED 상태로 바뀌면, 이외의 다른 point들은 모두 disabled 상태로 바꿉니다.
+          this.#pointMarkers.forEach((o) => {
+            if (o.meta.id !== id) {
+              o.setDisabled();
+            }
+          });
+        }
+        // 2-2. pointMarker가 UNSELECTED
+        if (pointMarkerClicked.isUnselected()) {
+          // 2-2-1. UNSELECTED 상태로 바뀌면, 모든 point들을 모두 enabled 상태로 바꿉니다.
+          this.#pointMarkers.forEach((o) => o.setEnabled());
+          // pointMarker들의 좌표를 points에 업데이트합니다.
+        }
+      },
+      onRightClick: (id) => {
+        // 사용자가 pointMarker를 오른쪽 클릭했습니다.
+        // 해당 pointMarker를 삭제합니다.
+        const found = this.#pointMarkers.find((p) => p.meta.id === id);
+        if (!found) {
+          return;
+        }
+        // 1. pointMarker 배열에서 해당 pointMarker를 제외
+        this.#pointMarkers = this.#pointMarkers.filter((p) => p.meta.id !== id);
+        // 2. 해당 pointMarker 삭제
+        found.destroy();
+        // 3. polygon이 있다면 남은 pointMarker로 다시 그립니다.
+        if (this.#polygon) {
+          this.#polygon.setPath(this.#pointMarkers.map((v) => v.getPosition()));
+        }
+      },
     });
     pointMarker.draw(this.#map);
 
