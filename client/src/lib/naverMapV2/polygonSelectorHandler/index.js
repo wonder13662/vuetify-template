@@ -300,9 +300,14 @@ class PolygonSelector {
         this.#pointMarkers = this.#pointMarkers.filter((p) => p.meta.id !== id);
         // 2. 해당 pointMarker 삭제
         found.destroy();
-        // 3. polygon이 있다면 남은 pointMarker로 다시 그립니다.
-        if (this.#polygon) {
+        // 3. polygon 업데이트
+        if (this.#pointMarkers.length > 0 && this.#polygon) {
+          // 3-1. pointMaker가 1개 이상 있고, polygon이 있다면 남은 pointMarker로 다시 그립니다.
           this.#polygon.setPath(this.#pointMarkers.map((v) => v.getPosition()));
+        } else {
+          // 3-2. pointMaker가 없다면, polygon을 삭제합니다.
+          this.#polygon.destroy();
+          this.#polygon = null;
         }
       },
     });
