@@ -113,7 +113,6 @@ export default {
   watch: {
     show(v) {
       if (!v) {
-        // TODO 화면이 닫힐 때, polygonSelector는 읽기모드가 됩니다.
         polygonSelector.setModeRead();
         polygonSelector.remove();
       } else if (this.mode === MODE_ADD || this.mode === MODE_REMOVE) {
@@ -121,7 +120,6 @@ export default {
       }
     },
     mode(v) {
-      // TODO 지도에 선택된 pointMarker와 polygon을 초기화한다.
       polygonSelector.remove();
       if (v === MODE_ADD || v === MODE_REMOVE) {
         polygonSelector.setModeEdit();
