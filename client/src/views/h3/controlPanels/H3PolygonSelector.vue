@@ -70,6 +70,8 @@ const MODE_READ = 'MODE_READ';
 const MODE_ADD = 'MODE_ADD';
 const MODE_REMOVE = 'MODE_REMOVE';
 
+const polygonSelector = polygonSelectorHandler.createPolygonSelector({});
+
 export default {
   name: 'H3PolygonSelector',
   components: {
@@ -109,13 +111,31 @@ export default {
     };
   },
   watch: {
-
-
+    show(v) {
+      if (!v) {
+        // TODO 화면이 닫힐 때, polygonSelector는 읽기모드가 됩니다.
+        polygonSelector.setModeRead();
+        polygonSelector.remove();
+      }
+    },
+    mode(v) {
+      if (v === MODE_ADD || v === MODE_REMOVE) {
+        polygonSelector.setModeEdit();
+        return;
+      }
+      polygonSelector.setModeRead();
+    },
   },
   created() {
     this.$emit('change-overlays', [
-      polygonSelectorHandler.createPolygonSelector({}),
+      polygonSelector,
     ]);
+    // eslint-disable-next-line no-console
+    console.log('HERE / created');
+  },
+  destroyed() {
+    // eslint-disable-next-line no-console
+    console.log('HERE / destroyed');
   },
   methods: {
     onClick({ meta, show }) {

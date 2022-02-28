@@ -4,6 +4,9 @@ import pointMarkerHandler from '../pointMarkerHandler';
 import polygonHandler from '../polygonHandler';
 import overlayEventHandler from '../overlayEventHandler';
 
+const MODE_READ = 'MODE_READ';
+const MODE_EDIT = 'MODE_EDIT';
+
 /**
  * PointMarker를 만들어 지도 위에 그립니다.
  *
@@ -29,8 +32,14 @@ const createPointMarker = (point, onClick) => {
  *
  * @return {Polygon} Polygon의 인스턴스
  */
-const createPolygon = (map, points, onClick) => {
-  const polygon = polygonHandler.createPolygon({ points });
+const createPolygon = ({
+  map,
+  points,
+  clickable = false,
+  onClick = () => ({}),
+  onMousemove = () => ({}),
+}) => {
+  const polygon = polygonHandler.createPolygon({ points, clickable });
   polygon.draw(map);
   polygon.addClickListener((v) => {
     const {
@@ -43,6 +52,19 @@ const createPolygon = (map, points, onClick) => {
     };
     onClick(point);
   });
+
+  polygon.addMousemoveListener((v) => {
+    const {
+      _lat: lat,
+      _lng: lng,
+    } = v.coord;
+    const point = {
+      lat,
+      lng,
+    };
+    onMousemove(point);
+  });
+
   return polygon;
 };
 
@@ -56,6 +78,8 @@ class PolygonSelector {
   #overlayMapEventHandler
 
   #map // naverMap 인스턴스
+
+  #mode
 
   // TODO 확장성을 위해서는 points를 외부에서 받을 수 있어야 한다.
   // TODO 삭제하는 방법은 선택시 pointMarker에 삭제 버튼을 노출하는 것으로 하자.
@@ -91,6 +115,12 @@ class PolygonSelector {
           lat,
           lng,
         };
+
+        // 클릭한 지점을 입력받으려면 편집모드(MODE_EDIT)여야 한다.
+        if (this.isModeRead()) {
+          return;
+        }
+
         // pointMarker와 polygon을 제외한 지도 영역을 클릭하면,
         const pointMarkerSelected = this.#pointMarkers.find((p) => p.isSelected());
         if (pointMarkerSelected) {
@@ -105,8 +135,33 @@ class PolygonSelector {
         // 2. 선택된 pointMarker가 없다면 pointMarker의 추가
         this.addPoint(point);
       },
+      onMousemove: (v) => {
+        // 선택된 마커가 없다면 중단합니다.
+        const pointMarkerSelected = this.#pointMarkers.find((p) => p.isSelected());
+        if (!pointMarkerSelected) {
+          return;
+        }
+
+        // 마우스의 좌표를 가져옵니다.
+        const {
+          _lat: lat,
+          _lng: lng,
+        } = v.coord;
+        const point = {
+          lat,
+          lng,
+        };
+
+        pointMarkerSelected.setPosition(point);
+        if (this.#polygon) {
+          this.#polygon.setPath(this.#pointMarkers.map((p) => p.getPosition()));
+        }
+      },
       meta: { ...this.#meta },
     });
+
+    // 4. 최초의 모드는 읽기모드(MODE_READ)입니다.
+    this.#mode = MODE_READ;
   }
 
   /**
@@ -190,6 +245,9 @@ class PolygonSelector {
     if (!this.#map) {
       throw new Error(`this.#map:${this.#map}/유효하지 않습니다.`);
     }
+    if (this.isModeRead()) {
+      throw new Error(`this.#mode:${this.#mode}/편집모드에서만 Point 추가가 가능합니다.`);
+    }
 
     // 1. pointMakers 추가
     const pointMarker = createPointMarker(point, (id) => {
@@ -203,20 +261,12 @@ class PolygonSelector {
         // a. polyline 상태 -> polygon 상태로 바뀜
         // 지도 위에 표시된 pointMarker를 클릭한 것이므로 갇힌 다각형이 된다.
         // 이제 Polygon을 그린다.(사용자가 입력한 pointMarker의 순서대로 polygon을 그린다)
-        this.#polygon = createPolygon(
-          this.#map,
-          this.#pointMarkers.map((p) => p.getPosition()),
-          (v) => {
-            const pointMarkerSelected = this.#pointMarkers.find((p) => p.isSelected());
-            if (!pointMarkerSelected) {
-              return;
-            }
-            // 선택된 pointMarker가 있다면 폴리곤 내부좌표로 pointMarker를 이동시킵니다.
-            pointMarkerSelected.setPosition(v);
-            // polygon도 업데이트합니다.
-            this.#polygon.setPath(this.#pointMarkers.map((p) => p.getPosition()));
-          },
-        );
+        this.#polygon = createPolygon({
+          map: this.#map,
+          points: this.#pointMarkers.map((p) => p.getPosition()),
+          // 지도의 mousemove 이벤트를 받기 위해 폴리곤 자체의 이벤트는 받지 않습니다.
+          clickable: false,
+        });
         return;
       }
 
@@ -265,6 +315,42 @@ class PolygonSelector {
       this.#pointMarkers.splice(result[0].next, 0, pointMarker);
       this.#polygon.setPath(this.#pointMarkers.map((v) => v.getPosition()));
     }
+  }
+
+  /**
+   * 읽기모드(MODE_READ)로 바꿉니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  setModeRead() {
+    this.#mode = MODE_READ;
+  }
+
+  /**
+   * 읽기모드(MODE_READ)인지 여부
+   *
+   * @return {boolean} 읽기모드(MODE_READ) 여부 플래그값
+   */
+  isModeRead() {
+    return this.#mode === MODE_READ;
+  }
+
+  /**
+   * 편집모드(MODE_EDIT)로 바꿉니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  setModeEdit() {
+    this.#mode = MODE_EDIT;
+  }
+
+  /**
+   * 편집모드(MODE_EDIT)인지 여부
+   *
+   * @return {boolean} 편집모드(MODE_EDIT)인지 여부 플래그값
+   */
+  isModeEdit() {
+    return this.#mode === MODE_EDIT;
   }
 }
 

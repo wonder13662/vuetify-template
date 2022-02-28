@@ -157,6 +157,8 @@ const getStyleEditFocus = () => ({
 class Polygon {
   #points
 
+  #clickable
+
   #meta
 
   #naverPolygon
@@ -173,9 +175,11 @@ class Polygon {
    */
   constructor({
     points,
+    clickable = true,
     meta = {},
   }) {
     this.#points = points;
+    this.#clickable = clickable;
     this.#meta = meta;
     this.#naverPolygon = null;
     this.#overlayEventHandler = overlayEventHandler.createOverlayEventController({
@@ -213,6 +217,7 @@ class Polygon {
     this.#naverPolygon = naverMapWrapper.drawPolygonNoListener({
       map,
       naverPolygonPaths: [path],
+      clickable: this.#clickable,
       style: getStyleReadUnselectedBlur(),
     });
     this.#overlayEventHandler.setOverlay(this.#naverPolygon);
@@ -303,11 +308,49 @@ class Polygon {
 
     this.#overlayEventHandler.removeClickListener(id);
   }
+
+  /**
+   * Naver Polygon에 mousemove 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - mousemove 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addMousemoveListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#overlayEventHandler) {
+      throw new Error('this.#overlayEventHandler/유효하지 않습니다.');
+    }
+
+    const id = this.#overlayEventHandler.addMousemoveListener(listener);
+    return id;
+  }
+
+  /**
+   * Naver Polygon에 click 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeMousemoveListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    if (!this.#overlayEventHandler) {
+      throw new Error('this.#overlayEventHandler/유효하지 않습니다.');
+    }
+
+    this.#overlayEventHandler.removeMousemoveListener(id);
+  }
 }
 
 export default {
   createPolygon({
     points,
+    clickable = true,
     meta = {},
   }) {
     if (!points || points.length === 0) {
@@ -320,6 +363,7 @@ export default {
     });
     return new Polygon({
       points,
+      clickable,
       meta,
     });
   },

@@ -290,6 +290,7 @@ export default {
     map,
     naverPolygonPaths,
     visible = true,
+    clickable = true,
     style = {},
   }) {
     if (!map) {
@@ -305,7 +306,7 @@ export default {
       map,
       paths: naverPolygonPaths,
       visible,
-      clickable: true,
+      clickable,
       ...style,
     });
 

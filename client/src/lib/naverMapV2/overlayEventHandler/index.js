@@ -133,6 +133,26 @@ const blur = ({
 };
 
 /**
+ * overlay 객체에 mousemove 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
+ *
+ * @param {string} status - 오버레이 객체의 상태
+ * @param {Map} eventListenerMapMap - 이벤트 리스너의 맵의 맵
+ * @param {object} payload - 이벤트 객체
+ *
+ * @return {void} 반환값 없음
+ */
+const mousemove = ({
+  eventListenerMapMap,
+  payload,
+}) => {
+  emit({
+    eventListenerMapMap,
+    key: OVERLAY_EVENT.MOUSE_MOVE,
+    payload,
+  });
+};
+
+/**
  * overlay 객체에 click 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
  *
  * @param {Map} eventListenerMapMap - 이벤트 리스너의 맵의 맵
@@ -167,17 +187,21 @@ class OverlayEventController {
 
   #onClick
 
+  #onMousemove
+
   #meta
 
   constructor({
-    onFocus,
-    onBlur,
-    onClick,
+    onFocus = () => ({}),
+    onBlur = () => ({}),
+    onClick = () => ({}),
+    onMousemove = () => ({}),
     meta,
   }) {
     this.#onFocus = onFocus;
     this.#onBlur = onBlur;
     this.#onClick = onClick;
+    this.#onMousemove = onMousemove;
     this.#meta = meta;
 
     this.#naverMapEventListeners = [];
@@ -229,6 +253,19 @@ class OverlayEventController {
       });
       this.#status = OVERLAY_STATUS.BLUR;
     }));
+    this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mousemove', (e) => {
+      // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
+      this.#onMousemove(e);
+      mousemove({
+        eventListenerMapMap: this.#eventListenerMapMap,
+        payload: {
+          ...e,
+          meta: {
+            ...this.#meta,
+          },
+        },
+      });
+    }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'click', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
       this.#onClick(e);
@@ -258,6 +295,9 @@ class OverlayEventController {
       }
       if (this.#eventListenerMapMap.has(OVERLAY_EVENT.FOCUS)) {
         this.#eventListenerMapMap.get(OVERLAY_EVENT.FOCUS).clear();
+      }
+      if (this.#eventListenerMapMap.has(OVERLAY_EVENT.MOUSE_MOVE)) {
+        this.#eventListenerMapMap.get(OVERLAY_EVENT.MOUSE_MOVE).clear();
       }
       if (this.#eventListenerMapMap.has(OVERLAY_EVENT.CLICK)) {
         this.#eventListenerMapMap.get(OVERLAY_EVENT.CLICK).clear();
@@ -413,6 +453,46 @@ class OverlayEventController {
   }
 
   /**
+   * overlay 객체에 Mousemove 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - Mousemove 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addMousemoveListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    const id = uuidv4();
+    addEventListener({
+      eventListenerMapMap: this.#eventListenerMapMap,
+      event: OVERLAY_EVENT.MOUSE_MOVE,
+      listener,
+      id,
+    });
+
+    return id;
+  }
+
+  /**
+   * overlay 객체에 Mousemove 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeMousemoveListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    removeEventListener({
+      eventListenerMapMap: this.#eventListenerMapMap,
+      event: OVERLAY_EVENT.MOUSE_MOVE,
+      id,
+    });
+  }
+
+  /**
    * overlay 객체의 상태값(FOCUS, BLUR)를 바꿉니다.
    * 자기자신이 아닌 다른 대상의 mouseover, mouseout의 이벤트와 연동하여 상태를 바꿀때 사용해야 합니다.
    *
@@ -453,6 +533,7 @@ export default {
    * @param {function} onFocus - focus 이벤트 콜백
    * @param {function} onBlur - blur 이벤트 콜백
    * @param {function} onClick - click 이벤트 콜백
+   * @param {function} onMousemove - mousemove 이벤트 콜백
    * @param {object} meta - 오버레이의 메타정보
    *
    * @return {OverlayEventController} OverlayEventController 인스턴스 반환
@@ -461,12 +542,14 @@ export default {
     onFocus,
     onBlur,
     onClick,
+    onMousemove,
     meta,
   }) {
     return new OverlayEventController({
       onFocus,
       onBlur,
       onClick,
+      onMousemove,
       meta,
     });
   },
