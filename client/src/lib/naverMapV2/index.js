@@ -224,7 +224,7 @@ export { default as markerHandler } from './markerHandler';
 export { default as polygonHandler } from './polygonHandler';
 export { default as pickupDropPointHandler } from './pickupDropPointHandler';
 export { default as pointMarkerHandler } from './pointMarkerHandler';
-export { default as polygonSelectorHandler } from './polygonSelectorHandler';
+export { default as polygonLassoHandler } from './polygonLassoHandler';
 export { default as mapUtils } from './lib/utils';
 export { default as boundHandler } from './lib/boundHandler';
 export const constants = mapConstants;

@@ -1,7 +1,7 @@
 <template>
   <div>
     <BaseExpandableRow
-      title="H3 Polygon Selector"
+      title="H3 Polygon Lasso"
       :show="show"
       :meta="meta"
       @click="onClick"
@@ -61,19 +61,17 @@ import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontal
 import BaseRadioGroup from '@/components/base/BaseRadioGroup';
 import BaseText from '@/components/base/BaseText';
 import {
-  polygonSelectorHandler,
+  polygonLassoHandler,
 } from '@/lib/naverMapV2';
-
-// TODO point 삭제 기능이 필요함
 
 const MODE_READ = 'MODE_READ';
 const MODE_ADD = 'MODE_ADD';
 const MODE_REMOVE = 'MODE_REMOVE';
 
-const polygonSelector = polygonSelectorHandler.createPolygonSelector({});
+const polygonLasso = polygonLassoHandler.createPolygonSelector({});
 
 export default {
-  name: 'H3PolygonSelector',
+  name: 'H3PolygonLasso',
   components: {
     BaseExpandableRow,
     BaseContentHorizontalLayout,
@@ -113,24 +111,24 @@ export default {
   watch: {
     show(v) {
       if (!v) {
-        polygonSelector.setModeRead();
-        polygonSelector.remove();
+        polygonLasso.setModeRead();
+        polygonLasso.remove();
       } else if (this.mode === MODE_ADD || this.mode === MODE_REMOVE) {
-        polygonSelector.setModeEdit();
+        polygonLasso.setModeEdit();
       }
     },
     mode(v) {
-      polygonSelector.remove();
+      polygonLasso.remove();
       if (v === MODE_ADD || v === MODE_REMOVE) {
-        polygonSelector.setModeEdit();
+        polygonLasso.setModeEdit();
         return;
       }
-      polygonSelector.setModeRead();
+      polygonLasso.setModeRead();
     },
   },
   created() {
     this.$emit('change-overlays', [
-      polygonSelector,
+      polygonLasso,
     ]);
   },
   methods: {

@@ -127,7 +127,7 @@ import H3ToParent from './controlPanels/H3ToParent';
 import H3ToChildren from './controlPanels/H3ToChildren';
 import H3ToCenterChild from './controlPanels/H3ToCenterChild';
 import Compact from './controlPanels/Compact';
-import H3PolygonSelector from './controlPanels/H3PolygonSelector';
+import H3PolygonSelector from './controlPanels/H3PolygonLasso';
 
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.

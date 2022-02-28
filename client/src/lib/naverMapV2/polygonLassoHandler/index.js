@@ -86,6 +86,8 @@ class PolygonSelector {
 
   #mode
 
+  #onChange
+
   // TODO 확장성을 위해서는 points를 외부에서 받을 수 있어야 한다.
   // TODO 삭제하는 방법은 선택시 pointMarker에 삭제 버튼을 노출하는 것으로 하자.
 
@@ -95,11 +97,16 @@ class PolygonSelector {
    * 사용자는 폴리곤 바깥의 영역을 클릭하여 폴리곤에 점을 추가할 수 있습니다.
    *
    * @param {object} meta - (optional)마커의 메타정보
+   * @param {function} onChange - (optional)point가 추가되거나 제거될 때 호출되는 콜백
    *
    * @return {Polygon} Polygon의 인스턴스
    */
-  constructor({ meta }) {
+  constructor({
+    meta,
+    onChange = () => ({}),
+  }) {
     this.#meta = meta;
+    this.#onChange = onChange;
 
     // 1. 포인트를 나타내는 포인트 마커 만들기
     this.#pointMarkers = [];
@@ -300,15 +307,20 @@ class PolygonSelector {
         this.#pointMarkers = this.#pointMarkers.filter((p) => p.meta.id !== id);
         // 2. 해당 pointMarker 삭제
         found.destroy();
+        const pointsAfterRightClick = this.#pointMarkers.map((p) => p.getPosition());
         // 3. polygon 업데이트
         if (this.#pointMarkers.length > 0 && this.#polygon) {
           // 3-1. pointMaker가 1개 이상 있고, polygon이 있다면 남은 pointMarker로 다시 그립니다.
-          this.#polygon.setPath(this.#pointMarkers.map((v) => v.getPosition()));
+          this.#polygon.setPath(pointsAfterRightClick);
         } else {
           // 3-2. pointMaker가 없다면, polygon을 삭제합니다.
           this.#polygon.destroy();
           this.#polygon = null;
         }
+        // 4. 콜백호출
+        this.#onChange({
+          points: pointsAfterRightClick,
+        });
       },
     });
     pointMarker.draw(this.#map);
@@ -336,19 +348,26 @@ class PolygonSelector {
       this.#pointMarkers.splice(result[0].next, 0, pointMarker);
     }
 
+    const points = this.#pointMarkers.map((p) => p.getPosition());
+
     // 3. polygon 업데이트
     if (!this.#polygon) {
       // 3-1. polygon이 없다면 만듭니다.
       this.#polygon = createPolygon({
         map: this.#map,
-        points: this.#pointMarkers.map((p) => p.getPosition()),
+        points,
         // 지도의 mousemove 이벤트를 받기 위해 폴리곤 자체의 이벤트는 받지 않습니다.
         clickable: false,
       });
     } else {
       // 3-2. polygon이 있다면 path를 다시 그린다.
-      this.#polygon.setPath(this.#pointMarkers.map((v) => v.getPosition()));
+      this.#polygon.setPath(points);
     }
+
+    // 4. 콜백호출
+    this.#onChange({
+      points,
+    });
   }
 
   /**
@@ -391,9 +410,11 @@ class PolygonSelector {
 export default {
   createPolygonSelector({
     meta = {},
+    onChange = () => ({}),
   }) {
     return new PolygonSelector({
       meta,
+      onChange,
     });
   },
 };
