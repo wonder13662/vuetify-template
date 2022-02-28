@@ -165,6 +165,8 @@ class Polygon {
 
   #overlayEventHandler
 
+  #map
+
   /**
    * 좌표를 받아 Naver 폴리곤을 제어(그리기,지우기)하는 Polygon 객체를 만듭니다.
    *
@@ -181,6 +183,7 @@ class Polygon {
     this.#points = points;
     this.#clickable = clickable;
     this.#meta = meta;
+    this.#map = null;
     this.#naverPolygon = null;
     this.#overlayEventHandler = overlayEventHandler.createOverlayEventController({
       onFocus: () => {
@@ -195,6 +198,23 @@ class Polygon {
   }
 
   /**
+   * Naver Map 인스턴스를 받습니다.
+   *
+   * @param {object} map - (required)네이버 맵 객체
+   *
+   * @return {void} 리턴값 없음
+   */
+  setNaverMap(map) {
+    if (!map) {
+      throw new Error('map: 유효하지 않음');
+    }
+    if (this.#map) {
+      return;
+    }
+    this.#map = map;
+  }
+
+  /**
    * 네이버 폴리곤을 네이버 지도 객체 위에 그립니다.
    * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html
    *
@@ -206,8 +226,8 @@ class Polygon {
     if (!map) {
       throw new Error(`map:${map}/유효하지 않음`);
     }
-    if (!this.#points || this.#points.length === 0) {
-      throw new Error(`this.#points:${this.#points}/유효하지 않음`);
+    if (!this.#points) {
+      this.#points = [];
     }
 
     // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
@@ -267,9 +287,18 @@ class Polygon {
       }
     });
     this.#points = points;
-
     const path = this.#points.map((p) => naverMapWrapper.getLatLng(p.lat, p.lng));
-    this.#naverPolygon.setPath(path);
+
+    if (!this.#naverPolygon) {
+      this.#naverPolygon = naverMapWrapper.drawPolygonNoListener({
+        map: this.#map,
+        naverPolygonPaths: [path],
+        clickable: this.#clickable,
+        style: getStyleReadUnselectedBlur(),
+      });
+    } else {
+      this.#naverPolygon.setPath(path);
+    }
   }
 
   /**
@@ -353,9 +382,6 @@ export default {
     clickable = true,
     meta = {},
   }) {
-    if (!points || points.length === 0) {
-      throw new Error(`points:${points}/유효하지 않습니다.`);
-    }
     points.forEach((p) => {
       if (!mapUtils.isValidPoint(p)) {
         throw new Error(`p:${p}/유효하지 않습니다.`);

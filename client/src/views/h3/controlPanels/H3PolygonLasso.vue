@@ -61,14 +61,19 @@ import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontal
 import BaseRadioGroup from '@/components/base/BaseRadioGroup';
 import BaseText from '@/components/base/BaseText';
 import {
-  polygonLassoHandler,
+  hexagonLassoHandler,
 } from '@/lib/naverMapV2';
 
 const MODE_READ = 'MODE_READ';
 const MODE_ADD = 'MODE_ADD';
 const MODE_REMOVE = 'MODE_REMOVE';
 
-const polygonLasso = polygonLassoHandler.createPolygonSelector({});
+const hexagonLasso = hexagonLassoHandler.createHexagonLassoHandler({
+  onChange: ({ h3Indexes }) => {
+    // eslint-disable-next-line no-console
+    console.log('h3Indexes:', h3Indexes);
+  },
+});
 
 export default {
   name: 'H3PolygonLasso',
@@ -111,24 +116,24 @@ export default {
   watch: {
     show(v) {
       if (!v) {
-        polygonLasso.setModeRead();
-        polygonLasso.remove();
+        hexagonLasso.setModeRead();
+        hexagonLasso.remove();
       } else if (this.mode === MODE_ADD || this.mode === MODE_REMOVE) {
-        polygonLasso.setModeEdit();
+        hexagonLasso.setModeEdit();
       }
     },
     mode(v) {
-      polygonLasso.remove();
+      hexagonLasso.remove();
       if (v === MODE_ADD || v === MODE_REMOVE) {
-        polygonLasso.setModeEdit();
+        hexagonLasso.setModeEdit();
         return;
       }
-      polygonLasso.setModeRead();
+      hexagonLasso.setModeRead();
     },
   },
   created() {
     this.$emit('change-overlays', [
-      polygonLasso,
+      hexagonLasso,
     ]);
   },
   methods: {

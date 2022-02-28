@@ -129,8 +129,18 @@ class NaverMap {
       if (!overlays || overlays.length === 0) {
         throw new Error('overlays: 유효하지 않음');
       }
-      const found = overlays.find(({ draw, remove }) => !draw || !remove);
-      if (found) {
+      const foundWrong = overlays.find(({ draw, setNaverMap, remove }) => {
+        // 1. draw, setNaverMap 중에서 하나는 반드시 구현해야 합니다.
+        if (!draw && !setNaverMap) {
+          return true;
+        }
+        // 2. remove는 반드시 구현해야 합니다.
+        if (!remove) {
+          return true;
+        }
+        return false;
+      });
+      if (foundWrong) {
         throw new Error('overlays 객체는 반드시 draw, remove 메서드를 구현해야 합니다');
       }
       // 1. 새로 추가된 overlays는 기존 배열에 추가된다.
@@ -225,6 +235,7 @@ export { default as polygonHandler } from './polygonHandler';
 export { default as pickupDropPointHandler } from './pickupDropPointHandler';
 export { default as pointMarkerHandler } from './pointMarkerHandler';
 export { default as polygonLassoHandler } from './polygonLassoHandler';
+export { default as hexagonLassoHandler } from './hexagonLassoHandler';
 export { default as mapUtils } from './lib/utils';
 export { default as boundHandler } from './lib/boundHandler';
 export const constants = mapConstants;

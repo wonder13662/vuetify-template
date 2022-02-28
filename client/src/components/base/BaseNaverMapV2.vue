@@ -123,9 +123,18 @@ export default {
       type: Array,
       default: () => ([]),
       validator: (v) => {
-        // draw, remove 인터페이스를 반드시 가져야 합니다.
-        const found = v.find(({ draw, remove }) => !draw || !remove);
-        return !found;
+        const foundWrong = v.find(({ draw, setNaverMap, remove }) => {
+          // 1. draw, setNaverMap 중에서 하나는 반드시 구현해야 합니다.
+          if (!draw && !setNaverMap) {
+            return true;
+          }
+          // 2. remove는 반드시 구현해야 합니다.
+          if (!remove) {
+            return true;
+          }
+          return false;
+        });
+        return !foundWrong;
       },
     },
   },

@@ -18,7 +18,7 @@ import {
 } from './constants';
 import naverMapWrapper from './naverMapWrapper';
 import boundHandler from './boundHandler';
-import utils from './utils';
+import mapUtils from './utils';
 
 /**
  * H3를 좌표값 배열로 바꿔줍니다.
@@ -48,10 +48,10 @@ const convertPointsToBound = (points) => {
   const src = points.reduce((acc, v) => {
     const { lat, lng } = v;
 
-    if (!utils.isLatitude(lat)) {
+    if (!mapUtils.isLatitude(lat)) {
       throw new Error(`lat:${lat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(lng)) {
+    if (!mapUtils.isLongitude(lng)) {
       throw new Error(`lng:${lng}: 유효하지 않음`);
     }
 
@@ -99,6 +99,28 @@ const convertPointsToBound = (points) => {
 };
 
 export default {
+  /**
+   * Point 배열을 h3Index의 배열로 바꿔줍니다
+   *
+   * @param {array<Point>} - Point의 배열
+   *
+   * @return {array<H3Index>} - h3Index의 배열
+   */
+  convertPointsToH3Indexes(points) {
+    if (!points) {
+      return [];
+    }
+    points.forEach((p) => {
+      if (!mapUtils.isValidPoint(p)) {
+        throw new Error(`p:${p}/유효하지 않습니다.`);
+      }
+    });
+
+    const polygon = points.map(({ lat, lng }) => ([lat, lng]));
+    // https://github.com/uber/h3-js#useful-algorithms
+    return polyfill(polygon, H3_RESOLUTION);
+  },
+
   /**
    * 좌표값을 H3Index로 바꿔줍니다.
    *
@@ -162,16 +184,16 @@ export default {
       _min: { _lat: minLat, _lng: minLng },
     } = naverMapBounds;
 
-    if (!utils.isLatitude(maxLat)) {
+    if (!mapUtils.isLatitude(maxLat)) {
       throw new Error(`lat:${maxLat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(maxLng)) {
+    if (!mapUtils.isLongitude(maxLng)) {
       throw new Error(`lng:${maxLng}: 유효하지 않음`);
     }
-    if (!utils.isLatitude(minLat)) {
+    if (!mapUtils.isLatitude(minLat)) {
       throw new Error(`lat:${minLat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(minLng)) {
+    if (!mapUtils.isLongitude(minLng)) {
       throw new Error(`lng:${minLng}: 유효하지 않음`);
     }
 
@@ -193,16 +215,16 @@ export default {
       _min: { y: minLat, x: minLng },
     } = naverMapPointBounds;
 
-    if (!utils.isLatitude(maxLat)) {
+    if (!mapUtils.isLatitude(maxLat)) {
       throw new Error(`lat:${maxLat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(maxLng)) {
+    if (!mapUtils.isLongitude(maxLng)) {
       throw new Error(`lng:${maxLng}: 유효하지 않음`);
     }
-    if (!utils.isLatitude(minLat)) {
+    if (!mapUtils.isLatitude(minLat)) {
       throw new Error(`lat:${minLat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(minLng)) {
+    if (!mapUtils.isLongitude(minLng)) {
       throw new Error(`lng:${minLng}: 유효하지 않음`);
     }
 
@@ -271,6 +293,38 @@ export default {
   convertH3IndexesToNaverPolygonPaths(h3Indexes) {
     const points = convertH3IndexToPoints(h3Indexes);
     return points.map(({ lat, lng }) => (naverMapWrapper.getLatLng(lat, lng)));
+  },
+
+  /**
+   * h3Index들의 외곽선을 points의 배열로 돌려줍니다.
+   *
+   * @param {array<H3Index>} h3Indexes - H3 배열
+   *
+   * @return {array<Points>} Points 배열
+   */
+  convertH3IndexesToPoints(h3Indexes) {
+    if (!h3Indexes) {
+      return [];
+    }
+    h3Indexes.forEach((v) => {
+      if (!mapUtils.h3IsValid(v)) {
+        throw new Error(`h3Index:${v}/유효하지 않음`);
+      }
+    });
+
+    const multiPolygons = h3SetToMultiPolygon(h3Indexes);
+    const paths = multiPolygons.reduce((acc, multiPolygon) => {
+      const result = multiPolygon.map((points) => {
+        const path = points.map((p) => ({
+          lat: p[0],
+          lng: p[1],
+        }));
+        return path;
+      });
+      return [...acc, ...result];
+    }, []);
+
+    return paths;
   },
 
   /**

@@ -45,6 +45,12 @@ export const OVERLAY_STATUS = {
 };
 export const OVERLAY_STATUS_SET = utils.convertObjToSet(HEXAGON_STATUS);
 
+export const OVERLAY_MODE = {
+  READ: 'READ',
+  EDIT: 'EDIT',
+};
+export const OVERLAY_MODE_SET = utils.convertObjToSet(OVERLAY_MODE);
+
 export const DISTANCE_LINE_STROKE_STYLE = {
   SOLID: 'solid',
   SHORTDASH: 'shortdash',

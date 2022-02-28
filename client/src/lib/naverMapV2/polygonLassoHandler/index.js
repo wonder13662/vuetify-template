@@ -3,9 +3,9 @@ import mapUtils from '../lib/utils';
 import pointMarkerHandler from '../pointMarkerHandler';
 import polygonHandler from '../polygonHandler';
 import overlayEventHandler from '../overlayEventHandler';
-
-const MODE_READ = 'MODE_READ';
-const MODE_EDIT = 'MODE_EDIT';
+import {
+  OVERLAY_MODE,
+} from '../lib/constants';
 
 /**
  * PointMarker를 만들어 지도 위에 그립니다.
@@ -73,7 +73,7 @@ const createPolygon = ({
   return polygon;
 };
 
-class PolygonSelector {
+class PolygonLasso {
   #meta
 
   #polygon
@@ -92,7 +92,7 @@ class PolygonSelector {
   // TODO 삭제하는 방법은 선택시 pointMarker에 삭제 버튼을 노출하는 것으로 하자.
 
   /**
-   * Points를 받아 네이버 지도 위에서 영역을 나타내는 폴리곤을 그립니다.
+   * TODO Points를 받아 네이버 지도 위에서 영역을 나타내는 폴리곤을 그립니다.
    * 사용자는 폴리곤의 점들을 선택하여 이동,삭제할 수 있습니다.
    * 사용자는 폴리곤 바깥의 영역을 클릭하여 폴리곤에 점을 추가할 수 있습니다.
    *
@@ -148,13 +148,13 @@ class PolygonSelector {
         this.addPoint(point);
       },
       onMousemove: (v) => {
-        // 선택된 마커가 없다면 중단합니다.
+        // 1. 선택된 마커가 없다면 중단합니다.
         const pointMarkerSelected = this.#pointMarkers.find((p) => p.isSelected());
         if (!pointMarkerSelected) {
           return;
         }
 
-        // 마우스의 좌표를 가져옵니다.
+        // 2. 마우스의 좌표를 가져옵니다.
         const {
           _lat: lat,
           _lng: lng,
@@ -165,15 +165,21 @@ class PolygonSelector {
         };
 
         pointMarkerSelected.setPosition(point);
+        const points = this.#pointMarkers.map((p) => p.getPosition());
         if (this.#polygon) {
-          this.#polygon.setPath(this.#pointMarkers.map((p) => p.getPosition()));
+          this.#polygon.setPath(points);
         }
+
+        // 3. 콜백호출
+        this.#onChange({
+          points,
+        });
       },
       meta: { ...this.#meta },
     });
 
     // 4. 최초의 모드는 읽기모드(MODE_READ)입니다.
-    this.#mode = MODE_READ;
+    this.#mode = OVERLAY_MODE.READ;
   }
 
   /**
@@ -195,7 +201,7 @@ class PolygonSelector {
   }
 
   /**
-   * 네이버 맵 위에 PolygonSelector를 그립니다.
+   * 네이버 맵 위에 PolygonLasso를 그립니다.
    * Overlay 타입의 필수 구현 메서드입니다.
    *
    * @param {object} map - (required)네이버 맵 객체
@@ -214,7 +220,7 @@ class PolygonSelector {
   }
 
   /**
-   * 네이버 맵 위에 PolygonSelector를 지웁니다.
+   * 네이버 맵 위에 PolygonLasso를 지웁니다.
    * Overlay 타입의 필수 구현 메서드입니다.
    *
    * @return {void} 리턴값 없음
@@ -229,7 +235,7 @@ class PolygonSelector {
   }
 
   /**
-   * PolygonSelector 객체를 삭제합니다.
+   * PolygonLasso 객체를 삭제합니다.
    * 관련 필드를 모두 삭제합니다.
    *
    * @return {void} 리턴값 없음
@@ -376,7 +382,7 @@ class PolygonSelector {
    * @return {void} 반환값 없음
    */
   setModeRead() {
-    this.#mode = MODE_READ;
+    this.#mode = OVERLAY_MODE.READ;
   }
 
   /**
@@ -385,7 +391,7 @@ class PolygonSelector {
    * @return {boolean} 읽기모드(MODE_READ) 여부 플래그값
    */
   isModeRead() {
-    return this.#mode === MODE_READ;
+    return this.#mode === OVERLAY_MODE.READ;
   }
 
   /**
@@ -394,7 +400,7 @@ class PolygonSelector {
    * @return {void} 반환값 없음
    */
   setModeEdit() {
-    this.#mode = MODE_EDIT;
+    this.#mode = OVERLAY_MODE.EDIT;
   }
 
   /**
@@ -403,16 +409,16 @@ class PolygonSelector {
    * @return {boolean} 편집모드(MODE_EDIT)인지 여부 플래그값
    */
   isModeEdit() {
-    return this.#mode === MODE_EDIT;
+    return this.#mode === OVERLAY_MODE.EDIT;
   }
 }
 
 export default {
-  createPolygonSelector({
+  createPolygonLasso({
     meta = {},
     onChange = () => ({}),
   }) {
-    return new PolygonSelector({
+    return new PolygonLasso({
       meta,
       onChange,
     });
