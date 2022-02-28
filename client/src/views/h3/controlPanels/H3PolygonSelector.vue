@@ -116,6 +116,8 @@ export default {
         // TODO 화면이 닫힐 때, polygonSelector는 읽기모드가 됩니다.
         polygonSelector.setModeRead();
         polygonSelector.remove();
+      } else if (this.mode === MODE_ADD || this.mode === MODE_REMOVE) {
+        polygonSelector.setModeEdit();
       }
     },
     mode(v) {
