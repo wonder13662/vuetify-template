@@ -132,12 +132,6 @@ export default {
     this.$emit('change-overlays', [
       polygonSelector,
     ]);
-    // eslint-disable-next-line no-console
-    console.log('HERE / created');
-  },
-  destroyed() {
-    // eslint-disable-next-line no-console
-    console.log('HERE / destroyed');
   },
   methods: {
     onClick({ meta, show }) {
