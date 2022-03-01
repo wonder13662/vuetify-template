@@ -2,6 +2,8 @@ import utils from './utils';
 import {
   MAX_ZOOM,
   MIN_ZOOM_POLYGON_VISIBLE,
+  NAVER_MAP_POSITION_MAP,
+  NAVER_MAP_POSITION_SET,
 } from './constants';
 
 // 네이버 지도 Api를 wrapper로 감싼 이유
@@ -142,6 +144,32 @@ export default {
   getInfoWindow(options = {}) {
     const naver = getNaver();
     return new naver.maps.InfoWindow(options);
+  },
+  /**
+   * 대상 HTML element에서 이벤트 알림을 받아 핸들러를 호출하는 리스너를 등록합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Event.html#-static-addDOMListener__anchor
+   *
+   * @param {object} element - 이벤트 대상 객체
+   * @param {string} eventName - 이벤트 이름
+   * @param {function} listener - 이벤트 리스너
+   *
+   * @return {DOMEventListener} DOM 이벤트 리스닝 객체
+   */
+  addDOMListener(element, eventName, listener) {
+    const naver = getNaver();
+    return naver.maps.Event.addDOMListener(element, eventName, listener);
+  },
+  /**
+   * 대상 HTML element의 DOM Listener를 제거합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Event.html#-static-removeDOMListener__anchor
+   *
+   * @param {object|array} listeners - 이벤트 리스닝 객체 또는 이벤트 리스닝 객체의 배열
+   *
+   * @return {void} 반환값 없음
+   */
+  removeDOMListener(listeners) {
+    const naver = getNaver();
+    return naver.maps.Event.removeDOMListener(listeners);
   },
   /**
    * 대상 객체에서 이벤트 알림을 받아 핸들러를 호출하는 리스너를 등록합니다.
@@ -342,5 +370,53 @@ export default {
     const isEOLThanMaxZoom = zoomLevel <= MAX_ZOOM;
 
     return isEOGThanMinZoom && isEOLThanMaxZoom;
+  },
+  /**
+   * 지도 위에 네이버 customControl을 그립니다.
+   *
+   * @param {string} html customControl의 모양을 나타내는 html
+   * @param {object} map naver map 객체
+   * @param {string} position naver map position
+   *
+   * @return {NaverCustomControl} 네이버 customCtonrol 타입 객체
+   */
+  drawCustomControl({ html, map, position }) {
+    if (!html) {
+      throw new Error(`drawCustomControl/html:${html}/유효하지 않습니다.`);
+    }
+    if (!map) {
+      throw new Error(`drawCustomControl/map:${map}/유효하지 않습니다.`);
+    }
+    let naverPosition = this.getNaverMapPosition(NAVER_MAP_POSITION_MAP.RIGHT_CENTER);
+    if (position) {
+      if (!NAVER_MAP_POSITION_SET.has(position)) {
+        throw new Error(`drawCustomControl/position:${position}/유효하지 않습니다.`);
+      }
+      naverPosition = this.getNaverMapPosition(position);
+    }
+
+    const naver = getNaver();
+    const customControl = new naver.maps.CustomControl(html, {
+      position: naverPosition,
+    });
+
+    customControl.setMap(map);
+
+    return customControl;
+  },
+  /**
+   * 지도 위에 고정 위치 상수값을 돌려줍니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.html#toc11__anchor
+   *
+   * @param {string} position 고정 위치 상수값 customControl의 모양을 나타내는 html
+   *
+   * @return {NaverCustomControl} 네이버 customCtonrol 타입 객체
+   */
+  getNaverMapPosition(position) {
+    if (!NAVER_MAP_POSITION_SET.has(position)) {
+      throw new Error(`getNaverMapPosition/position:${position}/유효하지 않습니다.`);
+    }
+    const naver = getNaver();
+    return naver.maps.Position[position];
   },
 };

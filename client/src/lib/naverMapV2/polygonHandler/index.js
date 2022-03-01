@@ -358,7 +358,7 @@ class Polygon {
   }
 
   /**
-   * Naver Polygon에 click 이벤트 리스너를 제거합니다.
+   * Naver Polygon에 mousemove 이벤트 리스너를 제거합니다.
    *
    * @param {string} id - listener가 등록된 id
    *
