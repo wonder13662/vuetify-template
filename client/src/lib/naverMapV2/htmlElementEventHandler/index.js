@@ -190,27 +190,7 @@ const mousemove = ({
   });
 };
 
-/**
- * 네이버 맵 이벤트 객체에서 Point 리터럴 객체를 만들어 돌려줍니다.
- *
- * @param {object} e - 네이버 맵 이벤트 객체
- *
- * @return {Point} Point 객체
- */
-const getPointFromMapEvent = (e) => {
-  const {
-    _lat: lat,
-    _lng: lng,
-  } = e.coord;
-  return {
-    lat,
-    lng,
-  };
-};
-
-class CustomControlEventController {
-  #customControl
-
+class HTMLElementEventController {
   #eventListenerMapMap
 
   #naverMapEventListeners
@@ -271,75 +251,74 @@ class CustomControlEventController {
     // https://navermaps.github.io/maps.js.ncp/docs/tutorial-UI-Event.html
     this.#naverMapEventListeners.push(naverMapWrapper.addDOMListener(this.#element, 'mouseover', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onFocus(e);
-
+      const payload = {
+        ...e, // @ deprecated
+        meta: {
+          ...this.#meta,
+        },
+      };
+      this.#onFocus(payload);
       focus({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
       this.#status = OVERLAY_STATUS.FOCUS;
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addDOMListener(this.#element, 'mouseout', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onBlur(e);
+      const payload = {
+        ...e, // @ deprecated
+        meta: {
+          ...this.#meta,
+        },
+      };
+      this.#onBlur(payload);
       blur({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
       this.#status = OVERLAY_STATUS.BLUR;
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addDOMListener(this.#element, 'mousemove', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onMousemove(e);
+      const payload = {
+        ...e, // @ deprecated
+        meta: {
+          ...this.#meta,
+        },
+      };
+      this.#onMousemove(payload);
       mousemove({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addDOMListener(this.#element, 'click', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onClick(e);
+      const payload = {
+        ...e, // @ deprecated
+        meta: {
+          ...this.#meta,
+        },
+      };
+      this.#onClick(payload);
       click({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addDOMListener(this.#element, 'rightclick', (e) => {
       // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onRightClick(e);
+      const payload = {
+        ...e, // @ deprecated
+        meta: {
+          ...this.#meta,
+        },
+      };
+      this.#onRightClick(payload);
       rightClick({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
     }));
 
@@ -347,7 +326,7 @@ class CustomControlEventController {
   }
 
   /**
-   * CustomControlEventController를 삭제합니다.
+   * HTMLElementEventController를 삭제합니다.
    *
    * @return {void} 반환값 없음
    */
@@ -379,7 +358,7 @@ class CustomControlEventController {
   }
 
   /**
-   * CustomControlEventController의 객체를 완전히 삭제합니다.
+   * HTMLElementEventController의 객체를 완전히 삭제합니다.
    *
    * @return {void} 반환값 없음
    */
@@ -645,7 +624,7 @@ class CustomControlEventController {
 
 export default {
   /**
-   * 네이버 오버레이 객체의 이벤트를 관리하는 CustomControlEventController 객체를 만들어 줍니다.
+   * 네이버 오버레이 객체의 이벤트를 관리하는 HTMLElementEventController 객체를 만들어 줍니다.
    *
    * @param {function} onFocus - focus 이벤트 콜백
    * @param {function} onBlur - blur 이벤트 콜백
@@ -653,16 +632,16 @@ export default {
    * @param {function} onMousemove - mousemove 이벤트 콜백
    * @param {object} meta - 오버레이의 메타정보
    *
-   * @return {CustomControlEventController} CustomControlEventController 인스턴스 반환
+   * @return {HTMLElementEventController} HTMLElementEventController 인스턴스 반환
    */
-  createCustomControlEventController({
+  createHTMLElementEventController({
     onFocus,
     onBlur,
     onClick,
     onMousemove,
     meta,
   }) {
-    return new CustomControlEventController({
+    return new HTMLElementEventController({
       onFocus,
       onBlur,
       onClick,

@@ -62,7 +62,7 @@ import BaseRadioGroup from '@/components/base/BaseRadioGroup';
 import BaseText from '@/components/base/BaseText';
 import {
   hexagonLassoHandler,
-  customControlButtonHandler,
+  customControlHandler,
 } from '@/lib/naverMapV2';
 
 const MODE_READ = 'MODE_READ';
@@ -76,7 +76,7 @@ const hexagonLasso = hexagonLassoHandler.createHexagonLassoHandler({
   },
 });
 
-const customControlButton = customControlButtonHandler.createCustomControlButton({});
+const customControl = customControlHandler.createCustomControl({});
 
 export default {
   name: 'H3PolygonLasso',
@@ -137,7 +137,7 @@ export default {
   created() {
     this.$emit('change-overlays', [
       hexagonLasso,
-      customControlButton,
+      customControl,
     ]);
   },
   methods: {

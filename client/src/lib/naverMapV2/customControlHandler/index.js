@@ -1,5 +1,6 @@
 import naverMapWrapper from '../lib/naverMapWrapper';
-import customControlEventHandler from '../customControlEventHandler';
+import htmlElementEventHandler from '../htmlElementEventHandler';
+import utils from '@/lib/utils';
 
 /*
  * 지도 위에 고정된 위치에 제공되는 버튼(CustomControl)
@@ -10,16 +11,57 @@ import customControlEventHandler from '../customControlEventHandler';
  *
 */
 
-// 커스텀컨트롤 버튼 정의
-// - overlay와 동일한 인터페이스를 가짐
-// - setNaverMap을 구현함
-// - overlay와 동일한 상태를 가짐 (focus, blur, selected, unselected, disabled, enabled)
-// - 화면에 고정된 위치에서 사용자의 이벤트를 받음
-// - 용도에 따라 버튼, 배너등으로 쓰일 수 있음. customControl을 합성해서 만든다.
+const getHtml = (elementStatusMap) => {
+  const html = utils.convertObjValuesToList(elementStatusMap).map((v) => {
+    const focus = v.focus ? '-focus' : '';
+    const selected = v.selected ? '-selected' : '';
+    return `<div class="${v.class}">${v.class}${focus}${selected}</div>`;
+  });
 
-// 영역선택기 정의
-// - 영역선택기에는 세가지 모드가 있음 읽기(READ), 편집추가(EDIT_ADD), 편집삭제(EDIT_REMOVE)
-// - 사용자는 각 모드에서 작업을 완료하고 다른 모드로 전환하기 전에 다이얼로그에서 완료버튼을 눌러 작업중인 내용을 "저장"해야 한다.
+  return [
+    '<div>',
+    ...html,
+    '</div>',
+  ].join('');
+};
+
+const getElementStatusMapInitialized = () => ({
+  btn1: {
+    key: 'btn1',
+    class: 'btn1',
+    focus: false,
+    selected: false,
+  },
+  btn2: {
+    key: 'btn2',
+    class: 'btn2',
+    focus: false,
+    selected: false,
+  },
+  btn3: {
+    key: 'btn3',
+    class: 'btn3',
+    focus: false,
+    selected: false,
+  },
+});
+
+// eslint-disable-next-line max-len
+const createEventController = ({
+  key,
+  meta,
+  focus,
+  blur,
+  click,
+}) => (htmlElementEventHandler.createHTMLElementEventController({
+  onFocus: ({ meta: { key: keyFromMeta } }) => focus(keyFromMeta),
+  onBlur: ({ meta: { key: keyFromMeta } }) => blur(keyFromMeta),
+  onClick: ({ meta: { key: keyFromMeta } }) => click(keyFromMeta),
+  meta: {
+    ...meta,
+    key,
+  },
+}));
 
 class CustomControl {
   #html
@@ -28,34 +70,99 @@ class CustomControl {
 
   #naverCustomControl
 
-  #customControlEventHandler
+  #htmlElementEventControllerMap
 
   #map
 
+  #elementStatusMap
+
   constructor({
-    html,
     meta,
   }) {
-    this.#html = html;
     this.#meta = meta;
     this.#naverCustomControl = null;
-    // createCustomControlEventController
-    this.#customControlEventHandler = customControlEventHandler.createCustomControlEventController({
-      onFocus: () => {
-        // eslint-disable-next-line no-console
-        console.log('onFocus');
+    this.#elementStatusMap = getElementStatusMapInitialized();
+    this.#html = getHtml(this.#elementStatusMap);
+    this.#htmlElementEventControllerMap = {};
+    const elementStatusList = utils.convertObjValuesToList(this.#elementStatusMap);
+    this.#htmlElementEventControllerMap = elementStatusList.reduce((acc, { key }) => {
+      acc[key] = createEventController({
+        key,
+        meta: this.#meta,
+        focus: (v) => this.focus(v),
+        blur: (v) => this.blur(v),
+        click: (v) => this.click(v),
+      });
+      return acc;
+    }, {});
+  }
+
+  focus(key) {
+    if (this.#elementStatusMap[key].focus) {
+      return;
+    }
+
+    const target = this.#elementStatusMap[key];
+    this.#elementStatusMap = {
+      ...this.#elementStatusMap,
+      [key]: {
+        ...target,
+        focus: true,
       },
-      onBlur: () => {
-        // eslint-disable-next-line no-console
-        console.log('onBlur');
+    };
+    this.updateHtml();
+    this.setEventController();
+  }
+
+  blur(key) {
+    if (!this.#elementStatusMap[key].focus) {
+      return;
+    }
+
+    const target = this.#elementStatusMap[key];
+    this.#elementStatusMap = {
+      ...this.#elementStatusMap,
+      [key]: {
+        ...target,
+        focus: false,
       },
-      onClick: () => {
-        // eslint-disable-next-line no-console
-        console.log('onClick');
+    };
+    this.updateHtml();
+    this.setEventController();
+  }
+
+  click(key) {
+    // TODO 라디오 버튼처럼 1개만 selected 상태가 되어야 한다.
+    const target = this.#elementStatusMap[key];
+    this.#elementStatusMap = {
+      ...this.#elementStatusMap,
+      [key]: {
+        ...target,
+        selected: !target.selected,
       },
-      meta: { ...this.#meta },
+    };
+    this.updateHtml();
+    this.setEventController();
+  }
+
+  updateHtml() {
+    const html = getHtml(this.#elementStatusMap);
+    const htmlElement = this.#naverCustomControl.getElement();
+    htmlElement.innerHTML = html;
+  }
+
+  setEventController() {
+    const htmlElement = this.#naverCustomControl.getElement();
+
+    const elementStatusList = utils.convertObjValuesToList(this.#elementStatusMap);
+    elementStatusList.forEach(({ key }) => {
+      const target = this.#htmlElementEventControllerMap[key];
+      target.remove();
+      const htmlElementTarget = htmlElement.querySelector(`.${key}`);
+      target.setElement(htmlElementTarget);
     });
   }
+
 
   /**
    * Naver Map 인스턴스를 받습니다.
@@ -72,6 +179,7 @@ class CustomControl {
       return;
     }
     this.#map = map;
+    this.draw(this.#map);
   }
 
   /**
@@ -94,8 +202,7 @@ class CustomControl {
       html: this.#html,
       map: this.#map,
     });
-
-    this.#customControlEventHandler.setElement(this.#naverCustomControl.getElement());
+    this.setEventController();
   }
 
   /**
@@ -109,7 +216,12 @@ class CustomControl {
       this.#naverCustomControl.setMap(null);
       this.#naverCustomControl = null;
     }
-    this.#customControlEventHandler.remove();
+
+    const elementStatusList = utils.convertObjValuesToList(this.#elementStatusMap);
+    elementStatusList.forEach(({ key }) => {
+      const target = this.#htmlElementEventControllerMap[key];
+      target.remove();
+    });
   }
 
   /**
@@ -122,166 +234,21 @@ class CustomControl {
     this.#html = null;
     this.#meta = null;
     this.#naverCustomControl = null;
-    this.#customControlEventHandler = null;
-  }
 
-  /**
-   * Naver customControl에 click 이벤트 리스너를 추가합니다.
-   *
-   * @param {function} listener - click 이벤트 리스너
-   *
-   * @return {string} listener가 등록된 id
-   */
-  addClickListener(listener) {
-    if (!listener) {
-      throw new Error('listener: 유효하지 않음');
-    }
-    if (!this.#customControlEventHandler) {
-      throw new Error('this.#customControlEventHandler/유효하지 않습니다.');
-    }
-
-    const id = this.#customControlEventHandler.addClickListener(listener);
-    return id;
-  }
-
-  /**
-   * Naver customControl에 click 이벤트 리스너를 제거합니다.
-   *
-   * @param {string} id - listener가 등록된 id
-   *
-   * @return {void} 반환값 없음
-   */
-  removeClickListener(id) {
-    if (!id) {
-      throw new Error('id: 유효하지 않음');
-    }
-    if (!this.#customControlEventHandler) {
-      throw new Error('this.#customControlEventHandler/유효하지 않습니다.');
-    }
-
-    this.#customControlEventHandler.removeClickListener(id);
-  }
-
-  /**
-   * Naver customControl에 focus 이벤트 리스너를 추가합니다.
-   *
-   * @param {function} listener - focus 이벤트 리스너
-   *
-   * @return {string} listener가 등록된 id
-   */
-  addFocusListener(listener) {
-    if (!listener) {
-      throw new Error('listener: 유효하지 않음');
-    }
-    if (!this.#customControlEventHandler) {
-      throw new Error('this.#customControlEventHandler/유효하지 않습니다.');
-    }
-
-    const id = this.#customControlEventHandler.addFocusListener(listener);
-    return id;
-  }
-
-  /**
-   * Naver customControl에 focus 이벤트 리스너를 제거합니다.
-   *
-   * @param {string} id - listener가 등록된 id
-   *
-   * @return {void} 반환값 없음
-   */
-  removeFocusListener(id) {
-    if (!id) {
-      throw new Error('id: 유효하지 않음');
-    }
-    if (!this.#customControlEventHandler) {
-      throw new Error('this.#customControlEventHandler/유효하지 않습니다.');
-    }
-
-    this.#customControlEventHandler.removeFocusListener(id);
-  }
-
-  /**
-   * Naver customControl에 blur 이벤트 리스너를 추가합니다.
-   *
-   * @param {function} listener - blur 이벤트 리스너
-   *
-   * @return {string} listener가 등록된 id
-   */
-  addBlurListener(listener) {
-    if (!listener) {
-      throw new Error('listener: 유효하지 않음');
-    }
-    if (!this.#customControlEventHandler) {
-      throw new Error('this.#customControlEventHandler/유효하지 않습니다.');
-    }
-
-    const id = this.#customControlEventHandler.addBlurListener(listener);
-    return id;
-  }
-
-  /**
-   * Naver customControl에 blur 이벤트 리스너를 제거합니다.
-   *
-   * @param {string} id - listener가 등록된 id
-   *
-   * @return {void} 반환값 없음
-   */
-  removeBlurListener(id) {
-    if (!id) {
-      throw new Error('id: 유효하지 않음');
-    }
-    if (!this.#customControlEventHandler) {
-      throw new Error('this.#customControlEventHandler/유효하지 않습니다.');
-    }
-
-    this.#customControlEventHandler.removeBlurListener(id);
-  }
-
-  /**
-   * Naver customControl에 mousemove 이벤트 리스너를 추가합니다.
-   *
-   * @param {function} listener - mousemove 이벤트 리스너
-   *
-   * @return {string} listener가 등록된 id
-   */
-  addMousemoveListener(listener) {
-    if (!listener) {
-      throw new Error('listener: 유효하지 않음');
-    }
-    if (!this.#customControlEventHandler) {
-      throw new Error('this.#customControlEventHandler/유효하지 않습니다.');
-    }
-
-    const id = this.#customControlEventHandler.addMousemoveListener(listener);
-    return id;
-  }
-
-  /**
-   * Naver customControl에 mousemove 이벤트 리스너를 제거합니다.
-   *
-   * @param {string} id - listener가 등록된 id
-   *
-   * @return {void} 반환값 없음
-   */
-  removeMousemoveListener(id) {
-    if (!id) {
-      throw new Error('id: 유효하지 않음');
-    }
-    if (!this.#customControlEventHandler) {
-      throw new Error('this.#customControlEventHandler/유효하지 않습니다.');
-    }
-
-    this.#customControlEventHandler.removeMousemoveListener(id);
+    const elementStatusList = utils.convertObjValuesToList(this.#elementStatusMap);
+    elementStatusList.forEach(({ key }) => {
+      this.#htmlElementEventControllerMap[key] = null;
+    });
+    this.#htmlElementEventControllerMap = null;
   }
 }
 
 export default {
   // TODO 이벤트 리스너 콜백들을 인자로 받기
   createCustomControl({
-    html,
     meta = {},
   }) {
     return new CustomControl({
-      html,
       meta,
     });
   },
