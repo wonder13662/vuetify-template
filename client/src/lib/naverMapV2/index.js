@@ -236,7 +236,7 @@ export { default as pickupDropPointHandler } from './pickupDropPointHandler';
 export { default as pointMarkerHandler } from './pointMarkerHandler';
 export { default as polygonLassoHandler } from './polygonLassoHandler';
 export { default as hexagonLassoHandler } from './hexagonLassoHandler';
-export { default as customControlHandler } from './customControlHandler';
+export { default as customControlButtonGroupHandler } from './customControlButtonGroupHandler';
 export { default as mapUtils } from './lib/utils';
 export { default as boundHandler } from './lib/boundHandler';
 export const constants = mapConstants;

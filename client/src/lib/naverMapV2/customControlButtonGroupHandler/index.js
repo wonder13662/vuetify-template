@@ -63,7 +63,7 @@ const createEventController = ({
   },
 }));
 
-class CustomControl {
+class CustomControlButtonGroup {
   #html
 
   #meta
@@ -102,6 +102,13 @@ class CustomControl {
       return;
     }
 
+    // 자신을 제외한 나머지 버튼들을 blur 상태로 바꾼다.
+    const keys = utils.convertObjKeysToList(this.#elementStatusMap);
+    keys.forEach((k) => {
+      this.#elementStatusMap[k].focus = false;
+    });
+
+    // 사용자가 마우스를 올린 버튼은 foucs 시킨다.
     const target = this.#elementStatusMap[key];
     this.#elementStatusMap = {
       ...this.#elementStatusMap,
@@ -255,10 +262,10 @@ class CustomControl {
 
 export default {
   // TODO 이벤트 리스너 콜백들을 인자로 받기
-  createCustomControl({
+  createCustomControlButtonGroup({
     meta = {},
   }) {
-    return new CustomControl({
+    return new CustomControlButtonGroup({
       meta,
     });
   },
