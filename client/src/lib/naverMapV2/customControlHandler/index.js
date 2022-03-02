@@ -132,13 +132,24 @@ class CustomControl {
   }
 
   click(key) {
-    // TODO 라디오 버튼처럼 1개만 selected 상태가 되어야 한다.
+    // 선택한 버튼의 상태를 가져온다
+    const targetSelected = this.#elementStatusMap[key].selected;
+    // 라디오 버튼처럼 1개만 selected 상태가 되도록 한다
+    // 모든 버튼의 상태를 선택되지 않음(unselected)으로 바꾼다
+    const keys = utils.convertObjKeysToList(this.#elementStatusMap);
+    keys.forEach((k) => {
+      this.#elementStatusMap[k].selected = false;
+    });
+    // 선택된 버튼의 상태를
+    // 1. 선택됨(selected)이라면 선택되지 않음(unselected)
+    // 2. 선택되지 않음(unselected)이라면 선택됨(selected)
+    // 으로 바꾼다.
     const target = this.#elementStatusMap[key];
     this.#elementStatusMap = {
       ...this.#elementStatusMap,
       [key]: {
         ...target,
-        selected: !target.selected,
+        selected: !targetSelected,
       },
     };
     this.updateHtml();
@@ -162,7 +173,6 @@ class CustomControl {
       target.setElement(htmlElementTarget);
     });
   }
-
 
   /**
    * Naver Map 인스턴스를 받습니다.

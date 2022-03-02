@@ -86,6 +86,9 @@ export default {
   convertMapKeysToList(map) {
     return Array.from(new Map(map).keys());
   },
+  convertObjKeysToList(obj) {
+    return Array.from(Object.keys(obj));
+  },
   convertObjValuesToList(obj) {
     return Array.from(Object.values(obj));
   },
