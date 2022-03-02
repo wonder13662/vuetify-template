@@ -8,10 +8,8 @@
 <script>
 import {
   constants,
-// eslint-disable-next-line import/no-duplicates
+  naverMap,
 } from '@/lib/naverMapV2';
-// eslint-disable-next-line import/no-duplicates
-import naverMapV2 from '@/lib/naverMapV2';
 
 export default {
   name: 'BaseNaverMapV2',
@@ -175,7 +173,7 @@ export default {
   methods: {
     initMaps() {
       const { mapId } = this;
-      this.naverMap = naverMapV2.createNaverMap({
+      this.naverMap = naverMap.createNaverMap({
         mapId,
         clientId: process.env.VUE_APP_NAVER_MAP_API_KEY || '',
         mapOptions: {
