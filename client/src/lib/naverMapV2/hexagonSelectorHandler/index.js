@@ -13,7 +13,7 @@ const getHtml = (elementStatusMap) => {
   const html = utils.convertObjValuesToList(elementStatusMap).map((v) => {
     const focus = v.focus ? '-focus' : '';
     const selected = v.selected ? '-selected' : '';
-    return `<div class="${v.class}">${v.class}${focus}${selected}</div>`;
+    return `<div class="${v.key}">${v.key}${focus}${selected}</div>`;
   });
 
   return [
@@ -26,19 +26,16 @@ const getHtml = (elementStatusMap) => {
 const getElementStatusMapInitialized = () => ({
   btn1: {
     key: 'btn1',
-    class: 'btn1',
     focus: false,
     selected: false,
   },
   btn2: {
     key: 'btn2',
-    class: 'btn2',
     focus: false,
     selected: false,
   },
   btn3: {
     key: 'btn3',
-    class: 'btn3',
     focus: false,
     selected: false,
   },
