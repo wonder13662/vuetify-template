@@ -1,6 +1,6 @@
 import * as mapConstants from './lib/constants';
 
-export { default as naverMap } from './naverMap';
+export { default as naverMap } from './map';
 export { default as distanceLineGroupHandler } from './distanceLineGroupHandler'; // REMOVE ME
 export { default as distanceLineHandler } from './distanceLineHandler';
 export { default as hexagonGroupHandler } from './hexagonGroupHandler';
