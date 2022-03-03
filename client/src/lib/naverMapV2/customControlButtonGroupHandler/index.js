@@ -2,50 +2,6 @@ import naverMapWrapper from '../lib/naverMapWrapper';
 import htmlElementEventHandler from '../htmlElementEventHandler';
 import utils from '@/lib/utils';
 
-/*
- * 지도 위에 고정된 위치에 제공되는 버튼(CustomControl)
- *
- * 관련정보
- * https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-control-custom-p1.example.html#
- * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.CustomControl.html
- *
-*/
-
-const getHtml = (elementStatusMap) => {
-  const html = utils.convertObjValuesToList(elementStatusMap).map((v) => {
-    const focus = v.focus ? '-focus' : '';
-    const selected = v.selected ? '-selected' : '';
-    return `<div class="${v.class}">${v.class}${focus}${selected}</div>`;
-  });
-
-  return [
-    '<div>',
-    ...html,
-    '</div>',
-  ].join('');
-};
-
-const getElementStatusMapInitialized = () => ({
-  btn1: {
-    key: 'btn1',
-    class: 'btn1',
-    focus: false,
-    selected: false,
-  },
-  btn2: {
-    key: 'btn2',
-    class: 'btn2',
-    focus: false,
-    selected: false,
-  },
-  btn3: {
-    key: 'btn3',
-    class: 'btn3',
-    focus: false,
-    selected: false,
-  },
-});
-
 // eslint-disable-next-line max-len
 const createEventController = ({
   key,
@@ -63,6 +19,18 @@ const createEventController = ({
   },
 }));
 
+const isValidElementStatus = (elementStatus) => {
+  if (!elementStatus
+      || !elementStatus.key
+      || elementStatus.focus === null
+      || elementStatus.focus === undefined
+      || elementStatus.selected === null
+      || elementStatus.selected === undefined) {
+    return false;
+  }
+  return true;
+};
+
 class CustomControlButtonGroup {
   #html
 
@@ -76,15 +44,25 @@ class CustomControlButtonGroup {
 
   #elementStatusMap
 
+  #onChangeHtml
+
   constructor({
     meta,
+    onChangeHtml,
+    elementStatusMap,
   }) {
     this.#meta = meta;
     this.#naverCustomControl = null;
-    this.#elementStatusMap = getElementStatusMapInitialized();
-    this.#html = getHtml(this.#elementStatusMap);
-    this.#htmlElementEventControllerMap = {};
+    this.#onChangeHtml = onChangeHtml;
+    // elementStatusMap 요소 검사
+    this.#elementStatusMap = elementStatusMap;
     const elementStatusList = utils.convertObjValuesToList(this.#elementStatusMap);
+    elementStatusList.forEach((v) => {
+      if (!isValidElementStatus(v)) {
+        throw new Error(`isValidElementStatus/elementStatus:${v}/유효하지 않습니다.`);
+      }
+    });
+    this.#html = this.#onChangeHtml(this.#elementStatusMap);
     this.#htmlElementEventControllerMap = elementStatusList.reduce((acc, { key }) => {
       acc[key] = createEventController({
         key,
@@ -117,7 +95,8 @@ class CustomControlButtonGroup {
         focus: true,
       },
     };
-    this.updateHtml();
+    const html = this.#onChangeHtml(this.#elementStatusMap);
+    this.updateHtml(html);
     this.setEventController();
   }
 
@@ -134,7 +113,8 @@ class CustomControlButtonGroup {
         focus: false,
       },
     };
-    this.updateHtml();
+    const html = this.#onChangeHtml(this.#elementStatusMap);
+    this.updateHtml(html);
     this.setEventController();
   }
 
@@ -159,14 +139,15 @@ class CustomControlButtonGroup {
         selected: !targetSelected,
       },
     };
-    this.updateHtml();
+    const html = this.#onChangeHtml(this.#elementStatusMap);
+    this.updateHtml(html);
     this.setEventController();
   }
 
-  updateHtml() {
-    const html = getHtml(this.#elementStatusMap);
+  updateHtml(html) {
+    this.#html = html;
     const htmlElement = this.#naverCustomControl.getElement();
-    htmlElement.innerHTML = html;
+    htmlElement.innerHTML = this.#html;
   }
 
   setEventController() {
@@ -263,9 +244,13 @@ class CustomControlButtonGroup {
 export default {
   // TODO 이벤트 리스너 콜백들을 인자로 받기
   createCustomControlButtonGroup({
+    elementStatusMap,
+    onChangeHtml,
     meta = {},
   }) {
     return new CustomControlButtonGroup({
+      elementStatusMap,
+      onChangeHtml,
       meta,
     });
   },

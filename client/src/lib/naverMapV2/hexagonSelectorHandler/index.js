@@ -1,5 +1,48 @@
 import customControlButtonGroupHandler from '../customControlButtonGroupHandler';
+import utils from '@/lib/utils';
 
+/*
+ * 지도 위에 고정된 위치에 제공되는 버튼(CustomControl)
+ *
+ * 관련정보
+ * https://navermaps.github.io/maps.js.ncp/docs/tutorial-4-control-custom-p1.example.html#
+ * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.CustomControl.html
+ *
+*/
+const getHtml = (elementStatusMap) => {
+  const html = utils.convertObjValuesToList(elementStatusMap).map((v) => {
+    const focus = v.focus ? '-focus' : '';
+    const selected = v.selected ? '-selected' : '';
+    return `<div class="${v.class}">${v.class}${focus}${selected}</div>`;
+  });
+
+  return [
+    '<div>',
+    ...html,
+    '</div>',
+  ].join('');
+};
+
+const getElementStatusMapInitialized = () => ({
+  btn1: {
+    key: 'btn1',
+    class: 'btn1',
+    focus: false,
+    selected: false,
+  },
+  btn2: {
+    key: 'btn2',
+    class: 'btn2',
+    focus: false,
+    selected: false,
+  },
+  btn3: {
+    key: 'btn3',
+    class: 'btn3',
+    focus: false,
+    selected: false,
+  },
+});
 class HexagonSelector {
   #customControlButtonGroup
 
@@ -11,8 +54,13 @@ class HexagonSelector {
     meta,
   }) {
     // eslint-disable-next-line max-len
-    this.#customControlButtonGroup = customControlButtonGroupHandler.createCustomControlButtonGroup({ meta });
     this.#meta = meta;
+    // eslint-disable-next-line max-len
+    this.#customControlButtonGroup = customControlButtonGroupHandler.createCustomControlButtonGroup({
+      elementStatusMap: getElementStatusMapInitialized(),
+      onChangeHtml: getHtml,
+      meta: this.#meta,
+    });
   }
 
   /**
