@@ -243,7 +243,7 @@ class CustomControlButtonGroup {
 
 export default {
   // TODO 이벤트 리스너 콜백들을 인자로 받기
-  createCustomControlButtonGroup({
+  createCustomControlGroup({
     elementStatusMap,
     onChangeHtml,
     meta = {},

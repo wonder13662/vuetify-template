@@ -1,4 +1,4 @@
-import customControlButtonGroupHandler from '../customControlButtonGroupHandler';
+import customControlGroupHandler from '../customControlGroupHandler';
 import utils from '@/lib/utils';
 
 /*
@@ -56,7 +56,7 @@ class HexagonSelector {
     // eslint-disable-next-line max-len
     this.#meta = meta;
     // eslint-disable-next-line max-len
-    this.#customControlButtonGroup = customControlButtonGroupHandler.createCustomControlButtonGroup({
+    this.#customControlButtonGroup = customControlGroupHandler.createCustomControlGroup({
       elementStatusMap: getElementStatusMapInitialized(),
       onChangeHtml: getHtml,
       meta: this.#meta,
