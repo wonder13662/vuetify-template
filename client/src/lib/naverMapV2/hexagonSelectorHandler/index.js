@@ -1,6 +1,13 @@
 import customControlGroupHandler from '../customControlGroupHandler';
 import utils from '@/lib/utils';
 
+const getStyle = (focus, selected) => ([
+  focus ? 'background: #BDBDBD;' : 'background: #EEEEEE;',
+  selected ? 'color: black;' : 'color: grey;',
+  'padding: 10px;',
+  'margin: 4px;',
+].join(''));
+
 /*
  * 지도 위에 고정된 위치에 제공되는 버튼(CustomControl)
  *
@@ -11,33 +18,56 @@ import utils from '@/lib/utils';
 */
 const getHtml = (elementStatusMap) => {
   const html = utils.convertObjValuesToList(elementStatusMap).map((v) => {
-    const focus = v.focus ? '-focus' : '';
-    const selected = v.selected ? '-selected' : '';
-    return `<div class="${v.key}">${v.key}${focus}${selected}</div>`;
+    const {
+      key,
+      focus,
+      selected,
+      meta: {
+        name,
+      },
+    } = v;
+    const style = getStyle(focus, selected);
+    return `<div class="${key}" style="${style}">${name}</div>`;
   });
 
+  const style = [
+    'background: white;',
+    'padding: 1px;',
+    'margin: 10px;',
+    'border: 1px solid black;',
+  ].join('');
+
   return [
-    '<div>',
+    `<div style="${style}">`,
     ...html,
     '</div>',
   ].join('');
 };
 
 const getElementStatusMapInitialized = () => ({
-  btn1: {
-    key: 'btn1',
+  point: {
+    key: 'point',
     focus: false,
     selected: false,
+    meta: {
+      name: '점',
+    },
   },
-  btn2: {
-    key: 'btn2',
+  polyline: {
+    key: 'polyline',
     focus: false,
     selected: false,
+    meta: {
+      name: '직선',
+    },
   },
-  btn3: {
-    key: 'btn3',
+  polygon: {
+    key: 'polygon',
     focus: false,
     selected: false,
+    meta: {
+      name: '폴리곤',
+    },
   },
 });
 class HexagonSelector {

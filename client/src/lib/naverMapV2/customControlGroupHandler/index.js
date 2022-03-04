@@ -19,16 +19,25 @@ const createEventController = ({
   },
 }));
 
-const isValidElementStatus = (elementStatus) => {
-  if (!elementStatus
-      || !elementStatus.key
-      || elementStatus.focus === null
-      || elementStatus.focus === undefined
-      || elementStatus.selected === null
-      || elementStatus.selected === undefined) {
-    return false;
+const validateElementStatus = (elementStatusMap, elementStatus) => {
+  if (!elementStatusMap) {
+    throw new Error(`validateElementStatus/elementStatus:${elementStatusMap}/유효하지 않습니다.`);
   }
-  return true;
+  if (!elementStatus) {
+    throw new Error(`validateElementStatus/elementStatus:${elementStatus}/유효하지 않습니다.`);
+  }
+  if (!elementStatus.key) {
+    throw new Error(`validateElementStatus/elementStatus.key:${elementStatus.key}/유효하지 않습니다.`);
+  }
+  if (!utils.isBoolean(elementStatus.focus)) {
+    throw new Error(`validateElementStatus/elementStatus.focus:${elementStatus.focus}/유효하지 않습니다.`);
+  }
+  if (!utils.isBoolean(elementStatus.selected)) {
+    throw new Error(`validateElementStatus/elementStatus.focus:${elementStatus.focus}/유효하지 않습니다.`);
+  }
+  if (!elementStatusMap[elementStatus.key]) {
+    throw new Error(`validateElementStatus/elementStatusMap[${elementStatus.key}]:${elementStatusMap[elementStatus.key]}/유효하지 않습니다.`);
+  }
 };
 
 class CustomControlButtonGroup {
@@ -54,14 +63,12 @@ class CustomControlButtonGroup {
     this.#meta = meta;
     this.#naverCustomControl = null;
     this.#onChangeHtml = onChangeHtml;
+
     // elementStatusMap 요소 검사
     this.#elementStatusMap = elementStatusMap;
     const elementStatusList = utils.convertObjValuesToList(this.#elementStatusMap);
-    elementStatusList.forEach((v) => {
-      if (!isValidElementStatus(v)) {
-        throw new Error(`isValidElementStatus/elementStatus:${v}/유효하지 않습니다.`);
-      }
-    });
+    elementStatusList.forEach((v) => validateElementStatus(this.#elementStatusMap, v));
+
     this.#html = this.#onChangeHtml(this.#elementStatusMap);
     this.#htmlElementEventControllerMap = elementStatusList.reduce((acc, { key }) => {
       acc[key] = createEventController({
