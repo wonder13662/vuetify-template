@@ -79,11 +79,13 @@ class CustomControlHexagonSelectorButtonGroup {
 
   constructor({
     meta,
+    onChange,
   }) {
     this.#meta = meta;
     this.#customControlGroup = customControlGroup.createCustomControlGroup({
       elementStatusMap: getElementStatusMapInitialized(),
       onChangeHtml: getHtml,
+      onChangeElementStatusMap: onChange,
       meta: this.#meta,
     });
   }
@@ -139,7 +141,11 @@ class CustomControlHexagonSelectorButtonGroup {
 export default {
   createCustomControlHexagonSelectorButtonGroup({
     meta = {},
+    onChange = () => ({}),
   }) {
-    return new CustomControlHexagonSelectorButtonGroup({ meta });
+    return new CustomControlHexagonSelectorButtonGroup({
+      meta,
+      onChange,
+    });
   },
 };

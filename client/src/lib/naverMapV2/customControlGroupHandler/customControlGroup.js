@@ -59,17 +59,21 @@ class CustomControlButtonGroup {
 
   #onChangeHtml
 
+  #onChangeElementStatusMap
+
   #position
 
   constructor({
     meta,
     onChangeHtml,
+    onChangeElementStatusMap,
     elementStatusMap,
     position,
   }) {
     this.#meta = meta;
     this.#naverCustomControl = null;
     this.#onChangeHtml = onChangeHtml;
+    this.#onChangeElementStatusMap = onChangeElementStatusMap;
     this.#position = position;
 
     // elementStatusMap 요소 검사
@@ -111,6 +115,11 @@ class CustomControlButtonGroup {
       },
     };
     this.forceUpdate();
+    this.#onChangeElementStatusMap({
+      elementStatusMap: {
+        ...this.#elementStatusMap,
+      },
+    });
   }
 
   blur(key) {
@@ -127,6 +136,11 @@ class CustomControlButtonGroup {
       },
     };
     this.forceUpdate();
+    this.#onChangeElementStatusMap({
+      elementStatusMap: {
+        ...this.#elementStatusMap,
+      },
+    });
   }
 
   click(key) {
@@ -151,6 +165,11 @@ class CustomControlButtonGroup {
       },
     };
     this.forceUpdate();
+    this.#onChangeElementStatusMap({
+      elementStatusMap: {
+        ...this.#elementStatusMap,
+      },
+    });
   }
 
   /**
@@ -172,6 +191,11 @@ class CustomControlButtonGroup {
       ...this.#elementStatusMap[key],
       ...props,
     };
+    this.#onChangeElementStatusMap({
+      elementStatusMap: {
+        ...this.#elementStatusMap,
+      },
+    });
   }
 
   /**
@@ -304,7 +328,8 @@ export default {
   // TODO 이벤트 리스너 콜백들을 인자로 받기
   createCustomControlGroup({
     elementStatusMap,
-    onChangeHtml,
+    onChangeHtml = () => ({}),
+    onChangeElementStatusMap = () => ({}),
     position = NAVER_MAP_POSITION_MAP.RIGHT_CENTER,
     meta = {},
   }) {
@@ -314,6 +339,7 @@ export default {
     return new CustomControlButtonGroup({
       elementStatusMap,
       onChangeHtml,
+      onChangeElementStatusMap,
       position,
       meta,
     });

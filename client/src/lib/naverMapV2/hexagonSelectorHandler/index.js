@@ -1,5 +1,6 @@
 import customControlGroupHandler from '../customControlGroupHandler';
 import customControlBanner from '../customControlGroupHandler/customControlBanner';
+import utils from '@/lib/utils';
 
 class HexagonSelector {
   #hexagonSelectorButtonGroup
@@ -10,14 +11,39 @@ class HexagonSelector {
 
   #map
 
+  #selectedMethod
+
   constructor({
     meta,
   }) {
     // eslint-disable-next-line max-len
     this.#meta = meta;
+    this.#selectedMethod = '';
     // eslint-disable-next-line max-len
     this.#hexagonSelectorButtonGroup = customControlGroupHandler.createCustomControlHexagonSelectorButtonGroup({
       meta: this.#meta,
+      onChange: ({ elementStatusMap }) => {
+        // 여기서 선택된 엘리먼트를 추출
+        const list = utils.convertObjValuesToList(elementStatusMap);
+        const found = list.find(({ selected }) => selected);
+        if (!found) {
+          if (this.#selectedMethod === '') {
+            return;
+          }
+          this.#selectedMethod = '';
+          // eslint-disable-next-line no-console
+          console.log('onChange / this.#selectedMethod:', this.#selectedMethod);
+          return;
+        }
+
+        if (this.#selectedMethod === found.key) {
+          return;
+        }
+
+        this.#selectedMethod = found.key;
+        // eslint-disable-next-line no-console
+        console.log('onChange / this.#selectedMethod:', this.#selectedMethod);
+      },
     });
     this.#banner = customControlBanner.createCustomControlBanner({ meta });
     this.#banner.setBannerText('Hexagon을 선택할 방식(점, 직선, 폴리곤)을 지정해주세요.');
