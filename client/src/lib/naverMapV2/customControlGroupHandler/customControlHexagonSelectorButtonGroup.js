@@ -71,7 +71,7 @@ const getElementStatusMapInitialized = () => ({
   },
 });
 class CustomControlHexagonSelectorButtonGroup {
-  #customControlButtonGroup
+  #customControlGroup
 
   #meta
 
@@ -80,10 +80,8 @@ class CustomControlHexagonSelectorButtonGroup {
   constructor({
     meta,
   }) {
-    // eslint-disable-next-line max-len
     this.#meta = meta;
-    // eslint-disable-next-line max-len
-    this.#customControlButtonGroup = customControlGroup.createCustomControlGroup({
+    this.#customControlGroup = customControlGroup.createCustomControlGroup({
       elementStatusMap: getElementStatusMapInitialized(),
       onChangeHtml: getHtml,
       meta: this.#meta,
@@ -105,33 +103,33 @@ class CustomControlHexagonSelectorButtonGroup {
       return;
     }
     this.#map = map;
-    this.#customControlButtonGroup.setNaverMap(this.#map);
-    this.#customControlButtonGroup.draw(this.#map);
+    this.#customControlGroup.setNaverMap(this.#map);
+    this.#customControlGroup.draw(this.#map);
   }
 
   /**
-   * hexagonSelector 객체를 네이버 지도 객체 위에서 제거합니다.
+   * customControlGroup 객체를 네이버 지도 객체 위에서 제거합니다.
    * draw()로 했던 모든 작업을 반대로 수행합니다.
    *
    * @return {void} 반환값 없음
    */
   remove() {
-    if (this.#customControlButtonGroup) {
-      this.#customControlButtonGroup.remove();
+    if (this.#customControlGroup) {
+      this.#customControlGroup.remove();
     }
   }
 
   /**
-   * hexagonSelector 객체를 완전히 삭제합니다.
+   * customControlGroup 객체를 완전히 삭제합니다.
    *
    * @return {void} 리턴값 없음
    */
   destroy() {
     this.remove();
-    if (this.#customControlButtonGroup) {
-      this.#customControlButtonGroup.destroy();
+    if (this.#customControlGroup) {
+      this.#customControlGroup.destroy();
     }
-    this.#customControlButtonGroup = null;
+    this.#customControlGroup = null;
 
     this.#meta = null;
     this.#map = null;

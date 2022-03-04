@@ -1,7 +1,10 @@
 import customControlGroupHandler from '../customControlGroupHandler';
+import customControlBanner from '../customControlGroupHandler/customControlBanner';
 
 class HexagonSelector {
   #hexagonSelectorButtonGroup
+
+  #banner
 
   #meta
 
@@ -16,6 +19,10 @@ class HexagonSelector {
     this.#hexagonSelectorButtonGroup = customControlGroupHandler.createCustomControlHexagonSelectorButtonGroup({
       meta: this.#meta,
     });
+    this.#banner = customControlBanner.createCustomControlBanner({ meta });
+    this.#banner.setBannerText('Hexagon을 선택할 방식(점, 직선, 폴리곤)을 지정해주세요.');
+    this.#banner.setVisibleBtnSave(false);
+    this.#banner.setVisibleBtnCancel(false);
   }
 
   /**
@@ -34,6 +41,7 @@ class HexagonSelector {
     }
     this.#map = map;
     this.#hexagonSelectorButtonGroup.setNaverMap(this.#map);
+    this.#banner.setNaverMap(this.#map);
   }
 
   /**
@@ -45,6 +53,9 @@ class HexagonSelector {
   remove() {
     if (this.#hexagonSelectorButtonGroup) {
       this.#hexagonSelectorButtonGroup.remove();
+    }
+    if (this.#banner) {
+      this.#banner.remove();
     }
   }
 
@@ -59,6 +70,11 @@ class HexagonSelector {
       this.#hexagonSelectorButtonGroup.destroy();
     }
     this.#hexagonSelectorButtonGroup = null;
+
+    if (this.#banner) {
+      this.#banner.destroy();
+    }
+    this.#banner = null;
 
     this.#meta = null;
     this.#map = null;

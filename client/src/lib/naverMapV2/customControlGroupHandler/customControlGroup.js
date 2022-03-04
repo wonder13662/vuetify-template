@@ -1,6 +1,10 @@
 import naverMapWrapper from '../lib/naverMapWrapper';
 import htmlElementEventHandler from '../htmlElementEventHandler';
 import utils from '@/lib/utils';
+import {
+  NAVER_MAP_POSITION_MAP,
+  NAVER_MAP_POSITION_SET,
+} from '../lib/constants';
 
 // eslint-disable-next-line max-len
 const createEventController = ({
@@ -55,14 +59,18 @@ class CustomControlButtonGroup {
 
   #onChangeHtml
 
+  #position
+
   constructor({
     meta,
     onChangeHtml,
     elementStatusMap,
+    position,
   }) {
     this.#meta = meta;
     this.#naverCustomControl = null;
     this.#onChangeHtml = onChangeHtml;
+    this.#position = position;
 
     // elementStatusMap 요소 검사
     this.#elementStatusMap = elementStatusMap;
@@ -102,9 +110,7 @@ class CustomControlButtonGroup {
         focus: true,
       },
     };
-    const html = this.#onChangeHtml(this.#elementStatusMap);
-    this.updateHtml(html);
-    this.setEventController();
+    this.forceUpdate();
   }
 
   blur(key) {
@@ -120,9 +126,7 @@ class CustomControlButtonGroup {
         focus: false,
       },
     };
-    const html = this.#onChangeHtml(this.#elementStatusMap);
-    this.updateHtml(html);
-    this.setEventController();
+    this.forceUpdate();
   }
 
   click(key) {
@@ -146,6 +150,52 @@ class CustomControlButtonGroup {
         selected: !targetSelected,
       },
     };
+    this.forceUpdate();
+  }
+
+  /**
+   * 외부에서 인자로 전달한 key에 해당하는 elementStatusMap의 아이템을 업데이트 합니다.
+   *
+   * @param {string} key - elementStatusMap이 가지고 있는 아이템의 키
+   * @param {object} props - elementStatusMap이 가지고 있는 아이템의 속성. 같은 속성이 있다면 덮어씁니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  setElementStatus({ key, props }) {
+    if (!key || !this.#elementStatusMap[key]) {
+      throw new Error(`setElementStatus/key:${key}/유효하지 않습니다.`);
+    }
+    if (!props) {
+      throw new Error(`setElementStatus/props:${props}/유효하지 않습니다.`);
+    }
+    this.#elementStatusMap[key] = {
+      ...this.#elementStatusMap[key],
+      ...props,
+    };
+  }
+
+  /**
+   * 외부에서 인자로 전달한 key에 해당하는 elementStatusMap의 아이템의 복사본(swallow copy)를 돌려줍니다.
+   *
+   * @param {string} key - elementStatusMap이 가지고 있는 아이템의 키
+   *
+   * @return {object} elementStatusMap의 아이템의 복사본(swallow copy)
+   */
+  getElementStatus({ key }) {
+    if (!key || !this.#elementStatusMap[key]) {
+      throw new Error(`setElementStatus/key:${key}/유효하지 않습니다.`);
+    }
+    return {
+      ...this.#elementStatusMap[key],
+    };
+  }
+
+  /**
+   * 외부에서 customControllGroup을 강제로 업데이트합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  forceUpdate() {
     const html = this.#onChangeHtml(this.#elementStatusMap);
     this.updateHtml(html);
     this.setEventController();
@@ -184,6 +234,7 @@ class CustomControlButtonGroup {
       return;
     }
     this.#map = map;
+    this.#html = this.#onChangeHtml(this.#elementStatusMap);
     this.draw(this.#map);
   }
 
@@ -206,6 +257,7 @@ class CustomControlButtonGroup {
     this.#naverCustomControl = naverMapWrapper.drawCustomControl({
       html: this.#html,
       map: this.#map,
+      position: this.#position,
     });
     this.setEventController();
   }
@@ -253,11 +305,16 @@ export default {
   createCustomControlGroup({
     elementStatusMap,
     onChangeHtml,
+    position = NAVER_MAP_POSITION_MAP.RIGHT_CENTER,
     meta = {},
   }) {
+    if (position && !NAVER_MAP_POSITION_SET.has(position)) {
+      throw new Error(`createCustomControlGroup/position:${position}/유효하지 않습니다.`);
+    }
     return new CustomControlButtonGroup({
       elementStatusMap,
       onChangeHtml,
+      position,
       meta,
     });
   },
