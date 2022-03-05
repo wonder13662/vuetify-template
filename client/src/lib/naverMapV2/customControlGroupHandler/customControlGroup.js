@@ -61,12 +61,15 @@ class CustomControlButtonGroup {
 
   #onChangeSelectedElementKey
 
+  #onClick
+
   #position
 
   constructor({
     meta,
     onChangeHtml,
     onChangeSelectedElementKey,
+    onClick = () => ({}),
     elementStatusMap,
     position,
   }) {
@@ -74,6 +77,7 @@ class CustomControlButtonGroup {
     this.#naverCustomControl = null;
     this.#onChangeHtml = onChangeHtml;
     this.#onChangeSelectedElementKey = onChangeSelectedElementKey;
+    this.#onClick = onClick;
     this.#position = position;
 
     // elementStatusMap 요소 검사
@@ -163,6 +167,8 @@ class CustomControlButtonGroup {
     const next = this.getSelectedKey(this.#elementStatusMap);
 
     this.emitChangeSelectedKey(prev, next);
+
+    this.#onClick({ key });
   }
 
   /**
@@ -352,6 +358,7 @@ export default {
     elementStatusMap,
     onChangeHtml = () => ({}),
     onChangeSelectedElementKey = () => ({}),
+    onClick = () => ({}),
     position = NAVER_MAP_POSITION_MAP.RIGHT_CENTER,
     meta = {},
   }) {
@@ -362,6 +369,7 @@ export default {
       elementStatusMap,
       onChangeHtml,
       onChangeSelectedElementKey,
+      onClick,
       position,
       meta,
     });

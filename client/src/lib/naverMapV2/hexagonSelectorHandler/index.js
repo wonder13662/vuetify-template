@@ -29,24 +29,43 @@ class HexagonSelector {
         this.#selectMethod = SELECT_METHOD_POINT;
         this.updateBannerPoint();
         this.#banner.forceUpdate();
+        // TODO 선택 기능이 결정되면, 좌측 버튼을 통해 선택기능이 변경되는 것을 막습니다.
       },
       onSelectedPolyline: () => {
         this.#selectMethod = SELECT_METHOD_POLYILNE;
         this.updateBannerPolyline();
         this.#banner.forceUpdate();
+        // TODO 선택 기능이 결정되면, 좌측 버튼을 통해 선택기능이 변경되는 것을 막습니다.
       },
       onSelectedPolygon: () => {
         this.#selectMethod = SELECT_METHOD_POLYGON;
         this.updateBannerPolygon();
         this.#banner.forceUpdate();
+        // TODO 선택 기능이 결정되면, 좌측 버튼을 통해 선택기능이 변경되는 것을 막습니다.
       },
       onSelectedNone: () => {
         this.#selectMethod = SELECT_METHOD_NOTHING;
         this.updateBannerNone();
         this.#banner.forceUpdate();
+        // TODO 선택 기능이 결정되면, 좌측 버튼을 통해 선택기능이 변경되는 것을 막습니다.
       },
     });
-    this.#banner = customControlBanner.createCustomControlBanner({ meta });
+    this.#banner = customControlBanner.createCustomControlBanner({
+      meta,
+      onClickBtnAdd: () => {
+        // eslint-disable-next-line no-console
+        console.log('onClickBtnAdd / 선택한 hexagon을 hexagonMap에 추가합니다.');
+      },
+      onClickBtnSubtract: () => {
+        // eslint-disable-next-line no-console
+        console.log('onClickBtnSubtract / 선택한 hexagon을 hexagonMap에서 제거합니다.');
+      },
+      onClickBtnCancel: () => {
+        // eslint-disable-next-line no-console
+        console.log('onClickBtnCancel / 작업을 중단합니다.');
+        // TODO 사용자에게 confirm 모달을 띄워야 합니다.(banner가 담당해야 할 수 있음)
+      },
+    });
     this.updateBannerNone();
   }
 
@@ -57,7 +76,8 @@ class HexagonSelector {
    */
   updateBannerPoint() {
     this.#banner.setBannerText('Hexagon을 점을 지정해서 선택해주세요.');
-    this.#banner.setVisibleBtnSave(true);
+    this.#banner.setVisibleBtnAdd(true);
+    this.#banner.setVisibleBtnSubtract(true);
     this.#banner.setVisibleBtnCancel(true);
   }
 
@@ -68,7 +88,8 @@ class HexagonSelector {
    */
   updateBannerPolyline() {
     this.#banner.setBannerText('Hexagon을 직선을 그려서 선택해주세요.');
-    this.#banner.setVisibleBtnSave(true);
+    this.#banner.setVisibleBtnAdd(true);
+    this.#banner.setVisibleBtnSubtract(true);
     this.#banner.setVisibleBtnCancel(true);
   }
 
@@ -79,7 +100,8 @@ class HexagonSelector {
    */
   updateBannerPolygon() {
     this.#banner.setBannerText('Hexagon을 폴리곤 범위를 그려서 선택해주세요.');
-    this.#banner.setVisibleBtnSave(true);
+    this.#banner.setVisibleBtnAdd(true);
+    this.#banner.setVisibleBtnSubtract(true);
     this.#banner.setVisibleBtnCancel(true);
   }
 
@@ -89,8 +111,9 @@ class HexagonSelector {
    * @return {void} 리턴값 없음
    */
   updateBannerNone() {
-    this.#banner.setBannerText('Hexagon을 선택할 방식(점, 직선, 폴리곤)을 지정해주세요.');
-    this.#banner.setVisibleBtnSave(false);
+    this.#banner.setBannerText('Hexagon을 선택할 방식(점, 직선, 폴리곤)을 선택해주세요.');
+    this.#banner.setVisibleBtnAdd(false);
+    this.#banner.setVisibleBtnSubtract(false);
     this.#banner.setVisibleBtnCancel(false);
   }
 

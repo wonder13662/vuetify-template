@@ -27,10 +27,19 @@ const getStyle = ({
       'margin: 4px;',
     ].join('');
   }
-  if (key === 'btnSave') {
+  if (key === 'btnAdd') {
     return [
-      focus ? 'background: #1976D2;' : 'background: #42A5F5;',
-      'color: white;',
+      focus ? 'background: #BDBDBD;' : 'background: #EEEEEE;',
+      'color: black;',
+      visible ? '' : 'display: none;',
+      'padding: 10px;',
+      'margin: 4px;',
+    ].join('');
+  }
+  if (key === 'btnSubtract') {
+    return [
+      focus ? 'background: #BDBDBD;' : 'background: #EEEEEE;',
+      'color: black;',
       visible ? '' : 'display: none;',
       'padding: 10px;',
       'margin: 4px;',
@@ -86,25 +95,34 @@ const getElementStatusMapInitialized = () => ({
     key: 'message',
     focus: false,
     selected: false,
-    visible: true, // TODO visible 관련 처리 필요
+    visible: true,
     meta: {
       text: '텍스트',
     },
   },
-  btnSave: {
-    key: 'btnSave',
+  btnAdd: {
+    key: 'btnAdd',
     focus: false,
     selected: false,
-    visible: true, // TODO visible 관련 처리 필요
+    visible: true,
     meta: {
-      text: '저장',
+      text: '더하기',
+    },
+  },
+  btnSubtract: {
+    key: 'btnSubtract',
+    focus: false,
+    selected: false,
+    visible: true,
+    meta: {
+      text: '빼기',
     },
   },
   btnCancel: {
     key: 'btnCancel',
     focus: false,
     selected: false,
-    visible: true, // TODO visible 관련 처리 필요
+    visible: true,
     meta: {
       text: '취소',
     },
@@ -118,15 +136,45 @@ class CustomControlBanner {
 
   #map
 
+  #onClickBtnAdd
+
+  #onClickBtnSubtract
+
+  #onClickBtnCancel
+
   constructor({
     meta,
+    onClickBtnAdd = () => ({}),
+    onClickBtnSubtract = () => ({}),
+    onClickBtnCancel = () => ({}),
   }) {
     this.#meta = meta;
+    this.#onClickBtnAdd = onClickBtnAdd;
+    this.#onClickBtnSubtract = onClickBtnSubtract;
+    this.#onClickBtnCancel = onClickBtnCancel;
     this.#customControlGroup = customControlGroup.createCustomControlGroup({
       elementStatusMap: getElementStatusMapInitialized(),
-      onChangeHtml: (elementStatusMap) => (getHtml(elementStatusMap)),
       position: NAVER_MAP_POSITION_MAP.TOP_CENTER,
       meta: this.#meta,
+      onChangeHtml: (elementStatusMap) => (getHtml(elementStatusMap)),
+      onClick: ({ key }) => {
+        // eslint-disable-next-line no-console
+        console.log('onClick / key:', key);
+        const elementStatusMap = getElementStatusMapInitialized();
+        switch (key) {
+          case elementStatusMap.btnAdd.key:
+            this.#onClickBtnAdd();
+            break;
+          case elementStatusMap.btnSubtract.key:
+            this.#onClickBtnSubtract();
+            break;
+          case elementStatusMap.btnCancel.key:
+            this.#onClickBtnCancel();
+            break;
+          default:
+            throw new Error(`key:${key}/유효하지 않습니다.`);
+        }
+      },
     });
   }
 
@@ -195,21 +243,36 @@ class CustomControlBanner {
   }
 
   /**
-   * banner에 저장버튼의 노출 여부를 외부에서 설정합니다.
+   * banner에 hexagon 더하기 버튼의 노출 여부를 외부에서 설정합니다.
    *
-   * @param {boolean} visible - 저장버튼의 지도 위의 노출 여부
+   * @param {boolean} visible - 더하기 버튼의 지도 위의 노출 여부
    *
    * @return {void} 리턴값 없음
    */
-  setVisibleBtnSave(visible) {
+  setVisibleBtnAdd(visible) {
     this.#customControlGroup.setElementStatus({
-      key: 'btnSave',
+      key: 'btnAdd',
       props: {
         visible,
       },
     });
   }
 
+  /**
+   * banner에 hexagon 빼기 버튼의 노출 여부를 외부에서 설정합니다.
+   *
+   * @param {boolean} visible - 빼기 버튼의 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisibleBtnSubtract(visible) {
+    this.#customControlGroup.setElementStatus({
+      key: 'btnSubtract',
+      props: {
+        visible,
+      },
+    });
+  }
 
   /**
    * banner에 취소버튼의 노출 여부를 외부에서 설정합니다.
@@ -240,9 +303,15 @@ class CustomControlBanner {
 export default {
   createCustomControlBanner({
     meta = {},
+    onClickBtnAdd = () => ({}),
+    onClickBtnSubtract = () => ({}),
+    onClickBtnCancel = () => ({}),
   }) {
     return new CustomControlBanner({
       meta,
+      onClickBtnAdd,
+      onClickBtnSubtract,
+      onClickBtnCancel,
     });
   },
 };
