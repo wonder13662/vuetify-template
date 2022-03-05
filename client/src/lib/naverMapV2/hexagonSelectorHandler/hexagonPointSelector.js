@@ -5,6 +5,9 @@ import overlayEventHandler from '../overlayEventHandler';
 import {
   H3_RESOLUTION,
 } from '../lib/constants';
+import polygonHandler from '../polygonHandler';
+import utils from '@/lib/utils';
+import mapUtils from '../lib/utils';
 
 // TODO
 // 1. 맵을 전달받아 overlayEventListener에 등록하여 클릭 이벤트를 받아야 한다
@@ -23,7 +26,11 @@ class HexagonPointSelector {
 
   #h3Resolution
 
+  #h3IndexSet
+
   #disabled
+
+  #polygon
 
   constructor({
     meta,
@@ -32,19 +39,58 @@ class HexagonPointSelector {
     this.#meta = meta;
     this.#h3Resolution = h3Resolution;
     this.#disabled = false;
+    this.#h3IndexSet = new Set();
     this.#overlayEventHandler = overlayEventHandler.createOverlayEventController({
       onClick: ({ point }) => {
         if (this.#disabled) {
           return;
         }
-        // eslint-disable-next-line no-console
-        console.log('HexagonPointSelector / onClick / point:', point);
-        const h3Index = geoToH3(point.lat, point.lng, this.#h3Resolution);
-        // eslint-disable-next-line no-console
-        console.log('HexagonPointSelector / onClick / h3Index:', h3Index);
+        this.addPointToH3IndexSet(point);
+        this.updatePolygonPath();
       },
       meta: { ...this.#meta },
     });
+    this.#polygon = polygonHandler.createPolygon({
+      meta: this.#meta,
+    });
+    this.#polygon.addClickListener(({ point }) => {
+      if (this.#disabled) {
+        return;
+      }
+      this.addPointToH3IndexSet(point);
+      this.updatePolygonPath();
+    });
+  }
+
+  /**
+   * h3IndexSet으로 polygon의 path를 업데이트합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  updatePolygonPath() {
+    const h3Indexes = utils.convertSetToList(this.#h3IndexSet);
+    const paths = mapUtils.getPathsFromH3Indexes(h3Indexes);
+    this.#polygon.setPaths(paths);
+  }
+
+  /**
+   * 사용자가 클릭한 point로 h3IndexSet을 업데이트합니다.
+   *
+   * @param {Point} point lat, lng 속성을 가지는 Point 객체
+   *
+   * @return {void} 리턴값 없음
+   */
+  addPointToH3IndexSet(point) {
+    if (!mapUtils.isValidPoint(point)) {
+      throw new Error(`addPointToH3IndexSet/point:${point}/유효하지 않습니다.`);
+    }
+    const h3Index = geoToH3(point.lat, point.lng, this.#h3Resolution);
+
+    if (this.#h3IndexSet.has(h3Index)) {
+      this.#h3IndexSet.delete(h3Index);
+    } else {
+      this.#h3IndexSet.add(h3Index);
+    }
   }
 
   /**
@@ -63,6 +109,8 @@ class HexagonPointSelector {
     }
     this.#map = map;
     this.#overlayEventHandler.setOverlay(this.#map);
+    this.#polygon.setNaverMap(this.#map);
+    this.#polygon.draw(this.#map);
   }
 
   /**

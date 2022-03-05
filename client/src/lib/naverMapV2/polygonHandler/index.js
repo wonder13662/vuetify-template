@@ -192,7 +192,9 @@ class Polygon {
       onBlur: () => {
         // this.blur();
       },
-      onClick: () => ({}),
+      onClick: () => {
+        // this.click();
+      },
       meta: { ...this.#meta },
     });
   }
@@ -302,6 +304,26 @@ class Polygon {
   }
 
   /**
+   * Polygon 객체의 Path를 여러개 설정합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setPath__anchor
+   *
+   * @param {array} pointListList - Point 객체의 배열의 배열
+   *
+   * @return {void} 리턴값 없음
+   */
+  setPaths(paths) {
+    // TODO paths 검증
+    if (paths.length === 0) {
+      // 빈 배열을 넘기면 마지막으로 그렸던 도형이 그대로 노출됨
+      // 우회방법으로 지도에서 표시하지 않는 것으로 설정
+      this.#naverPolygon.setVisible(false);
+      return;
+    }
+    this.#naverPolygon.setVisible(true);
+    this.#naverPolygon.setPaths(paths);
+  }
+
+  /**
    * Naver Polygon에 click 이벤트 리스너를 추가합니다.
    *
    * @param {function} listener - click 이벤트 리스너
@@ -378,15 +400,17 @@ class Polygon {
 
 export default {
   createPolygon({
-    points,
+    points = [],
     clickable = true,
     meta = {},
   }) {
-    points.forEach((p) => {
-      if (!mapUtils.isValidPoint(p)) {
-        throw new Error(`p:${p}/유효하지 않습니다.`);
-      }
-    });
+    if (points && points.length > 0) {
+      points.forEach((p) => {
+        if (!mapUtils.isValidPoint(p)) {
+          throw new Error(`p:${p}/유효하지 않습니다.`);
+        }
+      });
+    }
     return new Polygon({
       points,
       clickable,
