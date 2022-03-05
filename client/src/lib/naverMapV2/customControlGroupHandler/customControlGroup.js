@@ -59,21 +59,21 @@ class CustomControlButtonGroup {
 
   #onChangeHtml
 
-  #onChangeElementStatusMap
+  #onChangeSelectedElementKey
 
   #position
 
   constructor({
     meta,
     onChangeHtml,
-    onChangeElementStatusMap,
+    onChangeSelectedElementKey,
     elementStatusMap,
     position,
   }) {
     this.#meta = meta;
     this.#naverCustomControl = null;
     this.#onChangeHtml = onChangeHtml;
-    this.#onChangeElementStatusMap = onChangeElementStatusMap;
+    this.#onChangeSelectedElementKey = onChangeSelectedElementKey;
     this.#position = position;
 
     // elementStatusMap 요소 검사
@@ -98,7 +98,6 @@ class CustomControlButtonGroup {
     if (this.#elementStatusMap[key].focus) {
       return;
     }
-
     // 자신을 제외한 나머지 버튼들을 blur 상태로 바꾼다.
     const keys = utils.convertObjKeysToList(this.#elementStatusMap);
     keys.forEach((k) => {
@@ -114,12 +113,8 @@ class CustomControlButtonGroup {
         focus: true,
       },
     };
+
     this.forceUpdate();
-    this.#onChangeElementStatusMap({
-      elementStatusMap: {
-        ...this.#elementStatusMap,
-      },
-    });
   }
 
   blur(key) {
@@ -136,14 +131,12 @@ class CustomControlButtonGroup {
       },
     };
     this.forceUpdate();
-    this.#onChangeElementStatusMap({
-      elementStatusMap: {
-        ...this.#elementStatusMap,
-      },
-    });
   }
 
   click(key) {
+    // 변경 전에 selected된 element의 key
+    const prev = this.getSelectedKey(this.#elementStatusMap);
+
     // 선택한 버튼의 상태를 가져온다
     const targetSelected = this.#elementStatusMap[key].selected;
     // 라디오 버튼처럼 1개만 selected 상태가 되도록 한다
@@ -165,10 +158,27 @@ class CustomControlButtonGroup {
       },
     };
     this.forceUpdate();
-    this.#onChangeElementStatusMap({
-      elementStatusMap: {
-        ...this.#elementStatusMap,
-      },
+
+    // 변경 뒤에 selected된 element의 key
+    const next = this.getSelectedKey(this.#elementStatusMap);
+
+    this.emitChangeSelectedKey(prev, next);
+  }
+
+  /**
+   * ElementStatusMap의 Selected 여부를 파악해서 콜백으로 알려줍니다.
+   *
+   * @param {string} prev - 변경 전의 selected돤 element의 key
+   * @param {string} next - 변경 뒤의 selected돤 element의 key
+   *
+   * @return {void} 리턴값 없음
+   */
+  emitChangeSelectedKey(prev, next) {
+    if (prev === next) {
+      return;
+    }
+    this.#onChangeSelectedElementKey({
+      key: next,
     });
   }
 
@@ -191,7 +201,7 @@ class CustomControlButtonGroup {
       ...this.#elementStatusMap[key],
       ...props,
     };
-    this.#onChangeElementStatusMap({
+    this.#onChangeSelectedElementKey({
       elementStatusMap: {
         ...this.#elementStatusMap,
       },
@@ -322,6 +332,18 @@ class CustomControlButtonGroup {
     });
     this.#htmlElementEventControllerMap = null;
   }
+
+  /**
+   * elementStatusMap에서 선택된 element의 key를 돌려줍니다.
+   * 선택된 것이 없다면 공백문자를 돌려줍니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  getSelectedKey() {
+    const list = utils.convertObjValuesToList(this.#elementStatusMap);
+    const found = list.find(({ selected }) => !!selected);
+    return !found ? '' : found.key;
+  }
 }
 
 export default {
@@ -329,7 +351,7 @@ export default {
   createCustomControlGroup({
     elementStatusMap,
     onChangeHtml = () => ({}),
-    onChangeElementStatusMap = () => ({}),
+    onChangeSelectedElementKey = () => ({}),
     position = NAVER_MAP_POSITION_MAP.RIGHT_CENTER,
     meta = {},
   }) {
@@ -339,7 +361,7 @@ export default {
     return new CustomControlButtonGroup({
       elementStatusMap,
       onChangeHtml,
-      onChangeElementStatusMap,
+      onChangeSelectedElementKey,
       position,
       meta,
     });

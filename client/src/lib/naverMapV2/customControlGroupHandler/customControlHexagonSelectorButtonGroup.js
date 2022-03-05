@@ -77,15 +77,30 @@ class CustomControlHexagonSelectorButtonGroup {
 
   #map
 
+  #onSelectedPoint
+
+  #onSelectedPolyline
+
+  #onSelectedPolygon
+
+  #onSelectedNone
+
   constructor({
     meta,
-    onChange,
+    onSelectedPoint,
+    onSelectedPolyline,
+    onSelectedPolygon,
+    onSelectedNone,
   }) {
     this.#meta = meta;
+    this.#onSelectedPoint = onSelectedPoint;
+    this.#onSelectedPolyline = onSelectedPolyline;
+    this.#onSelectedPolygon = onSelectedPolygon;
+    this.#onSelectedNone = onSelectedNone;
     this.#customControlGroup = customControlGroup.createCustomControlGroup({
       elementStatusMap: getElementStatusMapInitialized(),
       onChangeHtml: getHtml,
-      onChangeElementStatusMap: onChange,
+      onChangeSelectedElementKey: (key) => this.onChangeSelectedElementKey(key),
       meta: this.#meta,
     });
   }
@@ -136,16 +151,47 @@ class CustomControlHexagonSelectorButtonGroup {
     this.#meta = null;
     this.#map = null;
   }
+
+  /**
+   * elementStatusMap의 element 중에서 선택된 element의 key가 바뀔 경우 호출되는 콜백
+   *
+   * @return {void} 리턴값 없음
+   */
+  onChangeSelectedElementKey({ key }) {
+    const elementStatusMap = getElementStatusMapInitialized();
+    switch (key) {
+      case elementStatusMap.point.key:
+        this.#onSelectedPoint({ key });
+        break;
+      case elementStatusMap.polyline.key:
+        this.#onSelectedPolyline({ key });
+        break;
+      case elementStatusMap.polygon.key:
+        this.#onSelectedPolygon({ key });
+        break;
+      case '':
+        this.#onSelectedNone({ key });
+        break;
+      default:
+        throw new Error(`onChangeSelectedElementKey/key:${key}/유효하지 않습니다.`);
+    }
+  }
 }
 
 export default {
   createCustomControlHexagonSelectorButtonGroup({
     meta = {},
-    onChange = () => ({}),
+    onSelectedPoint = () => ({}),
+    onSelectedPolyline = () => ({}),
+    onSelectedPolygon = () => ({}),
+    onSelectedNone = () => ({}),
   }) {
     return new CustomControlHexagonSelectorButtonGroup({
       meta,
-      onChange,
+      onSelectedPoint,
+      onSelectedPolyline,
+      onSelectedPolygon,
+      onSelectedNone,
     });
   },
 };
