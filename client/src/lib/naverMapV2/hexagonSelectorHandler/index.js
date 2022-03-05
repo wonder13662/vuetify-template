@@ -1,5 +1,8 @@
 import customControlGroupHandler from '../customControlGroupHandler';
 import customControlBanner from '../customControlGroupHandler/customControlBanner';
+import hexagonPointSelector from './hexagonPointSelector';
+import hexagonLineSelector from './hexagonLineSelector';
+import hexagonPolygonSelector from './hexagonPolygonSelector';
 
 const SELECT_METHOD_POINT = 'SELECT_METHOD_POINT';
 const SELECT_METHOD_POLYILNE = 'SELECT_METHOD_POLYILNE';
@@ -9,6 +12,12 @@ class HexagonSelector {
   #hexagonSelectorButtonGroup
 
   #banner
+
+  #hexagonPointSelector
+
+  #hexagonLineSelector
+
+  #hexagonPolygonSelector
 
   #meta
 
@@ -31,7 +40,8 @@ class HexagonSelector {
         this.#banner.forceUpdate();
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
-        // TODO 클릭하는 지점으로 hexagon을 선택하는 기능 시작!
+        this.disableAllSelector();
+        this.#hexagonPointSelector.setDisabled(false);
       },
       onSelectedPolyline: () => {
         this.#selectMethod = SELECT_METHOD_POLYILNE;
@@ -39,7 +49,8 @@ class HexagonSelector {
         this.#banner.forceUpdate();
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
-        // TODO 클릭하는 지점으로 출발, 도착점 지정, hexagon을 선택하는 기능 시작!
+        this.disableAllSelector();
+        this.#hexagonLineSelector.setDisabled(false);
       },
       onSelectedPolygon: () => {
         this.#selectMethod = SELECT_METHOD_POLYGON;
@@ -47,7 +58,8 @@ class HexagonSelector {
         this.#banner.forceUpdate();
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
-        // TODO 클릭하는 지점으로 폴리곤 지정, hexagon을 선택하는 기능 시작!
+        this.disableAllSelector();
+        this.#hexagonPolygonSelector.setDisabled(false);
       },
       onSelectedNone: () => {
         this.#selectMethod = SELECT_METHOD_NOTHING;
@@ -55,6 +67,7 @@ class HexagonSelector {
         this.#banner.forceUpdate();
         this.#hexagonSelectorButtonGroup.setDisabled(false);
         this.#hexagonSelectorButtonGroup.forceUpdate();
+        this.disableAllSelector();
       },
     });
     this.#banner = customControlBanner.createCustomControlBanner({
@@ -77,10 +90,27 @@ class HexagonSelector {
         this.#hexagonSelectorButtonGroup.setDisabled(false);
         this.#hexagonSelectorButtonGroup.setSelectedNone();
         this.#hexagonSelectorButtonGroup.forceUpdate();
+        this.disableAllSelector();
       },
     });
     this.updateBannerNone();
+    this.#hexagonPointSelector = hexagonPointSelector.createHexagonPointSelector({ meta });
+    this.#hexagonLineSelector = hexagonLineSelector.createHexagonLineSelector({ meta });
+    this.#hexagonPolygonSelector = hexagonPolygonSelector.createHexagonPolygonSelector({ meta });
+    this.disableAllSelector();
   }
+
+  /**
+   * 모든 selector를 비활성상태로 바꿉니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  disableAllSelector() {
+    this.#hexagonPointSelector.setDisabled(true);
+    this.#hexagonLineSelector.setDisabled(true);
+    this.#hexagonPolygonSelector.setDisabled(true);
+  }
+
 
   /**
    * banner 상태를 포인트 선택으로 표시합니다.
@@ -147,6 +177,9 @@ class HexagonSelector {
     this.#map = map;
     this.#hexagonSelectorButtonGroup.setNaverMap(this.#map);
     this.#banner.setNaverMap(this.#map);
+    this.#hexagonPointSelector.setNaverMap(this.#map);
+    this.#hexagonLineSelector.setNaverMap(this.#map);
+    this.#hexagonPolygonSelector.setNaverMap(this.#map);
   }
 
   /**
@@ -162,6 +195,15 @@ class HexagonSelector {
     if (this.#banner) {
       this.#banner.remove();
     }
+    if (this.#hexagonPointSelector) {
+      this.#hexagonPointSelector.remove();
+    }
+    if (this.#hexagonLineSelector) {
+      this.#hexagonLineSelector.remove();
+    }
+    if (this.#hexagonPolygonSelector) {
+      this.#hexagonPolygonSelector.remove();
+    }
   }
 
   /**
@@ -171,6 +213,7 @@ class HexagonSelector {
    */
   destroy() {
     this.remove();
+
     if (this.#hexagonSelectorButtonGroup) {
       this.#hexagonSelectorButtonGroup.destroy();
     }
@@ -180,6 +223,21 @@ class HexagonSelector {
       this.#banner.destroy();
     }
     this.#banner = null;
+
+    if (this.#hexagonPointSelector) {
+      this.#hexagonPointSelector.destroy();
+    }
+    this.#hexagonPointSelector = null;
+
+    if (this.#hexagonLineSelector) {
+      this.#hexagonLineSelector.destroy();
+    }
+    this.#hexagonLineSelector = null;
+
+    if (this.#hexagonPolygonSelector) {
+      this.#hexagonPolygonSelector.destroy();
+    }
+    this.#hexagonPolygonSelector = null;
 
     this.#meta = null;
     this.#map = null;

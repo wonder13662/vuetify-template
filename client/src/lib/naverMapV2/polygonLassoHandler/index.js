@@ -118,16 +118,7 @@ class PolygonLasso {
     this.#overlayMapEventHandler = overlayEventHandler.createOverlayEventController({
       onFocus: () => {},
       onBlur: () => {},
-      onClick: (v) => {
-        const {
-          _lat: lat,
-          _lng: lng,
-        } = v.coord;
-        const point = {
-          lat,
-          lng,
-        };
-
+      onClick: ({ point }) => {
         // 클릭한 지점을 입력받으려면 편집모드(MODE_EDIT)여야 한다.
         if (this.isModeRead()) {
           return;

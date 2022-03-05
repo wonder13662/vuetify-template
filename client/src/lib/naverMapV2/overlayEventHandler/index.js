@@ -95,7 +95,6 @@ const removeEventListener = ({
 /**
  * overlay 객체에 focus(mouseover) 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
  *
- * @param {string} status - 오버레이 객체의 상태
  * @param {Map} eventListenerMapMap - 이벤트 리스너의 맵의 맵
  * @param {object} payload - 이벤트 객체
  *
@@ -115,7 +114,6 @@ const focus = ({
 /**
  * overlay 객체에 blur(mouseout) 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
  *
- * @param {string} status - 오버레이 객체의 상태
  * @param {Map} eventListenerMapMap - 이벤트 리스너의 맵의 맵
  * @param {object} payload - 이벤트 객체
  *
@@ -173,7 +171,6 @@ const rightClick = ({
 /**
  * overlay 객체에 mousemove 이벤트가 발생했을 때, 처리해야할 일을 수행합니다.
  *
- * @param {string} status - 오버레이 객체의 상태
  * @param {Map} eventListenerMapMap - 이벤트 리스너의 맵의 맵
  * @param {object} payload - 이벤트 객체
  *
@@ -268,80 +265,69 @@ class OverlayEventController {
 
     // https://navermaps.github.io/maps.js.ncp/docs/tutorial-UI-Event.html
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mouseover', (e) => {
-      // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onFocus(e);
-
+      const payload = this.enrichEventPayload(e);
+      this.#onFocus(payload);
       focus({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
       this.#status = OVERLAY_STATUS.FOCUS;
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mouseout', (e) => {
-      // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onBlur(e);
+      const payload = this.enrichEventPayload(e);
+      this.#onBlur(payload);
       blur({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
       this.#status = OVERLAY_STATUS.BLUR;
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mousemove', (e) => {
-      // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onMousemove(e);
+      const payload = this.enrichEventPayload(e);
+      this.#onMousemove(payload);
       mousemove({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'click', (e) => {
-      // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onClick(e);
+      const payload = this.enrichEventPayload(e);
+      this.#onClick(payload);
       click({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'rightclick', (e) => {
-      // TODO 이벤트 객체:e의 필요한 값만 골라서 받기
-      this.#onRightClick(e);
+      const payload = this.enrichEventPayload(e);
+      this.#onRightClick(payload);
       rightClick({
         eventListenerMapMap: this.#eventListenerMapMap,
-        payload: {
-          ...e, // @ deprecated
-          point: getPointFromMapEvent(e),
-          meta: {
-            ...this.#meta,
-          },
-        },
+        payload,
       });
     }));
 
     this.#status = OVERLAY_STATUS.BLUR;
+  }
+
+  /**
+   * focus, blur, click, rightClick, mousemove 등의 이벤트에 필요한 정보만 필터링 및 추가합니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  enrichEventPayload(e) {
+    return {
+      // eslint-disable-next-line max-len
+      // eventListenerMapMap: this.#eventListenerMapMap, // REMOVE ME 주석처리 해놓음. 외부에 노출하지 않는 것이 맞다고 판단.
+      point: getPointFromMapEvent(e),
+      meta: {
+        ...this.#meta,
+      },
+      // REMOVE ME 주석처리 해놓음. 외부에 노출하지 않는 것이 맞음
+      // payload: {
+      //   ...e, // @ deprecated
+      // },
+    };
   }
 
   /**

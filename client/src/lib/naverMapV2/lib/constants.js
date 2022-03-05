@@ -2,6 +2,8 @@ import utils from '@/lib/utils';
 import boundHandler from './boundHandler';
 
 export const H3_RESOLUTION = 9;
+export const H3_RESOLUTION_MIN = 0;
+export const H3_RESOLUTION_MAX = 15;
 export const MIN_ZOOM = 13;
 export const DEFAULT_ZOOM = 13;
 export const MIN_ZOOM_POLYGON_VISIBLE = 15;
