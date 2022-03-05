@@ -14,7 +14,7 @@ class HexagonSelector {
 
   #map
 
-  #selectMethod
+  #selectMethod // TODO hexagon 선택로직 연동 뒤에 필요하지 않다면 삭제
 
   constructor({
     meta,
@@ -31,6 +31,7 @@ class HexagonSelector {
         this.#banner.forceUpdate();
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
+        // TODO 클릭하는 지점으로 hexagon을 선택하는 기능 시작!
       },
       onSelectedPolyline: () => {
         this.#selectMethod = SELECT_METHOD_POLYILNE;
@@ -38,6 +39,7 @@ class HexagonSelector {
         this.#banner.forceUpdate();
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
+        // TODO 클릭하는 지점으로 출발, 도착점 지정, hexagon을 선택하는 기능 시작!
       },
       onSelectedPolygon: () => {
         this.#selectMethod = SELECT_METHOD_POLYGON;
@@ -45,6 +47,7 @@ class HexagonSelector {
         this.#banner.forceUpdate();
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
+        // TODO 클릭하는 지점으로 폴리곤 지정, hexagon을 선택하는 기능 시작!
       },
       onSelectedNone: () => {
         this.#selectMethod = SELECT_METHOD_NOTHING;
