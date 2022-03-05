@@ -55,7 +55,9 @@ const getStyle = ({
   ].join('');
 };
 
-const getHtml = (elementStatusMap) => {
+const getHtml = ({
+  elementStatusMap,
+}) => {
   const html = utils.convertObjValuesToList(elementStatusMap).map((v) => {
     const {
       key,

@@ -29,25 +29,29 @@ class HexagonSelector {
         this.#selectMethod = SELECT_METHOD_POINT;
         this.updateBannerPoint();
         this.#banner.forceUpdate();
-        // TODO 선택 기능이 결정되면, 좌측 버튼을 통해 선택기능이 변경되는 것을 막습니다.
+        this.#hexagonSelectorButtonGroup.setDisabled(true);
+        this.#hexagonSelectorButtonGroup.forceUpdate();
       },
       onSelectedPolyline: () => {
         this.#selectMethod = SELECT_METHOD_POLYILNE;
         this.updateBannerPolyline();
         this.#banner.forceUpdate();
-        // TODO 선택 기능이 결정되면, 좌측 버튼을 통해 선택기능이 변경되는 것을 막습니다.
+        this.#hexagonSelectorButtonGroup.setDisabled(true);
+        this.#hexagonSelectorButtonGroup.forceUpdate();
       },
       onSelectedPolygon: () => {
         this.#selectMethod = SELECT_METHOD_POLYGON;
         this.updateBannerPolygon();
         this.#banner.forceUpdate();
-        // TODO 선택 기능이 결정되면, 좌측 버튼을 통해 선택기능이 변경되는 것을 막습니다.
+        this.#hexagonSelectorButtonGroup.setDisabled(true);
+        this.#hexagonSelectorButtonGroup.forceUpdate();
       },
       onSelectedNone: () => {
         this.#selectMethod = SELECT_METHOD_NOTHING;
         this.updateBannerNone();
         this.#banner.forceUpdate();
-        // TODO 선택 기능이 결정되면, 좌측 버튼을 통해 선택기능이 변경되는 것을 막습니다.
+        this.#hexagonSelectorButtonGroup.setDisabled(false);
+        this.#hexagonSelectorButtonGroup.forceUpdate();
       },
     });
     this.#banner = customControlBanner.createCustomControlBanner({
@@ -64,6 +68,12 @@ class HexagonSelector {
         // eslint-disable-next-line no-console
         console.log('onClickBtnCancel / 작업을 중단합니다.');
         // TODO 사용자에게 confirm 모달을 띄워야 합니다.(banner가 담당해야 할 수 있음)
+        this.#selectMethod = SELECT_METHOD_NOTHING;
+        this.updateBannerNone();
+        this.#banner.forceUpdate();
+        this.#hexagonSelectorButtonGroup.setDisabled(false);
+        this.#hexagonSelectorButtonGroup.setSelectedNone();
+        this.#hexagonSelectorButtonGroup.forceUpdate();
       },
     });
     this.updateBannerNone();

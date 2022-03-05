@@ -65,6 +65,8 @@ class CustomControlButtonGroup {
 
   #position
 
+  #disabled
+
   constructor({
     meta,
     onChangeHtml,
@@ -72,6 +74,7 @@ class CustomControlButtonGroup {
     onClick = () => ({}),
     elementStatusMap,
     position,
+    disabled = false,
   }) {
     this.#meta = meta;
     this.#naverCustomControl = null;
@@ -79,13 +82,17 @@ class CustomControlButtonGroup {
     this.#onChangeSelectedElementKey = onChangeSelectedElementKey;
     this.#onClick = onClick;
     this.#position = position;
+    this.#disabled = disabled;
 
     // elementStatusMap 요소 검사
     this.#elementStatusMap = elementStatusMap;
     const elementStatusList = utils.convertObjValuesToList(this.#elementStatusMap);
     elementStatusList.forEach((v) => validateElementStatus(this.#elementStatusMap, v));
 
-    this.#html = this.#onChangeHtml(this.#elementStatusMap);
+    this.#html = this.#onChangeHtml({
+      elementStatusMap: this.#elementStatusMap,
+      disabled: this.#disabled,
+    });
     this.#htmlElementEventControllerMap = elementStatusList.reduce((acc, { key }) => {
       acc[key] = createEventController({
         key,
@@ -100,6 +107,9 @@ class CustomControlButtonGroup {
 
   focus(key) {
     if (this.#elementStatusMap[key].focus) {
+      return;
+    }
+    if (this.#disabled) {
       return;
     }
     // 자신을 제외한 나머지 버튼들을 blur 상태로 바꾼다.
@@ -138,6 +148,10 @@ class CustomControlButtonGroup {
   }
 
   click(key) {
+    if (this.#disabled) {
+      return;
+    }
+
     // 변경 전에 selected된 element의 key
     const prev = this.getSelectedKey(this.#elementStatusMap);
 
@@ -236,7 +250,10 @@ class CustomControlButtonGroup {
    * @return {void} 리턴값 없음
    */
   forceUpdate() {
-    const html = this.#onChangeHtml(this.#elementStatusMap);
+    const html = this.#onChangeHtml({
+      elementStatusMap: this.#elementStatusMap,
+      disabled: this.#disabled,
+    });
     this.updateHtml(html);
     this.setEventController();
   }
@@ -274,7 +291,10 @@ class CustomControlButtonGroup {
       return;
     }
     this.#map = map;
-    this.#html = this.#onChangeHtml(this.#elementStatusMap);
+    this.#html = this.#onChangeHtml({
+      elementStatusMap: this.#elementStatusMap,
+      disabled: this.#disabled,
+    });
     this.draw(this.#map);
   }
 
@@ -350,6 +370,38 @@ class CustomControlButtonGroup {
     const found = list.find(({ selected }) => !!selected);
     return !found ? '' : found.key;
   }
+
+  /**
+   * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @param {boolean} disabled - 전체 기능의 비활성화 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setDisabled(disabled) {
+    this.#disabled = disabled;
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 가져옵니다.
+   *
+   * @return {boolean} 전체 기능의 비활성화 여부
+   */
+  getDisabled() {
+    return this.#disabled;
+  }
+
+  /**
+   * 외부에서 강제로 아무것도 선택하지 않은 상태로 바꿉니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  setSelectedNone() {
+    const elementStatusList = utils.convertObjValuesToList(this.#elementStatusMap);
+    elementStatusList.forEach(({ key }) => {
+      this.#elementStatusMap[key].selected = false;
+    });
+  }
 }
 
 export default {
@@ -360,6 +412,7 @@ export default {
     onChangeSelectedElementKey = () => ({}),
     onClick = () => ({}),
     position = NAVER_MAP_POSITION_MAP.RIGHT_CENTER,
+    disabled = false,
     meta = {},
   }) {
     if (position && !NAVER_MAP_POSITION_SET.has(position)) {
@@ -371,6 +424,7 @@ export default {
       onChangeSelectedElementKey,
       onClick,
       position,
+      disabled,
       meta,
     });
   },

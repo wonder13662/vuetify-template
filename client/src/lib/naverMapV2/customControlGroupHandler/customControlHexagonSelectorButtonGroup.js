@@ -16,7 +16,10 @@ const getStyle = (focus, selected) => ([
  * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.CustomControl.html
  *
 */
-const getHtml = (elementStatusMap) => {
+const getHtml = ({
+  elementStatusMap,
+  disabled,
+}) => {
   const html = utils.convertObjValuesToList(elementStatusMap).map((v) => {
     const {
       key,
@@ -35,6 +38,7 @@ const getHtml = (elementStatusMap) => {
     'padding: 1px;',
     'margin: 10px;',
     'border: 1px solid black;',
+    disabled ? 'opacity: .5;' : 'opacity: 1;',
   ].join('');
 
   return [
@@ -99,7 +103,13 @@ class CustomControlHexagonSelectorButtonGroup {
     this.#onSelectedNone = onSelectedNone;
     this.#customControlGroup = customControlGroup.createCustomControlGroup({
       elementStatusMap: getElementStatusMapInitialized(),
-      onChangeHtml: getHtml,
+      onChangeHtml: ({
+        elementStatusMap,
+        disabled,
+      }) => (getHtml({
+        elementStatusMap,
+        disabled,
+      })),
       onChangeSelectedElementKey: (key) => this.onChangeSelectedElementKey(key),
       meta: this.#meta,
     });
@@ -175,6 +185,40 @@ class CustomControlHexagonSelectorButtonGroup {
       default:
         throw new Error(`onChangeSelectedElementKey/key:${key}/유효하지 않습니다.`);
     }
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @param {boolean} disabled - 전체 기능의 비활성화 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setDisabled(disabled) {
+    if (this.#customControlGroup.getDisabled === disabled) {
+      // 같은 상태라면 중단합니다.
+      return;
+    }
+    this.#customControlGroup.setDisabled(disabled);
+    // TODO 시각적으로도 비활성화가 되었다는 것을 유저에게 보여줘야 함
+  }
+
+  /**
+   * 외부에서 강제로 아무것도 선택하지 않은 상태로 바꿉니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  setSelectedNone() {
+    this.#customControlGroup.setSelectedNone();
+  }
+
+  /**
+   * 외부에서 강제로 엘리먼트를 업데이트 합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  forceUpdate() {
+    this.#customControlGroup.forceUpdate();
   }
 }
 
