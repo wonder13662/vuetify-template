@@ -85,7 +85,7 @@ class HexagonSelector {
    * @return {void} 리턴값 없음
    */
   updateBannerPoint() {
-    this.#banner.setBannerText('Hexagon을 점을 지정해서 선택해주세요.');
+    this.#banner.setBannerText('지도 위에 원하는 곳을 클릭해서 Hexagon을 선택해주세요.');
     this.#banner.setVisibleBtnAdd(true);
     this.#banner.setVisibleBtnSubtract(true);
     this.#banner.setVisibleBtnCancel(true);
@@ -97,7 +97,7 @@ class HexagonSelector {
    * @return {void} 리턴값 없음
    */
   updateBannerPolyline() {
-    this.#banner.setBannerText('Hexagon을 직선을 그려서 선택해주세요.');
+    this.#banner.setBannerText('지도 위에 직선을 그려서 Hexagon을 선택해주세요.');
     this.#banner.setVisibleBtnAdd(true);
     this.#banner.setVisibleBtnSubtract(true);
     this.#banner.setVisibleBtnCancel(true);
@@ -109,7 +109,7 @@ class HexagonSelector {
    * @return {void} 리턴값 없음
    */
   updateBannerPolygon() {
-    this.#banner.setBannerText('Hexagon을 폴리곤 범위를 그려서 선택해주세요.');
+    this.#banner.setBannerText('지도 위에 폴리곤 범위를 그려서 Hexagon을 선택해주세요.');
     this.#banner.setVisibleBtnAdd(true);
     this.#banner.setVisibleBtnSubtract(true);
     this.#banner.setVisibleBtnCancel(true);
