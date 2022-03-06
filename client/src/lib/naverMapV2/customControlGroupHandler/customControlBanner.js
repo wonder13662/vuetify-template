@@ -162,6 +162,9 @@ class CustomControlBanner {
       onClick: ({ key }) => {
         const elementStatusMap = getElementStatusMapInitialized();
         switch (key) {
+          case elementStatusMap.message.key:
+            // NOTE: 메시지는 클릭이벤트를 받지 않습니다.
+            break;
           case elementStatusMap.btnAdd.key:
             this.#onClickBtnAdd();
             break;

@@ -1,13 +1,11 @@
 import customControlGroupHandler from '../customControlGroupHandler';
 import customControlBanner from '../customControlGroupHandler/customControlBanner';
 import hexagonPointSelector from './hexagonPointSelector';
-import hexagonLineSelector from './hexagonLineSelector';
 import hexagonPolygonSelector from './hexagonPolygonSelector';
 import polygonHandler from '../polygonHandler';
 import mapUtils from '../lib/utils';
 
 const SELECT_METHOD_POINT = 'SELECT_METHOD_POINT';
-const SELECT_METHOD_POLYILNE = 'SELECT_METHOD_POLYILNE';
 const SELECT_METHOD_POLYGON = 'SELECT_METHOD_POLYGON';
 const SELECT_METHOD_NOTHING = 'SELECT_METHOD_NOTHING';
 class HexagonSelector {
@@ -16,8 +14,6 @@ class HexagonSelector {
   #banner
 
   #hexagonPointSelector
-
-  #hexagonLineSelector
 
   #hexagonPolygonSelector
 
@@ -53,16 +49,6 @@ class HexagonSelector {
         this.#hexagonPointSelector.setDisabled(false);
         this.#hexagonPointSelector.setH3IndexSetByH3Indexes(this.#h3Indexes);
         this.#hexagonPointSelector.updateSelectedPolygonPath();
-        this.hideSelectedH3Indexes();
-      },
-      onSelectedPolyline: () => {
-        this.#selectMethod = SELECT_METHOD_POLYILNE;
-        this.updateBannerPolyline();
-        this.#banner.forceUpdate();
-        this.#hexagonSelectorButtonGroup.setDisabled(true);
-        this.#hexagonSelectorButtonGroup.forceUpdate();
-        this.disableAllSelector();
-        this.#hexagonLineSelector.setDisabled(false);
         this.hideSelectedH3Indexes();
       },
       onSelectedPolygon: () => {
@@ -122,9 +108,7 @@ class HexagonSelector {
         // TODO 화면에 h3Index의 polygon을 그립니다.
       },
     });
-    // 3-2. 출발, 도착점을 클릭해서 직선에 걸쳐있는 h3Index를 넣고 빼는 line selector
-    this.#hexagonLineSelector = hexagonLineSelector.createHexagonLineSelector({ meta });
-    // 3-3. 폴리곤을 지도에 직접 그려서 영역에 걸쳐있는 h3Index를 넣고 빼는 polygon selector
+    // 3-2. 폴리곤을 지도에 직접 그려서 영역에 걸쳐있는 h3Index를 넣고 빼는 polygon selector
     this.#hexagonPolygonSelector = hexagonPolygonSelector.createHexagonPolygonSelector({ meta });
     this.disableAllSelector();
     // 4. 선택된 h3Index를 표시하는 polygon 객체 만들기
@@ -160,10 +144,8 @@ class HexagonSelector {
    */
   disableAllSelector() {
     this.#hexagonPointSelector.setDisabled(true);
-    this.#hexagonLineSelector.setDisabled(true);
     this.#hexagonPolygonSelector.setDisabled(true);
   }
-
 
   /**
    * banner 상태를 포인트 선택으로 표시합니다.
@@ -174,18 +156,6 @@ class HexagonSelector {
     this.#banner.setBannerText('지도 위에 원하는 곳을 클릭해서 Hexagon을 선택해주세요.');
     this.#banner.setVisibleBtnAdd(false);
     this.#banner.setVisibleBtnSubtract(false);
-    this.#banner.setVisibleBtnCancel(true);
-  }
-
-  /**
-   * banner 상태를 폴리곤 선택으로 표시합니다.
-   *
-   * @return {void} 리턴값 없음
-   */
-  updateBannerPolyline() {
-    this.#banner.setBannerText('지도 위에 직선을 그려서 Hexagon을 선택해주세요.');
-    this.#banner.setVisibleBtnAdd(true);
-    this.#banner.setVisibleBtnSubtract(true);
     this.#banner.setVisibleBtnCancel(true);
   }
 
@@ -207,7 +177,7 @@ class HexagonSelector {
    * @return {void} 리턴값 없음
    */
   updateBannerNone() {
-    this.#banner.setBannerText('Hexagon을 선택할 방식(점, 직선, 폴리곤)을 선택해주세요.');
+    this.#banner.setBannerText('Hexagon을 선택할 방식(점, 폴리곤)을 선택해주세요.');
     this.#banner.setVisibleBtnAdd(false);
     this.#banner.setVisibleBtnSubtract(false);
     this.#banner.setVisibleBtnCancel(false);
@@ -231,7 +201,6 @@ class HexagonSelector {
     this.#hexagonSelectorButtonGroup.setNaverMap(this.#map);
     this.#banner.setNaverMap(this.#map);
     this.#hexagonPointSelector.setNaverMap(this.#map);
-    this.#hexagonLineSelector.setNaverMap(this.#map);
     this.#hexagonPolygonSelector.setNaverMap(this.#map);
     this.#selectedPolygon.setNaverMap(this.#map);
     this.#selectedPolygon.draw(this.#map);
@@ -252,9 +221,6 @@ class HexagonSelector {
     }
     if (this.#hexagonPointSelector) {
       this.#hexagonPointSelector.remove();
-    }
-    if (this.#hexagonLineSelector) {
-      this.#hexagonLineSelector.remove();
     }
     if (this.#hexagonPolygonSelector) {
       this.#hexagonPolygonSelector.remove();
@@ -287,15 +253,11 @@ class HexagonSelector {
     }
     this.#hexagonPointSelector = null;
 
-    if (this.#hexagonLineSelector) {
-      this.#hexagonLineSelector.destroy();
-    }
-    this.#hexagonLineSelector = null;
-
     if (this.#hexagonPolygonSelector) {
       this.#hexagonPolygonSelector.destroy();
     }
     this.#hexagonPolygonSelector = null;
+
     if (this.#selectedPolygon) {
       this.#selectedPolygon.destroy();
     }

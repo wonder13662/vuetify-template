@@ -57,14 +57,6 @@ const getElementStatusMapInitialized = () => ({
       name: '점',
     },
   },
-  polyline: {
-    key: 'polyline',
-    focus: false,
-    selected: false,
-    meta: {
-      name: '직선',
-    },
-  },
   polygon: {
     key: 'polygon',
     focus: false,
@@ -83,8 +75,6 @@ class CustomControlHexagonSelectorButtonGroup {
 
   #onSelectedPoint
 
-  #onSelectedPolyline
-
   #onSelectedPolygon
 
   #onSelectedNone
@@ -92,13 +82,11 @@ class CustomControlHexagonSelectorButtonGroup {
   constructor({
     meta,
     onSelectedPoint,
-    onSelectedPolyline,
     onSelectedPolygon,
     onSelectedNone,
   }) {
     this.#meta = meta;
     this.#onSelectedPoint = onSelectedPoint;
-    this.#onSelectedPolyline = onSelectedPolyline;
     this.#onSelectedPolygon = onSelectedPolygon;
     this.#onSelectedNone = onSelectedNone;
     this.#customControlGroup = customControlGroup.createCustomControlGroup({
@@ -173,9 +161,6 @@ class CustomControlHexagonSelectorButtonGroup {
       case elementStatusMap.point.key:
         this.#onSelectedPoint({ key });
         break;
-      case elementStatusMap.polyline.key:
-        this.#onSelectedPolyline({ key });
-        break;
       case elementStatusMap.polygon.key:
         this.#onSelectedPolygon({ key });
         break;
@@ -226,14 +211,12 @@ export default {
   createCustomControlHexagonSelectorButtonGroup({
     meta = {},
     onSelectedPoint = () => ({}),
-    onSelectedPolyline = () => ({}),
     onSelectedPolygon = () => ({}),
     onSelectedNone = () => ({}),
   }) {
     return new CustomControlHexagonSelectorButtonGroup({
       meta,
       onSelectedPoint,
-      onSelectedPolyline,
       onSelectedPolygon,
       onSelectedNone,
     });
