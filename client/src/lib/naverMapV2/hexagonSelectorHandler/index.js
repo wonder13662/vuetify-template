@@ -23,6 +23,8 @@ class HexagonSelector {
 
   #map
 
+  #h3Indexes
+
   #selectMethod // TODO hexagon 선택로직 연동 뒤에 필요하지 않다면 삭제
 
   constructor({
@@ -31,6 +33,8 @@ class HexagonSelector {
     // eslint-disable-next-line max-len
     this.#meta = meta;
     this.#selectMethod = SELECT_METHOD_NOTHING;
+    this.#map = null;
+    this.#h3Indexes = [];
     // eslint-disable-next-line max-len
     this.#hexagonSelectorButtonGroup = customControlGroupHandler.createCustomControlHexagonSelectorButtonGroup({
       meta: this.#meta,
@@ -91,10 +95,18 @@ class HexagonSelector {
         this.#hexagonSelectorButtonGroup.setSelectedNone();
         this.#hexagonSelectorButtonGroup.forceUpdate();
         this.disableAllSelector();
+        // TODO 모든 selector가 clear, setDisabled를 구현해야 함!
+        this.#hexagonPointSelector.clear();
+        this.#hexagonPointSelector.setDisabled(true);
       },
     });
     this.updateBannerNone();
-    this.#hexagonPointSelector = hexagonPointSelector.createHexagonPointSelector({ meta });
+    this.#hexagonPointSelector = hexagonPointSelector.createHexagonPointSelector({
+      meta,
+      onChange: ({ h3Indexes }) => {
+        this.#h3Indexes = h3Indexes;
+      },
+    });
     this.#hexagonLineSelector = hexagonLineSelector.createHexagonLineSelector({ meta });
     this.#hexagonPolygonSelector = hexagonPolygonSelector.createHexagonPolygonSelector({ meta });
     this.disableAllSelector();
@@ -119,8 +131,8 @@ class HexagonSelector {
    */
   updateBannerPoint() {
     this.#banner.setBannerText('지도 위에 원하는 곳을 클릭해서 Hexagon을 선택해주세요.');
-    this.#banner.setVisibleBtnAdd(true);
-    this.#banner.setVisibleBtnSubtract(true);
+    this.#banner.setVisibleBtnAdd(false);
+    this.#banner.setVisibleBtnSubtract(false);
     this.#banner.setVisibleBtnCancel(true);
   }
 

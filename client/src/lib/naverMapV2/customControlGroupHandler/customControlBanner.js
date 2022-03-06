@@ -160,8 +160,6 @@ class CustomControlBanner {
       meta: this.#meta,
       onChangeHtml: (elementStatusMap) => (getHtml(elementStatusMap)),
       onClick: ({ key }) => {
-        // eslint-disable-next-line no-console
-        console.log('onClick / key:', key);
         const elementStatusMap = getElementStatusMapInitialized();
         switch (key) {
           case elementStatusMap.btnAdd.key:

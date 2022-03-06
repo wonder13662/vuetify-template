@@ -2,9 +2,15 @@ import {
   h3SetToMultiPolygon, // https://h3geo.org/docs/api/regions#h3settolinkedgeo--h3settomultipolygon
   h3IsValid, // https://h3geo.org/docs/api/inspection#h3isvalid
   pointDist, // https://h3geo.org/docs/api/misc#pointdistm
+  geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
   UNITS,
 } from 'h3-js';
 import * as turf from '@turf/turf';
+import utils from '@/lib/utils';
+
+// https://h3geo.org/docs/core-library/restable
+const H3_RESOLUTION_MIN = 0;
+const H3_RESOLUTION_MAX = 15;
 
 export default {
   isLatitude(v) { // 위도, 남위, 북위
@@ -122,6 +128,49 @@ export default {
    */
   h3IsValid(h3Index) {
     return h3IsValid(h3Index);
+  },
+  /**
+   * 인자로 받은 2개의 Point 객체가 같은 h3Index에 있는지 확인합니다.
+   *
+   * @param {Point} a - lat, lng 속성을 가지는 Point 객체
+   * @param {Point} b - lat, lng 속성을 가지는 Point 객체
+   * @param {number} h3Resolution - h3의 resolution
+   *
+   * @return {boolean} 인자로 받은 2개의 Point 객체가 같은 h3Index에 있는지 여부
+   */
+  isSameH3IndexByPoints(a, b, h3Resolution) { // TODO 테스트 코드 필요
+    if (!a || !b) {
+      return false;
+    }
+    if (!this.isValidPoint(a)) {
+      throw new Error(`isSameH3IndexByPoints/a:${a}/유효하지 않습니다.`);
+    }
+    if (!this.isValidPoint(b)) {
+      throw new Error(`isSameH3IndexByPoints/b:${b}/유효하지 않습니다.`);
+    }
+    if (!this.isValidH3Resolution(h3Resolution)) {
+      throw new Error(`isSameH3IndexByPoints/h3Resolution:${h3Resolution}/유효하지 않습니다.`);
+    }
+    const h3IndexA = geoToH3(a.lat, a.lng, h3Resolution);
+    const h3IndexB = geoToH3(b.lat, b.lng, h3Resolution);
+
+    return h3IndexA === h3IndexB;
+  },
+  /**
+   * h3의 resolution이 입력가능한 범위인지 여부를 확인한다
+   *
+   * @param {number} h3Resolution - h3의 resolution
+   *
+   * @return {boolean} h3의 resolution이 입력가능한 범위인지 여부
+   */
+  isValidH3Resolution(h3Resolution) { // TODO 테스트 코드 필요
+    if (!utils.isUnsignedInteger(h3Resolution)) {
+      return false;
+    }
+    if (h3Resolution < H3_RESOLUTION_MIN || h3Resolution > H3_RESOLUTION_MAX) {
+      return false;
+    }
+    return true;
   },
   /**
    * 2 개의 point 간의 거리(m)를 구합니다.

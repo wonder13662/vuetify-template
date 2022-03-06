@@ -16,13 +16,14 @@ import mapUtils from '../lib/utils';
 // 3-1. 좌표들을 맵으로 추가해 관리
 // 4. H3 Resolution은 외부에서 설정 가능해야 함
 // 5. 분리된 영역에서도 클릭이 가능해야 함
+// 6. 추가/삭제 버튼이 아닌 클릭 시점에 데이터가 바로 바뀌어야 한다(직관적)
 
 class HexagonPointSelector {
   #meta
 
   #map
 
-  #overlayEventHandler
+  #overlayMapEventHandler
 
   #h3Resolution
 
@@ -30,36 +31,107 @@ class HexagonPointSelector {
 
   #disabled
 
-  #polygon
+  #selectedPolygon
+
+  #mousemovePolygon
+
+  #mousemovePoint
+
+  #onChange
 
   constructor({
-    meta,
+    meta = {},
+    onChange = () => ({}),
     h3Resolution = H3_RESOLUTION,
   }) {
     this.#meta = meta;
     this.#h3Resolution = h3Resolution;
     this.#disabled = false;
     this.#h3IndexSet = new Set();
-    this.#overlayEventHandler = overlayEventHandler.createOverlayEventController({
-      onClick: ({ point }) => {
+    this.#mousemovePoint = null;
+    this.#onChange = onChange;
+    this.#overlayMapEventHandler = overlayEventHandler.createOverlayEventController({
+      onMousemove: ({ point }) => {
         if (this.#disabled) {
           return;
         }
-        this.addPointToH3IndexSet(point);
-        this.updatePolygonPath();
+        if (mapUtils.isSameH3IndexByPoints(this.#mousemovePoint, point, this.#h3Resolution)) {
+          return;
+        }
+        this.#mousemovePoint = point;
+        this.updateMouseoverPolygonPath(point);
       },
       meta: { ...this.#meta },
     });
-    this.#polygon = polygonHandler.createPolygon({
+    this.#selectedPolygon = polygonHandler.createPolygon({
       meta: this.#meta,
     });
-    this.#polygon.addClickListener(({ point }) => {
+    this.#selectedPolygon.addClickListener(({ point }) => {
       if (this.#disabled) {
         return;
       }
       this.addPointToH3IndexSet(point);
-      this.updatePolygonPath();
+      this.updateSelectedPolygonPath();
+      this.emit();
     });
+    this.#selectedPolygon.addMousemoveListener(({ point }) => {
+      if (mapUtils.isSameH3IndexByPoints(this.#mousemovePoint, point, this.#h3Resolution)) {
+        return;
+      }
+      this.#mousemovePoint = point;
+      this.updateMouseoverPolygonPath(point);
+    });
+    this.#mousemovePolygon = polygonHandler.createPolygon({
+      meta: this.#meta,
+    });
+    this.#mousemovePolygon.addClickListener(({ point }) => {
+      if (this.#disabled) {
+        return;
+      }
+      this.addPointToH3IndexSet(point);
+      this.updateSelectedPolygonPath();
+      this.emit();
+    });
+  }
+
+  /**
+   * 마우스 이벤트로 발생한 데이터를 삭제합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  clear() {
+    this.#h3IndexSet = [];
+    this.#mousemovePoint = null;
+    this.#selectedPolygon.setPaths([]);
+    this.#mousemovePolygon.setPaths([]);
+  }
+
+  /**
+   * 주의: 이 메서드는 외부에서 호출해서는 안됩니다.
+   * onChange 콜백함수를 호출하는 메서드입니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  emit() {
+    const h3Indexes = utils.convertSetToList(this.#h3IndexSet);
+    this.#onChange({ h3Indexes });
+  }
+
+  /**
+   * 사용자가 mousemove한 좌표로 polygon을 표시합니다.
+   * 추가 혹은 삭제할 수 있는 영역을 보여줍니다.
+   *
+   * @param {Point} point lat, lng를 속성으로 가지는 Point 객체
+   *
+   * @return {void} 리턴값 없음
+   */
+  updateMouseoverPolygonPath(point) {
+    if (!mapUtils.isValidPoint(point)) {
+      throw new Error(`updateMouseoverPolygonPath/point:${point}/유효하지 않습니다.`);
+    }
+    const h3Index = geoToH3(point.lat, point.lng, this.#h3Resolution);
+    const paths = mapUtils.getPathsFromH3Indexes([h3Index]);
+    this.#mousemovePolygon.setPaths(paths);
   }
 
   /**
@@ -67,10 +139,10 @@ class HexagonPointSelector {
    *
    * @return {void} 리턴값 없음
    */
-  updatePolygonPath() {
+  updateSelectedPolygonPath() {
     const h3Indexes = utils.convertSetToList(this.#h3IndexSet);
     const paths = mapUtils.getPathsFromH3Indexes(h3Indexes);
-    this.#polygon.setPaths(paths);
+    this.#selectedPolygon.setPaths(paths);
   }
 
   /**
@@ -108,9 +180,11 @@ class HexagonPointSelector {
       return;
     }
     this.#map = map;
-    this.#overlayEventHandler.setOverlay(this.#map);
-    this.#polygon.setNaverMap(this.#map);
-    this.#polygon.draw(this.#map);
+    this.#overlayMapEventHandler.setOverlay(this.#map);
+    this.#selectedPolygon.setNaverMap(this.#map);
+    this.#selectedPolygon.draw(this.#map);
+    this.#mousemovePolygon.setNaverMap(this.#map);
+    this.#mousemovePolygon.draw(this.#map);
   }
 
   /**
@@ -120,8 +194,14 @@ class HexagonPointSelector {
    * @return {void} 반환값 없음
    */
   remove() {
-    if (this.#overlayEventHandler) {
-      this.#overlayEventHandler.remove();
+    if (this.#overlayMapEventHandler) {
+      this.#overlayMapEventHandler.remove();
+    }
+    if (this.#selectedPolygon) {
+      this.#selectedPolygon.remove();
+    }
+    if (this.#mousemovePolygon) {
+      this.#mousemovePolygon.remove();
     }
   }
 
@@ -133,9 +213,16 @@ class HexagonPointSelector {
   destroy() {
     this.remove();
     this.#map = null;
-    this.#overlayEventHandler = null;
+    this.#overlayMapEventHandler = null;
+    if (this.#selectedPolygon) {
+      this.#selectedPolygon.destroy();
+    }
+    this.#selectedPolygon = null;
+    if (this.#mousemovePolygon) {
+      this.#mousemovePolygon.destroy();
+    }
+    this.#mousemovePolygon = null;
   }
-
 
   /**
    * 전체 기능의 비활성화 여부를 설정합니다.
@@ -159,7 +246,13 @@ class HexagonPointSelector {
 }
 
 export default {
-  createHexagonPointSelector({ meta }) {
-    return new HexagonPointSelector({ meta });
+  createHexagonPointSelector({
+    meta = {},
+    onChange = () => ({}),
+  }) {
+    return new HexagonPointSelector({
+      meta,
+      onChange,
+    });
   },
 };
