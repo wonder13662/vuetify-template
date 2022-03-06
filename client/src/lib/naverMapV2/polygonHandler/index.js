@@ -312,6 +312,9 @@ class Polygon {
    * @return {void} 리턴값 없음
    */
   setPaths(paths) {
+    if (!this.#naverPolygon) {
+      return;
+    }
     // TODO paths 검증
     if (paths.length === 0) {
       // 빈 배열을 넘기면 마지막으로 그렸던 도형이 그대로 노출됨
