@@ -9,15 +9,6 @@ import polygonHandler from '../polygonHandler';
 import utils from '@/lib/utils';
 import mapUtils from '../lib/utils';
 
-// TODO
-// 1. 맵을 전달받아 overlayEventListener에 등록하여 클릭 이벤트를 받아야 한다
-// 2. 사용자가 클릭한 좌표를 받을 수 있어야 함
-// 3. 사용자가 클릭해서 추가한 좌표들을 관리해야 함
-// 3-1. 좌표들을 맵으로 추가해 관리
-// 4. H3 Resolution은 외부에서 설정 가능해야 함
-// 5. 분리된 영역에서도 클릭이 가능해야 함
-// 6. 추가/삭제 버튼이 아닌 클릭 시점에 데이터가 바로 바뀌어야 한다(직관적)
-
 class HexagonPointSelector {
   #meta
 
