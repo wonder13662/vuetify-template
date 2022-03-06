@@ -51,6 +51,8 @@ class HexagonSelector {
         this.#hexagonSelectorButtonGroup.forceUpdate();
         this.disableAllSelector();
         this.#hexagonPointSelector.setDisabled(false);
+        this.#hexagonPointSelector.setH3IndexSetByH3Indexes(this.#h3Indexes);
+        this.#hexagonPointSelector.updateSelectedPolygonPath();
         this.hideSelectedH3Indexes();
       },
       onSelectedPolyline: () => {

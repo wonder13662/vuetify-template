@@ -95,6 +95,25 @@ class HexagonPointSelector {
   }
 
   /**
+   * h3Indexes를 인자로 받아 h3IndexSet을 업데이트합니다.
+   * h3IndexSet을 초기화한 뒤에 업데이트합니다.
+   *
+   * @param {array<String>} h3Indexes 문자열 h3Index의 배열
+   *
+   * @return {void} 리턴값 없음
+   */
+  setH3IndexSetByH3Indexes(h3Indexes) {
+    this.#h3IndexSet = new Set();
+    if (!h3Indexes) {
+      return;
+    }
+    h3Indexes.forEach((v) => {
+      this.#h3IndexSet.add(v);
+    });
+  }
+
+
+  /**
    * 마우스 이벤트로 발생한 데이터를 삭제합니다.
    *
    * @return {void} 리턴값 없음
