@@ -129,6 +129,7 @@ class HexagonSelector {
     this.disableAllSelector();
     // 4. 선택된 h3Index를 표시하는 polygon 객체 만들기
     this.#selectedPolygon = polygonHandler.createPolygon({
+      clickable: false,
       meta: this.#meta,
     });
   }
