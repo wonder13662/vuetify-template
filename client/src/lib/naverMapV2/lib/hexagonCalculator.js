@@ -296,35 +296,26 @@ export default {
   },
 
   /**
-   * h3Index들의 외곽선을 points의 배열로 돌려줍니다.
+   * h3Index의 배열을 naver의 polygon들을 나타내는 ArrayOfCoordsLiteral로 바꿉니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/global.html#toc14__anchor
    *
-   * @param {array<H3Index>} h3Indexes - H3 배열
+   * @param {array} h3Indexes - h3Index 배열
    *
-   * @return {array<Points>} Points 배열
+   * @return {array<ArrayOfCoordsLiteral>} Naver 폴리곤의 paths를 나타내는 배열
    */
-  convertH3IndexesToPoints(h3Indexes) {
-    if (!h3Indexes) {
-      return [];
-    }
-    h3Indexes.forEach((v) => {
-      if (!mapUtils.h3IsValid(v)) {
-        throw new Error(`h3Index:${v}/유효하지 않음`);
-      }
-    });
-
+  getPathsFromH3Indexes(h3Indexes) {
     const multiPolygons = h3SetToMultiPolygon(h3Indexes);
-    const paths = multiPolygons.reduce((acc, multiPolygon) => {
-      const result = multiPolygon.map((points) => {
-        const path = points.map((p) => ({
-          lat: p[0],
-          lng: p[1],
-        }));
-        return path;
+    // eslint-disable-next-line max-len
+    const polygons = [];
+    multiPolygons.forEach((multiPolygon) => {
+      multiPolygon.forEach((polygon) => {
+        polygons.push(polygon);
       });
-      return [...acc, ...result];
-    }, []);
-
-    return paths;
+    });
+    return polygons.map((polygon) => polygon.map((point) => ({
+      lat: point[0],
+      lng: point[1],
+    })));
   },
 
   /**

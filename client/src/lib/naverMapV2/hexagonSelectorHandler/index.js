@@ -3,11 +3,8 @@ import customControlBanner from '../customControlGroupHandler/customControlBanne
 import hexagonPointSelector from './hexagonPointSelector';
 import hexagonPolygonSelector from './hexagonPolygonSelector';
 import polygonHandler from '../polygonHandler';
-import mapUtils from '../lib/utils';
+import hexagonCalculator from '../lib/hexagonCalculator';
 
-const SELECT_METHOD_POINT = 'SELECT_METHOD_POINT';
-const SELECT_METHOD_POLYGON = 'SELECT_METHOD_POLYGON';
-const SELECT_METHOD_NOTHING = 'SELECT_METHOD_NOTHING';
 class HexagonSelector {
   #hexagonSelectorButtonGroup
 
@@ -25,14 +22,11 @@ class HexagonSelector {
 
   #selectedPolygon
 
-  #selectMethod // TODO hexagon 선택로직 연동 뒤에 필요하지 않다면 삭제
-
   constructor({
     meta,
   }) {
     // eslint-disable-next-line max-len
     this.#meta = meta;
-    this.#selectMethod = SELECT_METHOD_NOTHING;
     this.#map = null;
     this.#h3Indexes = [];
     // 1. 지도 우측 중앙의 점/직선/폴리곤 버튼 그룹
@@ -40,34 +34,44 @@ class HexagonSelector {
     this.#hexagonSelectorButtonGroup = customControlGroupHandler.createCustomControlHexagonSelectorButtonGroup({
       meta: this.#meta,
       onSelectedPoint: () => {
-        this.#selectMethod = SELECT_METHOD_POINT;
+        // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerPoint();
         this.#banner.forceUpdate();
+        // 2. 지도 우측 중앙 Buttons 업데이트
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
-        this.disableAllSelector();
+        // 3. 모든 hexagon selector를 disabled 처리
+        this.disableAllHexagonSelector();
+        // 4. 선택된 hexagon point selector를 활성화함
         this.#hexagonPointSelector.setDisabled(false);
         this.#hexagonPointSelector.setH3IndexSetByH3Indexes(this.#h3Indexes);
         this.#hexagonPointSelector.updateSelectedPolygonPath();
+        // 5. 화면에 표시되었던 h3Index polygon을 지도에서 숨김
         this.hideSelectedH3Indexes();
       },
       onSelectedPolygon: () => {
-        this.#selectMethod = SELECT_METHOD_POLYGON;
+        // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerPolygon();
         this.#banner.forceUpdate();
+        // 2. 지도 우측 중앙 Buttons 업데이트
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
-        this.disableAllSelector();
+        // 3. 모든 hexagon selector를 disabled 처리
+        this.disableAllHexagonSelector();
+        // 4. 선택된 hexagon polygon selector를 활성화함
         this.#hexagonPolygonSelector.setDisabled(false);
+        // 5. 화면에 표시되었던 h3Index polygon을 지도에서 숨김
         this.hideSelectedH3Indexes();
       },
-      onSelectedNone: () => {
-        this.#selectMethod = SELECT_METHOD_NOTHING;
+      onSelectedNone: () => { // REMOVE ME
+        // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerNone();
         this.#banner.forceUpdate();
+        // 2. 지도 우측 중앙 Buttons 업데이트
         this.#hexagonSelectorButtonGroup.setDisabled(false);
         this.#hexagonSelectorButtonGroup.forceUpdate();
-        this.disableAllSelector();
+        // 3. 모든 hexagon selector를 disabled 처리
+        this.disableAllHexagonSelector();
       },
     });
     // 2. 지도 상단 중앙의 배너객체
@@ -85,16 +89,22 @@ class HexagonSelector {
         // eslint-disable-next-line no-console
         console.log('onClickBtnCancel / 작업을 중단합니다.');
         // TODO 사용자에게 confirm 모달을 띄워야 합니다.(banner가 담당해야 할 수 있음)
-        this.#selectMethod = SELECT_METHOD_NOTHING;
+        // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerNone();
         this.#banner.forceUpdate();
+        // 2. 지도 우측 중앙 Buttons 업데이트
         this.#hexagonSelectorButtonGroup.setDisabled(false);
         this.#hexagonSelectorButtonGroup.setSelectedNone();
         this.#hexagonSelectorButtonGroup.forceUpdate();
-        this.disableAllSelector();
-        // TODO 모든 selector가 clear, setDisabled를 구현해야 함!
+        // 3. 모든 hexagon selector를 disabled 처리
+        this.disableAllHexagonSelector();
+        // 4-1. hexagon point selector에 저장된 데이터를 모두 삭제
         this.#hexagonPointSelector.clear();
         this.#hexagonPointSelector.setDisabled(true);
+        // 4-2. hexagon polygon selector에 저장된 데이터를 모두 삭제
+        this.#hexagonPolygonSelector.clear();
+        this.#hexagonPolygonSelector.setDisabled(true);
+        // 5. 지도에 지금까지 선택된 h3Index들의 폴리곤을 그린다.
         this.showSelectedH3Indexes();
       },
     });
@@ -110,7 +120,7 @@ class HexagonSelector {
     });
     // 3-2. 폴리곤을 지도에 직접 그려서 영역에 걸쳐있는 h3Index를 넣고 빼는 polygon selector
     this.#hexagonPolygonSelector = hexagonPolygonSelector.createHexagonPolygonSelector({ meta });
-    this.disableAllSelector();
+    this.disableAllHexagonSelector();
     // 4. 선택된 h3Index를 표시하는 polygon 객체 만들기
     this.#selectedPolygon = polygonHandler.createPolygon({
       clickable: false,
@@ -124,7 +134,7 @@ class HexagonSelector {
    * @return {void} 리턴값 없음
    */
   showSelectedH3Indexes() {
-    const paths = mapUtils.getPathsFromH3Indexes(this.#h3Indexes);
+    const paths = hexagonCalculator.getPathsFromH3Indexes(this.#h3Indexes);
     this.#selectedPolygon.setPaths(paths);
   }
 
@@ -142,7 +152,7 @@ class HexagonSelector {
    *
    * @return {void} 리턴값 없음
    */
-  disableAllSelector() {
+  disableAllHexagonSelector() {
     this.#hexagonPointSelector.setDisabled(true);
     this.#hexagonPolygonSelector.setDisabled(true);
   }

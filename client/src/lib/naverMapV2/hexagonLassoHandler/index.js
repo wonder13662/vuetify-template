@@ -3,17 +3,19 @@ import polygonHandler from '../polygonHandler';
 import hexagonCalculator from '../lib/hexagonCalculator';
 
 class HexagonLasso {
+  #map
+
   #polygonLasso
 
-  #hexagonGroupPolygon
+  #polygonHexagonGroup
 
-  #meta
-
-  #map
+  #h3Indexes
 
   #points
 
-  #h3Indexes
+  #disabled
+
+  #meta
 
   /**
    * TODO Points를 받아 네이버 지도 위에서 영역을 나타내는 폴리곤을 그립니다.
@@ -32,25 +34,29 @@ class HexagonLasso {
   }) {
     this.#meta = meta;
     this.#map = null;
+    this.#disabled = false;
     this.#points = [];
     this.#h3Indexes = [];
     this.#polygonLasso = polygonLassoHandler.createPolygonLasso({
       meta,
       onChange: ({ points }) => {
+        if (this.#disabled) {
+          return;
+        }
         this.#points = points;
         this.#h3Indexes = hexagonCalculator.convertPointsToH3Indexes(points);
         if (!this.#h3Indexes || this.#h3Indexes.length === 0) {
-          this.#hexagonGroupPolygon.remove();
+          this.#polygonHexagonGroup.remove();
           onChange({ h3Indexes: [] });
           return;
         }
 
-        const edgePoints = hexagonCalculator.convertH3IndexesToPoints(this.#h3Indexes);
-        this.#hexagonGroupPolygon.setPath(edgePoints[0]);
+        const paths = hexagonCalculator.getPathsFromH3Indexes(this.#h3Indexes);
+        this.#polygonHexagonGroup.setPathByPoints(paths[0]);
         onChange({ h3Indexes: [...this.#h3Indexes] });
       },
     });
-    this.#hexagonGroupPolygon = polygonHandler.createPolygon({
+    this.#polygonHexagonGroup = polygonHandler.createPolygon({
       points: this.#points,
       clickable: false,
     });
@@ -72,7 +78,7 @@ class HexagonLasso {
     }
     this.#map = map;
     this.#polygonLasso.setNaverMap(this.#map);
-    this.#hexagonGroupPolygon.setNaverMap(this.#map);
+    this.#polygonHexagonGroup.setNaverMap(this.#map);
   }
 
   /**
@@ -83,7 +89,7 @@ class HexagonLasso {
    */
   remove() {
     this.#polygonLasso.remove();
-    this.#hexagonGroupPolygon.remove();
+    this.#polygonHexagonGroup.remove();
   }
 
   /**
@@ -96,8 +102,8 @@ class HexagonLasso {
     this.remove();
     this.#polygonLasso.destroy();
     this.#polygonLasso = null;
-    this.#hexagonGroupPolygon.destroy();
-    this.#hexagonGroupPolygon = null;
+    this.#polygonHexagonGroup.destroy();
+    this.#polygonHexagonGroup = null;
     this.#meta = null;
     this.#map = null;
   }
@@ -119,10 +125,43 @@ class HexagonLasso {
   setModeEdit() {
     this.#polygonLasso.setModeEdit();
   }
+
+  /**
+   * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @param {boolean} disabled - 전체 기능의 비활성화 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setDisabled(disabled) {
+    this.#disabled = disabled;
+    this.#polygonLasso.setDisabled(this.#disabled);
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 가져옵니다.
+   *
+   * @return {boolean} 전체 기능의 비활성화 여부
+   */
+  getDisabled() {
+    return this.#disabled;
+  }
+
+  /**
+   * 외부에서 전달받은 데이터와 이벤트로부터 만들어낸 데이터로 초기화합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  clear() {
+    this.#polygonLasso.clear();
+    this.#polygonHexagonGroup.setPaths([]);
+    this.#h3Indexes = [];
+    this.#points = [];
+  }
 }
 
 export default {
-  createHexagonLassoHandler({
+  createHexagonLasso({
     onChange = () => ({}),
     meta = {},
   }) {

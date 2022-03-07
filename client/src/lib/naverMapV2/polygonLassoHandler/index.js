@@ -30,49 +30,6 @@ const createPointMarker = ({
   return pointMarker;
 };
 
-/**
- * Polygon을 만들어 지도 위에 그립니다.
- *
- * @param {array} points - Point 객체의 배열
- *
- * @return {Polygon} Polygon의 인스턴스
- */
-const createPolygon = ({
-  map,
-  points,
-  clickable = false,
-  onClick = () => ({}),
-  onMousemove = () => ({}),
-}) => {
-  const polygon = polygonHandler.createPolygon({ points, clickable });
-  polygon.draw(map);
-  polygon.addClickListener((v) => {
-    const {
-      _lat: lat,
-      _lng: lng,
-    } = v.coord;
-    const point = {
-      lat,
-      lng,
-    };
-    onClick(point);
-  });
-
-  polygon.addMousemoveListener((v) => {
-    const {
-      _lat: lat,
-      _lng: lng,
-    } = v.coord;
-    const point = {
-      lat,
-      lng,
-    };
-    onMousemove(point);
-  });
-
-  return polygon;
-};
-
 class PolygonLasso {
   #meta
 
@@ -80,9 +37,11 @@ class PolygonLasso {
 
   #pointMarkers
 
-  #overlayMapEventHandler
+  #overlayMapEventController
 
-  #map // naverMap 인스턴스
+  #map
+
+  #disabled
 
   #mode
 
@@ -112,65 +71,99 @@ class PolygonLasso {
     this.#pointMarkers = [];
 
     // 2. 포인트를 감싸는 폴리곤(다각형) 객체 만들기
-    this.#polygon = null;
+    this.#polygon = polygonHandler.createPolygon({ meta });
+    this.#polygon.addClickListener(({ point }) => this.onClick(point));
+    this.#polygon.addMousemoveListener(({ point }) => this.onMousemove(point));
 
     // 3. 맵의 클릭 이벤트를 받는 overlayEventHandler 추가
-    this.#overlayMapEventHandler = overlayEventHandler.createOverlayEventController({
+    this.#overlayMapEventController = overlayEventHandler.createOverlayEventController({
       onFocus: () => {},
       onBlur: () => {},
-      onClick: ({ point }) => {
-        // 클릭한 지점을 입력받으려면 편집모드(MODE_EDIT)여야 한다.
-        if (this.isModeRead()) {
-          return;
-        }
-
-        // pointMarker와 polygon을 제외한 지도 영역을 클릭하면,
-        const pointMarkerSelected = this.#pointMarkers.find((p) => p.isSelected());
-        if (pointMarkerSelected) {
-          // 1-1. pointMarker가 선택되어 있다면 pointMarker의 이동
-          pointMarkerSelected.setPosition(point);
-          // 1-2. polygon이 이미 만들어져 있다면, polygon의 path를 업데이트
-          if (this.#polygon) {
-            this.#polygon.setPath(this.#pointMarkers.map((p) => p.getPosition()));
-          }
-          return;
-        }
-        // 2. 선택된 pointMarker가 없다면 pointMarker의 추가
-        this.addPoint(point);
-      },
-      onMousemove: (v) => {
-        // 1. 선택된 마커가 없다면 중단합니다.
-        const pointMarkerSelected = this.#pointMarkers.find((p) => p.isSelected());
-        if (!pointMarkerSelected) {
-          return;
-        }
-
-        // 2. 마우스의 좌표를 가져옵니다.
-        const {
-          _lat: lat,
-          _lng: lng,
-        } = v.coord;
-        const point = {
-          lat,
-          lng,
-        };
-
-        pointMarkerSelected.setPosition(point);
-        const points = this.#pointMarkers.map((p) => p.getPosition());
-        if (this.#polygon) {
-          this.#polygon.setPath(points);
-        }
-
-        // 3. 콜백호출
-        this.#onChange({
-          points,
-        });
-      },
+      onClick: ({ point }) => this.onClick(point),
+      onMousemove: ({ point }) => this.onMousemove(point),
       meta: { ...this.#meta },
     });
 
     // 4. 최초의 모드는 읽기모드(MODE_READ)입니다.
     this.#mode = OVERLAY_MODE.READ;
+  }
+
+  /**
+   * 주의: 이 메서드는 외부에서 호출하면 안됩니다.
+   * click 이벤트를 처리합니다.
+   *
+   * @param {Point} point 위도(lat), 경도(lng) 속성을 가지는 Point 객체
+   *
+   * @return {void} 리턴값 없음
+   */
+  onClick(point) {
+    if (this.#disabled) {
+      return;
+    }
+
+    if (!mapUtils.isValidPoint(point)) {
+      throw new Error(`point:${point}/유효한 객체가 아닙니다.`);
+    }
+
+    // 클릭한 지점을 입력받으려면 편집모드(MODE_EDIT)여야 한다.
+    if (this.isModeRead()) {
+      return;
+    }
+
+    // pointMarker와 polygon을 제외한 지도 영역을 클릭하면,
+    const pointMarkerSelected = this.#pointMarkers.find((p) => p.isSelected());
+    if (pointMarkerSelected) {
+      // 1-1. pointMarker가 선택되어 있다면 pointMarker의 이동
+      pointMarkerSelected.setPosition(point);
+      // 1-2. polygon이 이미 만들어져 있다면, polygon의 path를 업데이트
+      if (this.#polygon) {
+        this.#polygon.setPath(this.#pointMarkers.map((p) => p.getPosition()));
+      }
+      return;
+    }
+    // 2. 선택된 pointMarker가 없다면 pointMarker의 추가
+    this.addPoint(point);
+  }
+
+  /**
+   * 주의: 이 메서드는 외부에서 호출하면 안됩니다.
+   * mousemove 이벤트를 처리합니다.
+   *
+   * @param {Point} point 위도(lat), 경도(lng) 속성을 가지는 Point 객체
+   *
+   * @return {void} 리턴값 없음
+   */
+  onMousemove(point) {
+    if (this.#disabled) {
+      return;
+    }
+
+    if (!mapUtils.isValidPoint(point)) {
+      throw new Error(`point:${point}/유효한 객체가 아닙니다.`);
+    }
+
+    // 클릭한 지점을 입력받으려면 편집모드(MODE_EDIT)여야 한다.
+    if (this.isModeRead()) {
+      return;
+    }
+
+    // 1. 선택된 마커가 없다면 중단합니다.
+    const pointMarkerSelected = this.#pointMarkers.find((p) => p.isSelected());
+    if (!pointMarkerSelected) {
+      return;
+    }
+
+    // 2. 마우스의 좌표를 가져옵니다.
+    pointMarkerSelected.setPosition(point);
+    const points = this.#pointMarkers.map((p) => p.getPosition());
+    if (this.#polygon) {
+      this.#polygon.setPath(points);
+    }
+
+    // 3. 콜백호출
+    this.#onChange({
+      points,
+    });
   }
 
   /**
@@ -188,12 +181,16 @@ class PolygonLasso {
       return;
     }
     this.#map = map;
-    this.draw(this.#map);
+    this.#overlayMapEventController.setOverlay(this.#map);
+    this.#polygon.setNaverMap(this.#map);
+    this.#pointMarkers.forEach((p) => p.setNaverMap(this.#map));
   }
 
   /**
    * 네이버 맵 위에 PolygonLasso를 그립니다.
    * Overlay 타입의 필수 구현 메서드입니다.
+   *
+   * @deprecated setNaverMap을 대신 사용해주세요.
    *
    * @param {object} map - (required)네이버 맵 객체
    *
@@ -203,11 +200,7 @@ class PolygonLasso {
     if (!map) {
       throw new Error('map: 유효하지 않음');
     }
-    this.#pointMarkers.forEach((p) => p.draw());
-    if (this.#polygon) {
-      this.#polygon.draw();
-    }
-    this.#overlayMapEventHandler.setOverlay(map);
+    this.setNaverMap(map);
   }
 
   /**
@@ -240,8 +233,8 @@ class PolygonLasso {
     this.#polygon = null;
     this.#pointMarkers = null;
 
-    this.#overlayMapEventHandler.remove();
-    this.#overlayMapEventHandler = null;
+    this.#overlayMapEventController.remove();
+    this.#overlayMapEventController = null;
   }
 
   /**
@@ -252,6 +245,10 @@ class PolygonLasso {
    * @return {void} 반환값 없음
    */
   addPoint(point) {
+    if (this.#disabled) {
+      return;
+    }
+
     if (!mapUtils.isValidPoint(point)) {
       throw new Error(`point:${point}/유효하지 않습니다.`);
     }
@@ -266,6 +263,10 @@ class PolygonLasso {
     const pointMarker = createPointMarker({
       point,
       onClick: (id) => {
+        if (this.#disabled) {
+          return;
+        }
+
         // 사용자가 pointMarker를 클릭했습니다.
         if (!this.#polygon && this.#pointMarkers.length <= 2) {
           return;
@@ -294,6 +295,10 @@ class PolygonLasso {
         }
       },
       onRightClick: (id) => {
+        if (this.#disabled) {
+          return;
+        }
+
         // 사용자가 pointMarker를 오른쪽 클릭했습니다.
         // 해당 pointMarker를 삭제합니다.
         const found = this.#pointMarkers.find((p) => p.meta.id === id);
@@ -323,11 +328,8 @@ class PolygonLasso {
     pointMarker.draw(this.#map);
 
     // 2. 새로운 pointMarker를 pointMarker의 목록에 어디에 넣을지 결정한다.
-    if (!this.#polygon) {
-      // 2-1. polygon이 아직 없다면 새로 만든 pointMarker를 배열에 추가
-      this.#pointMarkers.push(pointMarker);
-    } else {
-      // 2-2. polygon이 이미 만들어져 있다면,
+    if (this.#pointMarkers.length >= 2) {
+      // 2-1. polygon이 이미 만들어져 있다면,
       // 새로 만든 pointMarker를 가장 가까운 2개의 pointMarker들의 사이에 넣는다.
       const result = this.#pointMarkers.map((v, idx, src) => {
         const prev = idx;
@@ -343,23 +345,15 @@ class PolygonLasso {
       });
       result.sort((a, b) => a.distance - b.distance);
       this.#pointMarkers.splice(result[0].next, 0, pointMarker);
+    } else {
+      // 2-2. polygon이 아직 없다면 새로 만든 pointMarker를 배열에 추가
+      this.#pointMarkers.push(pointMarker);
     }
 
     const points = this.#pointMarkers.map((p) => p.getPosition());
 
     // 3. polygon 업데이트
-    if (!this.#polygon) {
-      // 3-1. polygon이 없다면 만듭니다.
-      this.#polygon = createPolygon({
-        map: this.#map,
-        points,
-        // 지도의 mousemove 이벤트를 받기 위해 폴리곤 자체의 이벤트는 받지 않습니다.
-        clickable: false,
-      });
-    } else {
-      // 3-2. polygon이 있다면 path를 다시 그린다.
-      this.#polygon.setPath(points);
-    }
+    this.#polygon.setPath(points);
 
     // 4. 콜백호출
     this.#onChange({
@@ -401,6 +395,40 @@ class PolygonLasso {
    */
   isModeEdit() {
     return this.#mode === OVERLAY_MODE.EDIT;
+  }
+
+
+  /**
+   * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @param {boolean} disabled - 전체 기능의 비활성화 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setDisabled(disabled) {
+    this.#disabled = disabled;
+    this.#overlayMapEventController.setDisabled(disabled);
+    this.#polygon.setDisabled(disabled);
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 가져옵니다.
+   *
+   * @return {boolean} 전체 기능의 비활성화 여부
+   */
+  getDisabled() {
+    return this.#disabled;
+  }
+
+  /**
+   * 외부에서 전달받은 데이터와 이벤트로부터 만들어낸 데이터로 초기화합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  clear() {
+    this.#polygon.setPaths([]);
+    this.#pointMarkers.forEach((pm) => pm.destroy());
+    this.#pointMarkers = [];
   }
 }
 

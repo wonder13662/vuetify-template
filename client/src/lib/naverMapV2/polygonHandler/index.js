@@ -163,7 +163,9 @@ class Polygon {
 
   #naverPolygon
 
-  #overlayEventHandler
+  #overlayEventController
+
+  #disabled
 
   #map
 
@@ -185,7 +187,7 @@ class Polygon {
     this.#meta = meta;
     this.#map = null;
     this.#naverPolygon = null;
-    this.#overlayEventHandler = overlayEventHandler.createOverlayEventController({
+    this.#overlayEventController = overlayEventHandler.createOverlayEventController({
       onFocus: () => {
         // this.focus();
       },
@@ -208,33 +210,14 @@ class Polygon {
    */
   setNaverMap(map) {
     if (!map) {
-      throw new Error('map: 유효하지 않음');
+      throw new Error(`Polygon/setNaverMap/map:${map}/유효하지 않음`);
     }
+    // 네이버 맵이 설정되지 않은 경우, 1번만 호출해야 합니다.
     if (this.#map) {
       return;
     }
     this.#map = map;
-  }
-
-  /**
-   * 네이버 폴리곤을 네이버 지도 객체 위에 그립니다.
-   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html
-   *
-   * @param {object} map - (required) 네이버 맵 인스턴스
-   *
-   * @return {void} 반환값 없음
-   */
-  draw(map) {
-    if (!map) {
-      throw new Error(`map:${map}/유효하지 않음`);
-    }
-    if (!this.#points) {
-      this.#points = [];
-    }
-
-    // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
-    this.remove();
-
+    // 네이버 폴리곤 객체를 지도 위에 그립니다.
     const path = this.#points.map((p) => (naverMapWrapper.getLatLng(p.lat, p.lng)));
     this.#naverPolygon = naverMapWrapper.drawPolygonNoListener({
       map,
@@ -242,7 +225,26 @@ class Polygon {
       clickable: this.#clickable,
       style: getStyleReadUnselectedBlur(),
     });
-    this.#overlayEventHandler.setOverlay(this.#naverPolygon);
+    this.#overlayEventController.setOverlay(this.#naverPolygon);
+  }
+
+  /**
+   * 네이버 폴리곤을 네이버 지도 객체 위에 그립니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html
+   *
+   * @deprecated setNaverMap을 대신 사용해주세요.
+   *
+   * @param {object} map - (required) 네이버 맵 인스턴스
+   *
+   * @return {void} 반환값 없음
+   */
+  draw(map) {
+    if (!map) {
+      throw new Error(`Polygon/draw/map:${map}/유효하지 않음`);
+    }
+    // eslint-disable-next-line no-console
+    console.warn('Polygon/draw/deprecated/setNaverMap을 대신 사용해주세요.');
+    this.setNaverMap(map);
   }
 
   /**
@@ -265,21 +267,21 @@ class Polygon {
    */
   destroy() {
     this.remove();
-    if (this.#overlayEventHandler) {
-      this.#overlayEventHandler.remove();
-      this.#overlayEventHandler = null;
+    if (this.#overlayEventController) {
+      this.#overlayEventController.remove();
+      this.#overlayEventController = null;
     }
   }
 
   /**
-   * Polygon 객체의 Path를 설정합니다.
+   * Point들의 배열을 인자로 Polygon 객체의 Path를 설정합니다.
    * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setPath__anchor
    *
    * @param {array} points - Point 객체의 배열
    *
    * @return {void} 리턴값 없음
    */
-  setPath(points) {
+  setPathByPoints(points) {
     if (!points || points.length === 0) {
       throw new Error(`points:${points}/유효하지 않음`);
     }
@@ -301,6 +303,20 @@ class Polygon {
     } else {
       this.#naverPolygon.setPath(path);
     }
+  }
+
+  /**
+   * Polygon 객체의 Path를 설정합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setPath__anchor
+   *
+   * @deprecated setPathByPoints를 대신 사용해주세요
+   *
+   * @param {array} points - Point 객체의 배열
+   *
+   * @return {void} 리턴값 없음
+   */
+  setPath(points) {
+    this.setPathByPoints(points);
   }
 
   /**
@@ -337,11 +353,11 @@ class Polygon {
     if (!listener) {
       throw new Error('listener: 유효하지 않음');
     }
-    if (!this.#overlayEventHandler) {
-      throw new Error('this.#overlayEventHandler/유효하지 않습니다.');
+    if (!this.#overlayEventController) {
+      throw new Error('this.#overlayEventController/유효하지 않습니다.');
     }
 
-    const id = this.#overlayEventHandler.addClickListener(listener);
+    const id = this.#overlayEventController.addClickListener(listener);
     return id;
   }
 
@@ -356,11 +372,11 @@ class Polygon {
     if (!id) {
       throw new Error('id: 유효하지 않음');
     }
-    if (!this.#overlayEventHandler) {
-      throw new Error('this.#overlayEventHandler/유효하지 않습니다.');
+    if (!this.#overlayEventController) {
+      throw new Error('this.#overlayEventController/유효하지 않습니다.');
     }
 
-    this.#overlayEventHandler.removeClickListener(id);
+    this.#overlayEventController.removeClickListener(id);
   }
 
   /**
@@ -374,11 +390,11 @@ class Polygon {
     if (!listener) {
       throw new Error('listener: 유효하지 않음');
     }
-    if (!this.#overlayEventHandler) {
-      throw new Error('this.#overlayEventHandler/유효하지 않습니다.');
+    if (!this.#overlayEventController) {
+      throw new Error('this.#overlayEventController/유효하지 않습니다.');
     }
 
-    const id = this.#overlayEventHandler.addMousemoveListener(listener);
+    const id = this.#overlayEventController.addMousemoveListener(listener);
     return id;
   }
 
@@ -393,11 +409,32 @@ class Polygon {
     if (!id) {
       throw new Error('id: 유효하지 않음');
     }
-    if (!this.#overlayEventHandler) {
-      throw new Error('this.#overlayEventHandler/유효하지 않습니다.');
+    if (!this.#overlayEventController) {
+      throw new Error('this.#overlayEventController/유효하지 않습니다.');
     }
 
-    this.#overlayEventHandler.removeMousemoveListener(id);
+    this.#overlayEventController.removeMousemoveListener(id);
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @param {boolean} disabled - 전체 기능의 비활성화 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setDisabled(disabled) {
+    this.#disabled = disabled;
+    this.#overlayEventController.setDisabled(disabled);
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 가져옵니다.
+   *
+   * @return {boolean} 전체 기능의 비활성화 여부
+   */
+  getDisabled() {
+    return this.#disabled;
   }
 }
 

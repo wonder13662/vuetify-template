@@ -226,6 +226,8 @@ class OverlayEventController {
 
   #meta
 
+  #disabled
+
   constructor({
     onFocus = () => ({}),
     onBlur = () => ({}),
@@ -240,6 +242,7 @@ class OverlayEventController {
     this.#onRightClick = onRightClick;
     this.#onMousemove = onMousemove;
     this.#meta = meta;
+    this.#disabled = false;
 
     this.#naverMapEventListeners = [];
 
@@ -265,6 +268,9 @@ class OverlayEventController {
 
     // https://navermaps.github.io/maps.js.ncp/docs/tutorial-UI-Event.html
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mouseover', (e) => {
+      if (this.#disabled) {
+        return;
+      }
       const payload = this.enrichEventPayload(e);
       this.#onFocus(payload);
       focus({
@@ -274,6 +280,9 @@ class OverlayEventController {
       this.#status = OVERLAY_STATUS.FOCUS;
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mouseout', (e) => {
+      if (this.#disabled) {
+        return;
+      }
       const payload = this.enrichEventPayload(e);
       this.#onBlur(payload);
       blur({
@@ -283,6 +292,9 @@ class OverlayEventController {
       this.#status = OVERLAY_STATUS.BLUR;
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'mousemove', (e) => {
+      if (this.#disabled) {
+        return;
+      }
       const payload = this.enrichEventPayload(e);
       this.#onMousemove(payload);
       mousemove({
@@ -291,6 +303,9 @@ class OverlayEventController {
       });
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'click', (e) => {
+      if (this.#disabled) {
+        return;
+      }
       const payload = this.enrichEventPayload(e);
       this.#onClick(payload);
       click({
@@ -299,6 +314,9 @@ class OverlayEventController {
       });
     }));
     this.#naverMapEventListeners.push(naverMapWrapper.addListener(this.#overlay, 'rightclick', (e) => {
+      if (this.#disabled) {
+        return;
+      }
       const payload = this.enrichEventPayload(e);
       this.#onRightClick(payload);
       rightClick({
@@ -614,6 +632,26 @@ class OverlayEventController {
    */
   setStatusBlur() {
     this.#status = OVERLAY_STATUS.BLUR;
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @param {boolean} disabled - 전체 기능의 비활성화 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setDisabled(disabled) {
+    this.#disabled = disabled;
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 가져옵니다.
+   *
+   * @return {boolean} 전체 기능의 비활성화 여부
+   */
+  getDisabled() {
+    return this.#disabled;
   }
 }
 

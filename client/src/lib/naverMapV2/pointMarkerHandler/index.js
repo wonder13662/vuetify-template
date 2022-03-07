@@ -97,27 +97,35 @@ class PointMarker {
 
   #mode
 
+  #map
+
   constructor({
     point,
     meta = {},
   }) {
-    if (!mapUtils.isLatitude(point.lat)) {
-      throw new Error(`point.lat:${point.lat} - 유효하지 않음`);
-    }
-    if (!mapUtils.isLongitude(point.lng)) {
-      throw new Error(`point.lng:${point.lng} - 유효하지 않음`);
+    if (!mapUtils.isValidPoint(point)) {
+      throw new Error(`PointMarker/constructor/point:${point}/유효하지 않음`);
     }
     this.#point = point;
     this.#meta = meta;
     this.#overlayPointMarker = null;
     this.#overlayPointMarkerEventController = overlayEventHandler.createOverlayEventController({
       onFocus: () => {
+        if (this.isDisabled()) {
+          return;
+        }
         this.focus();
       },
       onBlur: () => {
+        if (this.isDisabled()) {
+          return;
+        }
         this.blur();
       },
       onClick: () => {
+        if (this.isDisabled()) {
+          return;
+        }
         this.click();
       },
       meta: { ...this.#meta },
@@ -126,8 +134,37 @@ class PointMarker {
   }
 
   /**
+   * Naver Map 인스턴스를 받습니다.
+   *
+   * @param {object} map - (required)네이버 맵 객체
+   *
+   * @return {void} 리턴값 없음
+   */
+  setNaverMap(map) {
+    if (!map) {
+      throw new Error('map: 유효하지 않음');
+    }
+    if (this.#map) {
+      return;
+    }
+    this.#map = map;
+
+    // 1. overlayPointMarker를 지도에 그립니다.
+    const { lat, lng } = this.#point;
+    const position = naverMapWrapper.getLatLng(lat, lng);
+    this.#overlayPointMarker = naverMapWrapper.getMarker({
+      position,
+      icon: getPointMarkerIconStyleBlur(this.#mode),
+      map,
+    });
+    this.#overlayPointMarkerEventController.setOverlay(this.#overlayPointMarker);
+  }
+
+  /**
    * 네이버 맵 위에 PointMarker를 그립니다.
    * Overlay 타입의 필수 구현 메서드입니다.
+   *
+   * @deprecated setNaverMap을 대신 사용해주세요.
    *
    * @param {object} map - (required)네이버 맵 객체
    *
@@ -137,17 +174,9 @@ class PointMarker {
     if (!map) {
       throw new Error('map: 유효하지 않음');
     }
-
-    const { lat, lng } = this.#point;
-    const position = naverMapWrapper.getLatLng(lat, lng);
-
-    // 1. overlayPointMarker를 지도에 그립니다.
-    this.#overlayPointMarker = naverMapWrapper.getMarker({
-      position,
-      icon: getPointMarkerIconStyleBlur(this.#mode),
-      map,
-    });
-    this.#overlayPointMarkerEventController.setOverlay(this.#overlayPointMarker);
+    // eslint-disable-next-line no-console
+    console.warn('pointMarker/draw/deprecated/setNaverMap을 대신 사용해주세요.');
+    this.setNaverMap(map);
   }
 
   /**
@@ -181,6 +210,9 @@ class PointMarker {
    * @return {void} 반환값 없음
    */
   focus() {
+    if (this.isDisabled()) {
+      return;
+    }
     if (!this.#overlayPointMarkerEventController) {
       throw new Error('this.#overlayPointMarkerEventController/유효하지 않습니다.');
     }
@@ -204,6 +236,9 @@ class PointMarker {
    * @return {void} 반환값 없음
    */
   blur() {
+    if (this.isDisabled()) {
+      return;
+    }
     if (!this.#overlayPointMarkerEventController) {
       throw new Error('this.#overlayPointMarkerEventController/유효하지 않습니다.');
     }
@@ -226,6 +261,9 @@ class PointMarker {
    * @return {void} 반환값 없음
    */
   click() {
+    if (this.isDisabled()) {
+      return;
+    }
     if (this.#mode === MODE_DISABLED_SELECTED || this.#mode === MODE_DISABLED_UNSELECTED) {
       return;
     }
@@ -321,13 +359,10 @@ class PointMarker {
    */
   setPosition(point) {
     if (!point) {
-      throw new Error(`point:${point}/유효하지 않습니다.`);
+      throw new Error(`PointMarker/setPosition/point:${point}/유효하지 않습니다.`);
     }
-    if (!mapUtils.isLatitude(point.lat)) {
-      throw new Error(`point.lat:${point.lat}/유효하지 않습니다.`);
-    }
-    if (!mapUtils.isLongitude(point.lng)) {
-      throw new Error(`point.lng:${point.lng}/유효하지 않습니다.`);
+    if (!mapUtils.isValidPoint(point)) {
+      throw new Error(`PointMarker/setPosition/point:${point}/유효하지 않습니다.`);
     }
 
     this.#point = point;

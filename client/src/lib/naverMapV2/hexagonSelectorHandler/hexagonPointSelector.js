@@ -8,6 +8,7 @@ import {
 import polygonHandler from '../polygonHandler';
 import utils from '@/lib/utils';
 import mapUtils from '../lib/utils';
+import hexagonCalculator from '../lib/hexagonCalculator';
 
 class HexagonPointSelector {
   #meta
@@ -140,7 +141,7 @@ class HexagonPointSelector {
       throw new Error(`updateMouseoverPolygonPath/point:${point}/유효하지 않습니다.`);
     }
     const h3Index = geoToH3(point.lat, point.lng, this.#h3Resolution);
-    const paths = mapUtils.getPathsFromH3Indexes([h3Index]);
+    const paths = hexagonCalculator.getPathsFromH3Indexes([h3Index]);
     this.#mousemovePolygon.setPaths(paths);
   }
 
@@ -151,7 +152,7 @@ class HexagonPointSelector {
    */
   updateSelectedPolygonPath() {
     const h3Indexes = utils.convertSetToList(this.#h3IndexSet);
-    const paths = mapUtils.getPathsFromH3Indexes(h3Indexes);
+    const paths = hexagonCalculator.getPathsFromH3Indexes(h3Indexes);
     this.#selectedPolygon.setPaths(paths);
   }
 
@@ -192,9 +193,7 @@ class HexagonPointSelector {
     this.#map = map;
     this.#overlayMapEventHandler.setOverlay(this.#map);
     this.#selectedPolygon.setNaverMap(this.#map);
-    this.#selectedPolygon.draw(this.#map);
     this.#mousemovePolygon.setNaverMap(this.#map);
-    this.#mousemovePolygon.draw(this.#map);
   }
 
   /**

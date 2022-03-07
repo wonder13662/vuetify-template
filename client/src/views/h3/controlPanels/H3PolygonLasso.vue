@@ -69,7 +69,7 @@ const MODE_READ = 'MODE_READ';
 const MODE_ADD = 'MODE_ADD';
 const MODE_REMOVE = 'MODE_REMOVE';
 
-const hexagonLasso = hexagonLassoHandler.createHexagonLassoHandler({
+const hexagonLasso = hexagonLassoHandler.createHexagonLasso({
   onChange: ({ h3Indexes }) => {
     // eslint-disable-next-line no-console
     console.log('h3Indexes:', h3Indexes);

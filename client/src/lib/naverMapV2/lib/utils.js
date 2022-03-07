@@ -1,5 +1,4 @@
 import {
-  h3SetToMultiPolygon, // https://h3geo.org/docs/api/regions#h3settolinkedgeo--h3settomultipolygon
   h3IsValid, // https://h3geo.org/docs/api/inspection#h3isvalid
   pointDist, // https://h3geo.org/docs/api/misc#pointdistm
   geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
@@ -232,27 +231,5 @@ export default {
       turf.point([p1.lat, p1.lng]),
       turf.point([p2.lat, p2.lng]),
     );
-  },
-  /**
-   * h3Index의 배열을 naver의 polygon들을 나타내는 ArrayOfCoordsLiteral로 바꿉니다.
-   * https://navermaps.github.io/maps.js.ncp/docs/global.html#toc14__anchor
-   *
-   * @param {array} h3Indexes - h3Index 배열
-   *
-   * @return {array<ArrayOfCoordsLiteral>} Naver 폴리곤의 paths를 나타내는 배열
-   */
-  getPathsFromH3Indexes(h3Indexes) {
-    const multiPolygons = h3SetToMultiPolygon(h3Indexes);
-    // eslint-disable-next-line max-len
-    const polygons = [];
-    multiPolygons.forEach((multiPolygon) => {
-      multiPolygon.forEach((polygon) => {
-        polygons.push(polygon);
-      });
-    });
-    return polygons.map((polygon) => polygon.map((point) => ({
-      lat: point[0],
-      lng: point[1],
-    })));
   },
 };
