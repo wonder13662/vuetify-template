@@ -47,8 +47,6 @@ class HexagonSelector {
         this.#hexagonPointSelector.setDisabled(false);
         this.#hexagonPointSelector.setH3IndexSetByH3Indexes(this.#h3Indexes);
         this.#hexagonPointSelector.updateSelectedPolygonPath();
-        // 5. 화면에 표시되었던 h3Index polygon을 지도에서 숨김
-        this.hideSelectedH3Indexes();
       },
       onSelectedPolygon: () => {
         // 1. 지도 상단 중앙 Banner 업데이트
@@ -83,7 +81,7 @@ class HexagonSelector {
         // TODO 추가된 이후, selector는 clear합니다.
         this.#hexagonPolygonSelector.clear();
         // TODO h3Indexes를 나타내는 폴리곤을 업데이트합니다.
-        this.showSelectedH3Indexes();
+        this.updateSelectedH3Indexes();
       },
       onClickBtnSubtract: () => {
         const current = this.#h3Indexes;
@@ -92,7 +90,7 @@ class HexagonSelector {
         // TODO 추가된 이후, selector는 clear합니다.
         this.#hexagonPolygonSelector.clear();
         // TODO h3Indexes를 나타내는 폴리곤을 업데이트합니다.
-        this.showSelectedH3Indexes();
+        this.updateSelectedH3Indexes();
       },
       onClickBtnCancel: () => {
         // TODO 사용자에게 confirm 모달을 띄워야 합니다.(banner가 담당해야 할 수 있음)
@@ -112,7 +110,7 @@ class HexagonSelector {
         this.#hexagonPolygonSelector.clear();
         this.#hexagonPolygonSelector.setDisabled(true);
         // 5. 지도에 지금까지 선택된 h3Index들의 폴리곤을 그린다.
-        this.showSelectedH3Indexes();
+        this.updateSelectedH3Indexes();
       },
     });
     this.updateBannerNone();
@@ -131,8 +129,12 @@ class HexagonSelector {
     // 4. 선택된 h3Index를 표시하는 polygon 객체 만들기
     this.#selectedPolygon = polygonHandler.createPolygon({
       clickable: false,
-      meta: this.#meta,
+      meta: {
+        ...this.#meta,
+        parent: 'hexagonSelectorHandler',
+      },
     });
+    this.#selectedPolygon.setModeSelected();
   }
 
   /**
@@ -140,18 +142,9 @@ class HexagonSelector {
    *
    * @return {void} 리턴값 없음
    */
-  showSelectedH3Indexes() {
+  updateSelectedH3Indexes() {
     const paths = hexagonCalculator.getPathsFromH3Indexes(this.#h3Indexes);
     this.#selectedPolygon.setPaths(paths);
-  }
-
-  /**
-   * 지도에 선택된 h3Index를 나타내는 폴리곤을 숨김
-   *
-   * @return {void} 리턴값 없음
-   */
-  hideSelectedH3Indexes() {
-    this.#selectedPolygon.setPaths([]);
   }
 
   /**
@@ -215,12 +208,14 @@ class HexagonSelector {
       return;
     }
     this.#map = map;
+    // NOTE: 네이버 맵 객체를 넘겨주는 순서대로 지도에 그려진다.
+    // 가장 마지막에 지도에 그려진 객체가 최상위로 올라간다.
+    // TODO z-index로 가장 상위에 있는 엘리먼트가 이벤트를 처리할 것이라 예상했지만 그렇게 동작하지는 않음.
     this.#hexagonSelectorButtonGroup.setNaverMap(this.#map);
     this.#banner.setNaverMap(this.#map);
+    this.#selectedPolygon.setNaverMap(this.#map);
     this.#hexagonPointSelector.setNaverMap(this.#map);
     this.#hexagonPolygonSelector.setNaverMap(this.#map);
-    this.#selectedPolygon.setNaverMap(this.#map);
-    this.#selectedPolygon.draw(this.#map);
   }
 
   /**

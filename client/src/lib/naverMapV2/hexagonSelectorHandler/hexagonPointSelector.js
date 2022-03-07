@@ -15,7 +15,7 @@ class HexagonPointSelector {
 
   #map
 
-  #overlayMapEventHandler
+  #overlayMapEventController
 
   #h3Resolution
 
@@ -42,7 +42,7 @@ class HexagonPointSelector {
     this.#h3IndexSet = new Set();
     this.#mousemovePoint = null;
     this.#onChange = onChange;
-    this.#overlayMapEventHandler = overlayEventHandler.createOverlayEventController({
+    this.#overlayMapEventController = overlayEventHandler.createOverlayEventController({
       onMousemove: ({ point }) => {
         if (this.#disabled) {
           return;
@@ -53,18 +53,14 @@ class HexagonPointSelector {
         this.#mousemovePoint = point;
         this.updateMouseoverPolygonPath(point);
       },
-      meta: { ...this.#meta },
+      meta: {
+        ...this.#meta,
+      },
     });
     this.#selectedPolygon = polygonHandler.createPolygon({
-      meta: this.#meta,
-    });
-    this.#selectedPolygon.addClickListener(({ point }) => {
-      if (this.#disabled) {
-        return;
-      }
-      this.addPointToH3IndexSet(point);
-      this.updateSelectedPolygonPath();
-      this.emit();
+      meta: {
+        ...this.#meta,
+      },
     });
     this.#selectedPolygon.addMousemoveListener(({ point }) => {
       if (mapUtils.isSameH3IndexByPoints(this.#mousemovePoint, point, this.#h3Resolution)) {
@@ -74,15 +70,16 @@ class HexagonPointSelector {
       this.updateMouseoverPolygonPath(point);
     });
     this.#mousemovePolygon = polygonHandler.createPolygon({
-      meta: this.#meta,
-    });
-    this.#mousemovePolygon.addClickListener(({ point }) => {
-      if (this.#disabled) {
-        return;
-      }
-      this.addPointToH3IndexSet(point);
-      this.updateSelectedPolygonPath();
-      this.emit();
+      meta: { ...this.#meta },
+      onClick: ({ point }) => {
+        if (this.#disabled) {
+          return;
+        }
+
+        this.addPointToH3IndexSet(point);
+        this.updateSelectedPolygonPath();
+        this.emit();
+      },
     });
   }
 
@@ -191,7 +188,7 @@ class HexagonPointSelector {
       return;
     }
     this.#map = map;
-    this.#overlayMapEventHandler.setOverlay(this.#map);
+    this.#overlayMapEventController.setOverlay(this.#map);
     this.#selectedPolygon.setNaverMap(this.#map);
     this.#mousemovePolygon.setNaverMap(this.#map);
   }
@@ -203,8 +200,8 @@ class HexagonPointSelector {
    * @return {void} 반환값 없음
    */
   remove() {
-    if (this.#overlayMapEventHandler) {
-      this.#overlayMapEventHandler.remove();
+    if (this.#overlayMapEventController) {
+      this.#overlayMapEventController.remove();
     }
     if (this.#selectedPolygon) {
       this.#selectedPolygon.remove();
@@ -222,11 +219,13 @@ class HexagonPointSelector {
   destroy() {
     this.remove();
     this.#map = null;
-    this.#overlayMapEventHandler = null;
+    this.#overlayMapEventController = null;
+
     if (this.#selectedPolygon) {
       this.#selectedPolygon.destroy();
     }
     this.#selectedPolygon = null;
+
     if (this.#mousemovePolygon) {
       this.#mousemovePolygon.destroy();
     }

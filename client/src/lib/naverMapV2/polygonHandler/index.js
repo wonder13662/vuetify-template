@@ -7,132 +7,150 @@ import {
 
 // TODO HexagonGroupHandler와 HexagonHandler가 이 객체를 사용하도록 변경해야 합니다.
 
+const STYLE_MAP = {
+  // Vuetify의 deep-purple 사용
+  // https://vuetifyjs.com/en/styles/colors/#material-colors
+  DEEP_PURPLE: {
+    fillColor: '#7E57C2',
+    strokeColor: '#5E35B1',
+  },
+  // Vuetify의 purple 사용
+  // https://vuetifyjs.com/en/styles/colors/#material-colors
+  PURPLE: {
+    fillColor: '#9C27B0',
+    strokeColor: '#4A148C',
+  },
+  // Vuetify의 Orange 사용
+  // https://vuetifyjs.com/en/styles/colors/#material-colors
+  ORANGE: {
+    fillColor: '#FF9800', // orange
+    strokeColor: '#E65100', // orange darken-4
+  },
+  // Vuetify의 Yellow 사용
+  // https://vuetifyjs.com/en/styles/colors/#material-colors
+  YELLOW: {
+    fillColor: '#FFEB3B', // yellow
+    strokeColor: '#F57F17', // yellow darken-4
+  },
+  // Vuetify의 lime 사용
+  // https://vuetifyjs.com/en/styles/colors/#material-colors
+  LIME: {
+    fillColor: '#CDDC39', // lime
+    strokeColor: '#827717', // lime darken-4
+  },
+  // Vuetify의 lime 사용
+  // https://vuetifyjs.com/en/styles/colors/#material-colors
+  GREY: {
+    fillColor: '#757575', // grey darken-1
+    strokeColor: '#616161', // grey darken-2
+  },
+  // Vuetify의 light-green 사용
+  // https://vuetifyjs.com/en/styles/colors/#material-colors
+  LIGHT_GREEN: {
+    fillColor: '#64DD17', // light-green accent-4
+    strokeColor: '#33691E', // light-green darken-4
+  },
+  COMMON: {
+    strokeWeight: 2,
+    zIndex: Z_INDEX_POLYGON_BORDER,
+  },
+  FOCUS: {
+    fillOpacity: 0.6,
+  },
+  BLUR: {
+    fillOpacity: 0.4,
+  },
+};
+
+const MODE = {
+  EDIT: 'EDIT',
+  SELECTED: 'SELECTED',
+  UNSELECTED: 'UNSELECTED',
+  DISABLED: 'DISABLED',
+};
+
 /**
  * Naver map의 폴리곤 경계의 스타일 값을 줍니다.
  * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Data.html#toc25__anchor
  *
- * Vuetify의 deep-purple 사용
- * https://vuetifyjs.com/en/styles/colors/#material-colors
- * fillColor: deep-purple lighten-1 #7E57C2
- * stokeColor: deep-purple darken-1 #5E35B1
- *
  * @return {object} Naver 맵의 폴리곤 경계의 스타일
  */
-const getStyleReadUnselectedBlur = () => ({
-  fillColor: '#7E57C2',
-  fillOpacity: 0.6,
-  strokeWeight: 2,
-  strokeColor: '#5E35B1',
-  zIndex: Z_INDEX_POLYGON_BORDER,
+const getStyleUnselectedBlur = () => ({
+  ...STYLE_MAP.COMMON,
+  ...STYLE_MAP.DEEP_PURPLE,
+  ...STYLE_MAP.BLUR,
 });
 
 /**
  * Naver map의 폴리곤 경계의 Focus 시의 스타일 값을 줍니다.
  *
- * Vuetify의 purple 사용
- * https://vuetifyjs.com/en/styles/colors/#material-colors
- * fillColor: purple #9C27B0
- * stokeColor: purple darken-4 #4A148C
- *
  * @return {object} Naver 맵의 폴리곤 경계의 스타일
  */
 // eslint-disable-next-line no-unused-vars
-const getStyleReadUnselectedFocus = () => ({
-  fillColor: '#9C27B0',
-  fillOpacity: 0.4,
-  strokeWeight: 2,
-  strokeColor: '#4A148C',
-  zIndex: Z_INDEX_POLYGON_BORDER,
+const getStyleUnselectedFocus = () => ({
+  ...STYLE_MAP.COMMON,
+  ...STYLE_MAP.PURPLE,
+  ...STYLE_MAP.FOCUS,
 });
 
 /**
  * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 Blur의 스타일 값을 줍니다.
- * Vuetify의 Orange 사용
- * https://vuetifyjs.com/en/styles/colors/#material-colors
- * fillColor: orange #FF9800
- * stokeColor: orange darken-4 #E65100
  *
  * @return {object} Naver 맵의 폴리곤 경계의 스타일
  */
 // eslint-disable-next-line no-unused-vars
-const getStyleReadSelectedBlur = () => ({
-  fillColor: '#FF9800',
-  fillOpacity: 0.4,
-  strokeWeight: 2,
-  strokeColor: '#E65100',
-  zIndex: Z_INDEX_POLYGON_BORDER,
+const getStyleSelectedBlur = () => ({
+  ...STYLE_MAP.COMMON,
+  ...STYLE_MAP.ORANGE,
+  ...STYLE_MAP.BLUR,
 });
 
 /**
  * Naver map의 폴리곤 경계를 사용자가 선택했을 때의 Focus의 스타일 값을 줍니다.
- * Vuetify의 yellow 사용
- * https://vuetifyjs.com/en/styles/colors/#material-colors
- * fillColor: yellow #FFEB3B
- * stokeColor: yellow darken-4 #F57F17
  *
  * @return {object} Naver 맵의 폴리곤 경계의 스타일
  */
 // eslint-disable-next-line no-unused-vars
-const getStyleReadSelectedFocus = () => ({
-  fillColor: '#FFEB3B',
-  fillOpacity: 0.4,
-  strokeWeight: 2,
-  strokeColor: '#F57F17',
-  zIndex: Z_INDEX_POLYGON_BORDER,
+const getStyleSelectedFocus = () => ({
+  ...STYLE_MAP.COMMON,
+  ...STYLE_MAP.YELLOW,
+  ...STYLE_MAP.FOCUS,
 });
 
 /**
  * Naver map의 폴리곤 경계가 비활성화 되었을 때의 Blur의 스타일 값을 줍니다.
- * Vuetify의 lime 사용
- * https://vuetifyjs.com/en/styles/colors/#material-colors
- * fillColor: grey darken-1 #757575
- * stokeColor: grey darken-2 #616161
  *
  * @return {object} Naver 맵의 폴리곤 경계의 스타일
  */
 // eslint-disable-next-line no-unused-vars
 const getStyleDisabledBlur = () => ({
-  fillColor: '#757575',
-  fillOpacity: 0.9,
-  strokeWeight: 2,
-  strokeColor: '#616161',
-  zIndex: Z_INDEX_POLYGON_BORDER,
+  ...STYLE_MAP.COMMON,
+  ...STYLE_MAP.GREY,
+  ...STYLE_MAP.BLUR,
 });
 
 /**
  * Naver map의 폴리곤 경계가 비활성화 되었을 때의 Focus의 스타일 값을 줍니다.
- * Vuetify의 lime 사용
- * https://vuetifyjs.com/en/styles/colors/#material-colors
- * fillColor: grey darken-1 #757575
- * stokeColor: grey darken-2 #616161
  *
  * @return {object} Naver 맵의 폴리곤 경계의 스타일
  */
 // eslint-disable-next-line no-unused-vars
 const getStyleDisabledFocus = () => ({
-  fillColor: '#757575',
-  fillOpacity: 0.9,
-  strokeWeight: 2,
-  strokeColor: '#616161',
-  zIndex: Z_INDEX_POLYGON_BORDER,
+  ...STYLE_MAP.COMMON,
+  ...STYLE_MAP.GREY,
+  ...STYLE_MAP.FOCUS,
 });
 
 /**
  * Naver map의 폴리곤 경계가 편집중일 때의 Blur의 스타일 값을 줍니다.
- * Vuetify의 light-green 사용
- * https://vuetifyjs.com/en/styles/colors/#material-colors
- * fillColor: light-green accent-4 #64DD17
- * stokeColor: light-green darken-4 #33691E
  *
  * @return {object} Naver 맵의 폴리곤 경계의 스타일
  */
 // eslint-disable-next-line no-unused-vars
 const getStyleEditBlur = () => ({
-  fillColor: '#64DD17',
-  fillOpacity: 0.5,
-  strokeWeight: 2,
-  strokeColor: '#33691E',
-  zIndex: Z_INDEX_POLYGON_BORDER,
+  ...STYLE_MAP.COMMON,
+  ...STYLE_MAP.LIGHT_GREEN,
+  ...STYLE_MAP.BLUR,
 });
 
 /**
@@ -146,13 +164,10 @@ const getStyleEditBlur = () => ({
  */
 // eslint-disable-next-line no-unused-vars
 const getStyleEditFocus = () => ({
-  fillColor: '#64DD17',
-  fillOpacity: 0.5,
-  strokeWeight: 2,
-  strokeColor: '#33691E',
-  zIndex: Z_INDEX_POLYGON_BORDER,
+  ...STYLE_MAP.COMMON,
+  ...STYLE_MAP.LIGHT_GREEN,
+  ...STYLE_MAP.FOCUS,
 });
-
 
 class Polygon {
   #points
@@ -165,7 +180,7 @@ class Polygon {
 
   #overlayEventController
 
-  #disabled
+  #mode
 
   #map
 
@@ -180,25 +195,56 @@ class Polygon {
   constructor({
     points,
     clickable = true,
+    onFocus = () => ({}),
+    onBlur = () => ({}),
+    onClick = () => ({}),
     meta = {},
   }) {
     this.#points = points;
     this.#clickable = clickable;
-    this.#meta = meta;
+    this.#meta = { ...meta };
     this.#map = null;
+    this.#mode = MODE.UNSELECTED;
     this.#naverPolygon = null;
     this.#overlayEventController = overlayEventHandler.createOverlayEventController({
-      onFocus: () => {
-        // this.focus();
-      },
-      onBlur: () => {
-        // this.blur();
-      },
-      onClick: () => {
-        // this.click();
-      },
+      onFocus,
+      onBlur,
+      onClick,
       meta: { ...this.#meta },
     });
+  }
+
+  /**
+   * 주의: 이 메서드는 외부에서 호출하면 안됩니다.
+   * Polygon의 mode에 따라 Naver Polygon에 스타일을 적용합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  updatePolygonStyle() {
+    switch (this.#mode) {
+      case MODE.DISABLED:
+        this.#naverPolygon.setOptions({
+          ...getStyleDisabledBlur(),
+        });
+        break;
+      case MODE.EDIT:
+        this.#naverPolygon.setOptions({
+          ...getStyleEditBlur(),
+        });
+        break;
+      case MODE.SELECTED:
+        this.#naverPolygon.setOptions({
+          ...getStyleSelectedBlur(),
+        });
+        break;
+      case MODE.UNSELECTED:
+        this.#naverPolygon.setOptions({
+          ...getStyleUnselectedBlur(),
+        });
+        break;
+      default:
+        throw new Error(`Polygon/updatePolygonStyle/this.#mode:${this.#mode}/유효하지 않습니다.`);
+    }
   }
 
   /**
@@ -223,8 +269,9 @@ class Polygon {
       map,
       naverPolygonPaths: [path],
       clickable: this.#clickable,
-      style: getStyleReadUnselectedBlur(),
+      style: getStyleUnselectedBlur(),
     });
+    this.updatePolygonStyle();
     this.#overlayEventController.setOverlay(this.#naverPolygon);
   }
 
@@ -299,7 +346,7 @@ class Polygon {
         map: this.#map,
         naverPolygonPaths: [path],
         clickable: this.#clickable,
-        style: getStyleReadUnselectedBlur(),
+        style: getStyleUnselectedBlur(),
       });
     } else {
       if (!this.#naverPolygon.getVisible()) {
@@ -423,15 +470,64 @@ class Polygon {
   }
 
   /**
+   * polygon의 모드를 미선택(UNSELECTED) 모드로 바꿉니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  setModeUnselected() {
+    this.#mode = MODE.UNSELECTED;
+    if (this.#naverPolygon) {
+      this.#naverPolygon.setOptions(getStyleUnselectedBlur());
+    }
+  }
+
+  /**
+   * polygon의 모드를 선택(SELECTED) 모드로 바꿉니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  setModeSelected() {
+    this.#mode = MODE.SELECTED;
+    if (this.#naverPolygon) {
+      this.#naverPolygon.setOptions(getStyleSelectedBlur());
+    }
+  }
+
+  /**
+   * polygon의 모드를 수정(EDIT) 모드로 바꿉니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  setModeEdit() {
+    this.#mode = MODE.EDIT;
+    if (this.#naverPolygon) {
+      this.#naverPolygon.setOptions(getStyleEditBlur());
+    }
+  }
+
+  /**
    * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @deprecated setModeDisabled를 대신 사용해주세요.
    *
    * @param {boolean} disabled - 전체 기능의 비활성화 여부
    *
    * @return {void} 리턴값 없음
    */
   setDisabled(disabled) {
-    this.#disabled = disabled;
     this.#overlayEventController.setDisabled(disabled);
+
+    if (disabled) {
+      this.#mode = MODE.DISABLED;
+      if (this.#naverPolygon) {
+        this.#naverPolygon.setOptions(getStyleDisabledBlur());
+      }
+      return;
+    }
+    this.#mode = MODE.UNSELECTED;
+    if (this.#naverPolygon) {
+      this.#naverPolygon.setOptions(getStyleUnselectedBlur());
+    }
   }
 
   /**
@@ -440,7 +536,7 @@ class Polygon {
    * @return {boolean} 전체 기능의 비활성화 여부
    */
   getDisabled() {
-    return this.#disabled;
+    return this.#mode === MODE.DISABLED;
   }
 }
 
@@ -448,6 +544,9 @@ export default {
   createPolygon({
     points = [],
     clickable = true,
+    onFocus = () => ({}),
+    onBlur = () => ({}),
+    onClick = () => ({}),
     meta = {},
   }) {
     if (points && points.length > 0) {
@@ -460,6 +559,9 @@ export default {
     return new Polygon({
       points,
       clickable,
+      onFocus,
+      onBlur,
+      onClick,
       meta,
     });
   },

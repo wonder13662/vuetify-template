@@ -335,16 +335,10 @@ class OverlayEventController {
    */
   enrichEventPayload(e) {
     return {
-      // eslint-disable-next-line max-len
-      // eventListenerMapMap: this.#eventListenerMapMap, // REMOVE ME 주석처리 해놓음. 외부에 노출하지 않는 것이 맞다고 판단.
       point: getPointFromMapEvent(e),
       meta: {
         ...this.#meta,
       },
-      // REMOVE ME 주석처리 해놓음. 외부에 노출하지 않는 것이 맞음
-      // payload: {
-      //   ...e, // @ deprecated
-      // },
     };
   }
 
