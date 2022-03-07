@@ -1,6 +1,3 @@
-import {
-  H3_RESOLUTION,
-} from '../lib/constants';
 import hexagonLassoHandler from '../hexagonLassoHandler';
 
 class HexagonPolygonSelector {
@@ -10,16 +7,12 @@ class HexagonPolygonSelector {
 
   #hexagonLasso
 
-  #h3Resolution
-
   #disabled
 
   constructor({
     meta,
-    h3Resolution = H3_RESOLUTION,
   }) {
     this.#meta = meta;
-    this.#h3Resolution = h3Resolution;
     this.#disabled = false;
     this.#hexagonLasso = hexagonLassoHandler.createHexagonLasso({
       meta: this.#meta,
