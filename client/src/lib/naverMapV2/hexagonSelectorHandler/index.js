@@ -4,6 +4,7 @@ import hexagonPointSelector from './hexagonPointSelector';
 import hexagonPolygonSelector from './hexagonPolygonSelector';
 import polygonHandler from '../polygonHandler';
 import hexagonCalculator from '../lib/hexagonCalculator';
+import utils from '@/lib/utils';
 
 class HexagonSelector {
   #hexagonSelectorButtonGroup
@@ -60,8 +61,6 @@ class HexagonSelector {
         this.disableAllHexagonSelector();
         // 4. 선택된 hexagon polygon selector를 활성화함
         this.#hexagonPolygonSelector.setDisabled(false);
-        // 5. 화면에 표시되었던 h3Index polygon을 지도에서 숨김
-        this.hideSelectedH3Indexes();
       },
       onSelectedNone: () => { // REMOVE ME
         // 1. 지도 상단 중앙 Banner 업데이트
@@ -78,16 +77,24 @@ class HexagonSelector {
     this.#banner = customControlBanner.createCustomControlBanner({
       meta,
       onClickBtnAdd: () => {
-        // eslint-disable-next-line no-console
-        console.log('onClickBtnAdd / 선택한 hexagon을 hexagonMap에 추가합니다.');
+        const current = this.#h3Indexes;
+        const incoming = this.#hexagonPolygonSelector.getH3Indexes();
+        this.#h3Indexes = utils.lodashUnion(current, incoming);
+        // TODO 추가된 이후, selector는 clear합니다.
+        this.#hexagonPolygonSelector.clear();
+        // TODO h3Indexes를 나타내는 폴리곤을 업데이트합니다.
+        this.showSelectedH3Indexes();
       },
       onClickBtnSubtract: () => {
-        // eslint-disable-next-line no-console
-        console.log('onClickBtnSubtract / 선택한 hexagon을 hexagonMap에서 제거합니다.');
+        const current = this.#h3Indexes;
+        const incoming = this.#hexagonPolygonSelector.getH3Indexes();
+        this.#h3Indexes = utils.lodashWithout(current, incoming);
+        // TODO 추가된 이후, selector는 clear합니다.
+        this.#hexagonPolygonSelector.clear();
+        // TODO h3Indexes를 나타내는 폴리곤을 업데이트합니다.
+        this.showSelectedH3Indexes();
       },
       onClickBtnCancel: () => {
-        // eslint-disable-next-line no-console
-        console.log('onClickBtnCancel / 작업을 중단합니다.');
         // TODO 사용자에게 confirm 모달을 띄워야 합니다.(banner가 담당해야 할 수 있음)
         // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerNone();

@@ -251,4 +251,28 @@ export default {
       remove: lodash.difference(origin, modified),
     };
   },
+  /**
+   * 두 개의 배열을 합칩니다. 중복된 값은 1개만 남겨 unique를 보장합니다.
+   * https://lodash.com/docs/4.17.15#union
+   *
+   * @param {array} origin - 원본 배열
+   * @param {array} add - 추가된 배열
+   *
+   * @return {array} origin과 add가 합쳐진 배열
+   */
+  lodashUnion(origin, add) {
+    return lodash.union(origin, add);
+  },
+  /**
+   * origin 배열에서 remove 배열의 인자들을 제거합니다.
+   * https://lodash.com/docs/4.17.15#without
+   *
+   * @param {array} origin - 원본 배열
+   * @param {array} remove - 제거할 인자들의 배열
+   *
+   * @return {array} origin에서 remove의 인자를 제거한 배열
+   */
+  lodashWithout(origin, remove) {
+    return lodash.without(origin, ...remove);
+  },
 };

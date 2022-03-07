@@ -117,7 +117,7 @@ class PolygonLasso {
       pointMarkerSelected.setPosition(point);
       // 1-2. polygon이 이미 만들어져 있다면, polygon의 path를 업데이트
       if (this.#polygon) {
-        this.#polygon.setPath(this.#pointMarkers.map((p) => p.getPosition()));
+        this.#polygon.setPathByPoints(this.#pointMarkers.map((p) => p.getPosition()));
       }
       return;
     }
@@ -157,7 +157,7 @@ class PolygonLasso {
     pointMarkerSelected.setPosition(point);
     const points = this.#pointMarkers.map((p) => p.getPosition());
     if (this.#polygon) {
-      this.#polygon.setPath(points);
+      this.#polygon.setPathByPoints(points);
     }
 
     // 3. 콜백호출
@@ -213,8 +213,10 @@ class PolygonLasso {
     this.#pointMarkers.forEach((p) => p.destroy());
     this.#pointMarkers = [];
     if (this.#polygon) {
-      this.#polygon.destroy();
-      this.#polygon = null;
+      this.#polygon.remove();
+    }
+    if (this.#overlayMapEventController) {
+      this.#overlayMapEventController.remove();
     }
   }
 
@@ -226,14 +228,17 @@ class PolygonLasso {
    */
   destroy() {
     this.remove();
-    this.#pointMarkers.forEach((p) => p.destroy());
-    this.#polygon.destroy();
 
-    this.#meta = null;
-    this.#polygon = null;
+    this.#pointMarkers.forEach((p) => p.destroy());
     this.#pointMarkers = null;
 
-    this.#overlayMapEventController.remove();
+    if (this.#polygon) {
+      this.#polygon.destroy();
+    }
+    this.#polygon = null;
+
+    this.#meta = null;
+
     this.#overlayMapEventController = null;
   }
 
@@ -248,7 +253,6 @@ class PolygonLasso {
     if (this.#disabled) {
       return;
     }
-
     if (!mapUtils.isValidPoint(point)) {
       throw new Error(`point:${point}/유효하지 않습니다.`);
     }
@@ -313,11 +317,10 @@ class PolygonLasso {
         // 3. polygon 업데이트
         if (this.#pointMarkers.length > 0 && this.#polygon) {
           // 3-1. pointMaker가 1개 이상 있고, polygon이 있다면 남은 pointMarker로 다시 그립니다.
-          this.#polygon.setPath(pointsAfterRightClick);
+          this.#polygon.setPathByPoints(pointsAfterRightClick);
         } else {
-          // 3-2. pointMaker가 없다면, polygon을 삭제합니다.
-          this.#polygon.destroy();
-          this.#polygon = null;
+          // 3-2. pointMaker가 없다면, polygon을 지도에서 숨깁니다.
+          this.#polygon.setPaths([]);
         }
         // 4. 콜백호출
         this.#onChange({
@@ -325,7 +328,7 @@ class PolygonLasso {
         });
       },
     });
-    pointMarker.draw(this.#map);
+    pointMarker.setNaverMap(this.#map);
 
     // 2. 새로운 pointMarker를 pointMarker의 목록에 어디에 넣을지 결정한다.
     if (this.#pointMarkers.length >= 2) {
@@ -353,7 +356,7 @@ class PolygonLasso {
     const points = this.#pointMarkers.map((p) => p.getPosition());
 
     // 3. polygon 업데이트
-    this.#polygon.setPath(points);
+    this.#polygon.setPathByPoints(points);
 
     // 4. 콜백호출
     this.#onChange({

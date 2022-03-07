@@ -290,6 +290,7 @@ class Polygon {
         throw new Error(`p:${p}/유효하지 않음`);
       }
     });
+
     this.#points = points;
     const path = this.#points.map((p) => naverMapWrapper.getLatLng(p.lat, p.lng));
 
@@ -301,6 +302,9 @@ class Polygon {
         style: getStyleReadUnselectedBlur(),
       });
     } else {
+      if (!this.#naverPolygon.getVisible()) {
+        this.#naverPolygon.setVisible(true);
+      }
       this.#naverPolygon.setPath(path);
     }
   }
@@ -338,7 +342,9 @@ class Polygon {
       this.#naverPolygon.setVisible(false);
       return;
     }
-    this.#naverPolygon.setVisible(true);
+    if (!this.#naverPolygon.getVisible()) {
+      this.#naverPolygon.setVisible(true);
+    }
     this.#naverPolygon.setPaths(paths);
   }
 

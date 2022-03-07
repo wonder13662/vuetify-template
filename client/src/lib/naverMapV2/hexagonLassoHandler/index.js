@@ -158,6 +158,15 @@ class HexagonLasso {
     this.#h3Indexes = [];
     this.#points = [];
   }
+
+  /**
+   * 선택된 h3Index의 배열을 줍니다.
+   *
+   * @return {array<String>} 문자열 h3Index 배열
+   */
+  getH3Indexes() {
+    return this.#h3Indexes;
+  }
 }
 
 export default {

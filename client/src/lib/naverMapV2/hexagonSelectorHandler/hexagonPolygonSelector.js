@@ -22,11 +22,7 @@ class HexagonPolygonSelector {
     this.#h3Resolution = h3Resolution;
     this.#disabled = false;
     this.#hexagonLasso = hexagonLassoHandler.createHexagonLasso({
-      onChange: (v) => {
-        // TOdO 업데이트된 h3Index 배열을 여기로 받습니다.
-        // eslint-disable-next-line no-console
-        console.log('this.#hexagonLasso/onChange/v:', v);
-      },
+      meta: this.#meta,
     });
     // TODO 모드를 없애야 함
     this.#hexagonLasso.setModeEdit();
@@ -104,6 +100,15 @@ class HexagonPolygonSelector {
    */
   clear() {
     this.#hexagonLasso.clear();
+  }
+
+  /**
+   * 선택된 h3Index의 배열을 줍니다.
+   *
+   * @return {array<String>} 문자열 h3Index 배열
+   */
+  getH3Indexes() {
+    return this.#hexagonLasso.getH3Indexes();
   }
 }
 
