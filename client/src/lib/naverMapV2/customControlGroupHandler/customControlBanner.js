@@ -45,9 +45,9 @@ const getStyle = ({
       'margin: 4px;',
     ].join('');
   }
-  // 'btnCancel'
+  // 'btnSave'
   return [
-    focus ? 'background: #BF360C;' : 'background: #E64A19;',
+    focus ? 'background: #42A5F5;' : 'background: #2196F3;',
     'color: white;',
     visible ? '' : 'display: none;',
     'padding: 10px;',
@@ -120,13 +120,13 @@ const getElementStatusMapInitialized = () => ({
       text: '빼기',
     },
   },
-  btnCancel: {
-    key: 'btnCancel',
+  btnSave: {
+    key: 'btnSave',
     focus: false,
     selected: false,
     visible: true,
     meta: {
-      text: '취소',
+      text: '저장',
     },
   },
 });
@@ -171,7 +171,7 @@ class CustomControlBanner {
           case elementStatusMap.btnSubtract.key:
             this.#onClickBtnSubtract();
             break;
-          case elementStatusMap.btnCancel.key:
+          case elementStatusMap.btnSave.key:
             this.#onClickBtnCancel();
             break;
           default:
@@ -286,7 +286,7 @@ class CustomControlBanner {
    */
   setVisibleBtnCancel(visible) {
     this.#customControlGroup.setElementStatus({
-      key: 'btnCancel',
+      key: 'btnSave',
       props: {
         visible,
       },
