@@ -67,6 +67,8 @@ class CustomControlButtonGroup {
 
   #disabled
 
+  #visible
+
   constructor({
     meta,
     onChangeHtml,
@@ -75,6 +77,7 @@ class CustomControlButtonGroup {
     elementStatusMap,
     position,
     disabled = false,
+    visible = true,
   }) {
     this.#meta = meta;
     this.#naverCustomControl = null;
@@ -83,6 +86,7 @@ class CustomControlButtonGroup {
     this.#onClick = onClick;
     this.#position = position;
     this.#disabled = disabled;
+    this.#visible = visible;
 
     // elementStatusMap 요소 검사
     this.#elementStatusMap = elementStatusMap;
@@ -295,12 +299,23 @@ class CustomControlButtonGroup {
       elementStatusMap: this.#elementStatusMap,
       disabled: this.#disabled,
     });
-    this.draw(this.#map);
+
+    this.#naverCustomControl = naverMapWrapper.drawCustomControl({
+      html: this.#html,
+      map: this.#map,
+      position: this.#position,
+    });
+    this.setEventController();
+    if (this.#visible) {
+      this.#naverCustomControl.setMap(null);
+    }
   }
 
   /**
    * 네이버 CustomControl 객체를 지도 위에 그립니다.
    * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html
+   *
+   * @deprecated setNaverMap을 이용해주세요.
    *
    * @param {object} map - (required) 네이버 맵 인스턴스
    *
@@ -310,16 +325,7 @@ class CustomControlButtonGroup {
     if (!map) {
       throw new Error(`map:${map}/유효하지 않음`);
     }
-
-    // NOTE: 지도 위에 표시되는 인스턴스는 1개여야 하므로 이전에 인스턴스 내에서 그린 마커가 있다면 지웁니다.
-    this.remove();
-
-    this.#naverCustomControl = naverMapWrapper.drawCustomControl({
-      html: this.#html,
-      map: this.#map,
-      position: this.#position,
-    });
-    this.setEventController();
+    this.setNaverMap(map);
   }
 
   /**
@@ -402,6 +408,20 @@ class CustomControlButtonGroup {
       this.#elementStatusMap[key].selected = false;
     });
   }
+
+  /**
+   * 지도 위의 노출 여부를 설정합니다.
+   *
+   * @param {boolean} visible - 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisible(visible) {
+    this.#visible = visible;
+    if (this.#naverCustomControl && this.#map) {
+      this.#naverCustomControl.setMap(this.#visible ? this.#map : null);
+    }
+  }
 }
 
 export default {
@@ -413,6 +433,7 @@ export default {
     onClick = () => ({}),
     position = NAVER_MAP_POSITION_MAP.RIGHT_CENTER,
     disabled = false,
+    visible = true,
     meta = {},
   }) {
     if (position && !NAVER_MAP_POSITION_SET.has(position)) {
@@ -425,6 +446,7 @@ export default {
       onClick,
       position,
       disabled,
+      visible,
       meta,
     });
   },

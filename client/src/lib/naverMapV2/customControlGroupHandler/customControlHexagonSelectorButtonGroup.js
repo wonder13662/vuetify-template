@@ -79,27 +79,37 @@ class CustomControlHexagonSelectorButtonGroup {
 
   #onSelectedNone
 
+  #disabled
+
+  #visible
+
   constructor({
     meta,
     onSelectedPoint,
     onSelectedPolygon,
     onSelectedNone,
+    disabled = false,
+    visible = true,
   }) {
     this.#meta = meta;
+    this.#disabled = disabled;
+    this.#visible = visible;
     this.#onSelectedPoint = onSelectedPoint;
     this.#onSelectedPolygon = onSelectedPolygon;
     this.#onSelectedNone = onSelectedNone;
     this.#customControlGroup = customControlGroup.createCustomControlGroup({
+      meta: this.#meta,
+      disabled,
+      visible,
       elementStatusMap: getElementStatusMapInitialized(),
       onChangeHtml: ({
         elementStatusMap,
-        disabled,
+        disabled: disabledFromOnChangeHtml,
       }) => (getHtml({
         elementStatusMap,
-        disabled,
+        disabled: disabledFromOnChangeHtml,
       })),
       onChangeSelectedElementKey: (key) => this.onChangeSelectedElementKey(key),
-      meta: this.#meta,
     });
   }
 
@@ -180,12 +190,8 @@ class CustomControlHexagonSelectorButtonGroup {
    * @return {void} 리턴값 없음
    */
   setDisabled(disabled) {
-    if (this.#customControlGroup.getDisabled === disabled) {
-      // 같은 상태라면 중단합니다.
-      return;
-    }
+    this.#disabled = disabled;
     this.#customControlGroup.setDisabled(disabled);
-    // TODO 시각적으로도 비활성화가 되었다는 것을 유저에게 보여줘야 함
   }
 
   /**
@@ -205,6 +211,18 @@ class CustomControlHexagonSelectorButtonGroup {
   forceUpdate() {
     this.#customControlGroup.forceUpdate();
   }
+
+  /**
+   * 지도 위의 노출 여부를 설정합니다.
+   *
+   * @param {boolean} visible - 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisible(visible) {
+    this.#visible = visible;
+    this.#customControlGroup.setVisible(this.#visible);
+  }
 }
 
 export default {
@@ -213,12 +231,16 @@ export default {
     onSelectedPoint = () => ({}),
     onSelectedPolygon = () => ({}),
     onSelectedNone = () => ({}),
+    disabled = false,
+    visible = true,
   }) {
     return new CustomControlHexagonSelectorButtonGroup({
       meta,
       onSelectedPoint,
       onSelectedPolygon,
       onSelectedNone,
+      disabled,
+      visible,
     });
   },
 };

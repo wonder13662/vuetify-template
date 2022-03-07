@@ -17,6 +17,8 @@ class HexagonLasso {
 
   #disabled
 
+  #visible
+
   #meta
 
   /**
@@ -37,6 +39,7 @@ class HexagonLasso {
     this.#meta = meta;
     this.#map = null;
     this.#disabled = false;
+    this.#visible = true;
     this.#points = [];
     this.#h3Indexes = [];
     this.#polygonLasso = polygonLassoHandler.createPolygonLasso({
@@ -147,6 +150,19 @@ class HexagonLasso {
    */
   getDisabled() {
     return this.#disabled;
+  }
+
+  /**
+   * 지도 위의 노출 여부를 설정합니다.
+   *
+   * @param {boolean} visible - 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisible(visible) {
+    this.#visible = visible;
+    this.#polygonLasso.setVisible(this.#visible);
+    this.#polygonHexagonGroup.setVisible(this.#visible);
   }
 
   /**

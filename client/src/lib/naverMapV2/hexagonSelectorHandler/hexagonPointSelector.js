@@ -23,6 +23,8 @@ class HexagonPointSelector {
 
   #disabled
 
+  #visible
+
   #selectedPolygon
 
   #mousemovePolygon
@@ -39,6 +41,7 @@ class HexagonPointSelector {
     this.#meta = meta;
     this.#h3Resolution = h3Resolution;
     this.#disabled = false;
+    this.#visible = true;
     this.#h3IndexSet = new Set();
     this.#mousemovePoint = null;
     this.#onChange = onChange;
@@ -253,6 +256,19 @@ class HexagonPointSelector {
    */
   getH3Indexes() {
     return utils.convertSetToList(this.#h3IndexSet);
+  }
+
+  /**
+   * 지도 위의 노출 여부를 설정합니다.
+   *
+   * @param {boolean} visible - 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisible(visible) {
+    this.#visible = visible;
+    this.#selectedPolygon.setVisible(this.#visible);
+    this.#mousemovePolygon.setVisible(this.#visible);
   }
 }
 

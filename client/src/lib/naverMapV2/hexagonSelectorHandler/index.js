@@ -30,19 +30,31 @@ class HexagonSelector {
 
   #mode
 
+  #disabled
+
+  #visible
+
   constructor({
     meta,
+    disabled = false,
+    visible = true,
   }) {
     // eslint-disable-next-line max-len
-    this.#meta = meta;
+    this.#meta = { ...meta };
     this.#map = null;
     this.#h3Indexes = [];
     this.#mode = MODE.NONE;
+    this.#disabled = disabled;
+    this.#visible = visible;
     // 1. 지도 우측 중앙의 점/직선/폴리곤 버튼 그룹
     // eslint-disable-next-line max-len
     this.#hexagonSelectorButtonGroup = customControlGroupHandler.createCustomControlHexagonSelectorButtonGroup({
       meta: this.#meta,
       onSelectedPoint: () => {
+        if (this.#disabled) {
+          return;
+        }
+
         this.#mode = MODE.POINT;
         // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerPoint();
@@ -58,6 +70,10 @@ class HexagonSelector {
         this.#hexagonPointSelector.updateSelectedPolygonPath();
       },
       onSelectedPolygon: () => {
+        if (this.#disabled) {
+          return;
+        }
+
         this.#mode = MODE.POLYGON;
         // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerPolygon();
@@ -76,16 +92,25 @@ class HexagonSelector {
     this.#banner = customControlBanner.createCustomControlBanner({
       meta,
       onClickBtnAdd: () => {
+        if (this.#disabled) {
+          return;
+        }
         if (this.#mode === MODE.POLYGON) {
           this.#hexagonPolygonSelector.add();
         }
       },
       onClickBtnSubtract: () => {
+        if (this.#disabled) {
+          return;
+        }
         if (this.#mode === MODE.POLYGON) {
           this.#hexagonPolygonSelector.subtract();
         }
       },
       onClickBtnSave: () => {
+        if (this.#disabled) {
+          return;
+        }
         // TODO 사용자에게 confirm 모달을 띄워야 합니다.(banner가 담당해야 할 수 있음)
         // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerNone();
@@ -116,6 +141,9 @@ class HexagonSelector {
         this.#mode = MODE.NONE;
       },
       onClickBtnCancel: () => {
+        if (this.#disabled) {
+          return;
+        }
         // 1. 지도 상단 중앙 Banner 업데이트
         this.updateBannerNone();
         this.#banner.forceUpdate();
@@ -299,12 +327,53 @@ class HexagonSelector {
     this.#meta = null;
     this.#map = null;
   }
+
+  /**
+   * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @param {boolean} disabled - 전체 기능의 비활성화 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setDisabled(disabled) {
+    this.#disabled = disabled;
+    this.#hexagonSelectorButtonGroup.setDisabled(this.#disabled);
+    this.#banner.setDisabled(this.#disabled);
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 가져옵니다.
+   *
+   * @return {boolean} 전체 기능의 비활성화 여부
+   */
+  getDisabled() {
+    return this.#disabled;
+  }
+
+  /**
+   * 지도 위의 노출 여부를 설정합니다.
+   *
+   * @param {boolean} visible - 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisible(visible) {
+    this.#visible = visible;
+    this.#hexagonSelectorButtonGroup.setVisible(this.#visible);
+    this.#banner.setVisible(this.#visible);
+  }
 }
 
 export default {
   createHexagonSelector({
     meta = {},
+    disabled = false,
+    visible = true,
   }) {
-    return new HexagonSelector({ meta });
+    return new HexagonSelector({
+      meta,
+      disabled,
+      visible,
+    });
   },
 };

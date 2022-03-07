@@ -175,6 +175,8 @@ class Polygon {
 
   #clickable
 
+  #visible
+
   #meta
 
   #naverPolygon
@@ -204,6 +206,7 @@ class Polygon {
   }) {
     this.#points = points;
     this.#clickable = clickable;
+    this.#visible = true;
     this.#meta = { ...meta };
     this.#map = null;
     this.#mode = MODE.UNSELECTED;
@@ -352,9 +355,6 @@ class Polygon {
         style: getStyleUnselectedBlur(),
       });
     } else {
-      if (!this.#naverPolygon.getVisible()) {
-        this.#naverPolygon.setVisible(true);
-      }
       this.#naverPolygon.setPath(path);
     }
   }
@@ -524,8 +524,6 @@ class Polygon {
   /**
    * 전체 기능의 비활성화 여부를 설정합니다.
    *
-   * @deprecated setModeDisabled를 대신 사용해주세요.
-   *
    * @param {boolean} disabled - 전체 기능의 비활성화 여부
    *
    * @return {void} 리턴값 없음
@@ -553,6 +551,18 @@ class Polygon {
    */
   getDisabled() {
     return this.#mode === MODE.DISABLED;
+  }
+
+  /**
+   * 지도 위의 노출 여부를 설정합니다.
+   *
+   * @param {boolean} visible - 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisible(visible) {
+    this.#visible = visible;
+    this.#naverPolygon.setVisible(this.#visible);
   }
 }
 

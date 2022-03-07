@@ -43,6 +43,8 @@ class PolygonLasso {
 
   #disabled
 
+  #visible
+
   #mode
 
   #onChange
@@ -66,6 +68,8 @@ class PolygonLasso {
   }) {
     this.#meta = meta;
     this.#onChange = onChange;
+    this.#disabled = false;
+    this.#visible = true;
 
     // 1. 포인트를 나타내는 포인트 마커 만들기
     this.#pointMarkers = [];
@@ -400,7 +404,6 @@ class PolygonLasso {
     return this.#mode === OVERLAY_MODE.EDIT;
   }
 
-
   /**
    * 전체 기능의 비활성화 여부를 설정합니다.
    *
@@ -412,6 +415,18 @@ class PolygonLasso {
     this.#disabled = disabled;
     this.#overlayMapEventController.setDisabled(disabled);
     this.#polygon.setDisabled(disabled);
+  }
+
+  /**
+   * 지도 위의 노출 여부를 설정합니다.
+   *
+   * @param {boolean} visible - 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisible(visible) {
+    this.#visible = visible;
+    this.#polygon.setVisible(this.#visible);
   }
 
   /**

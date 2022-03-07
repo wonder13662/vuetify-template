@@ -158,6 +158,10 @@ class CustomControlBanner {
 
   #map
 
+  #disabled
+
+  #visible
+
   #onClickBtnAdd
 
   #onClickBtnSubtract
@@ -173,7 +177,10 @@ class CustomControlBanner {
     onClickBtnSave = () => ({}),
     onClickBtnCancel = () => ({}),
   }) {
-    this.#meta = meta;
+    this.#meta = { ...meta };
+    this.#map = null;
+    this.#disabled = false;
+    this.#visible = true;
     this.#onClickBtnAdd = onClickBtnAdd;
     this.#onClickBtnSubtract = onClickBtnSubtract;
     this.#onClickBtnSave = onClickBtnSave;
@@ -184,6 +191,9 @@ class CustomControlBanner {
       meta: this.#meta,
       onChangeHtml: (elementStatusMap) => (getHtml(elementStatusMap)),
       onClick: ({ key }) => {
+        if (this.#disabled) {
+          return;
+        }
         const elementStatusMap = getElementStatusMapInitialized();
         switch (key) {
           case elementStatusMap.message.key:
@@ -343,6 +353,38 @@ class CustomControlBanner {
    */
   forceUpdate() {
     this.#customControlGroup.forceUpdate();
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 설정합니다.
+   *
+   * @param {boolean} disabled - 전체 기능의 비활성화 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setDisabled(disabled) {
+    this.#disabled = disabled;
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 가져옵니다.
+   *
+   * @return {boolean} 전체 기능의 비활성화 여부
+   */
+  getDisabled() {
+    return this.#disabled;
+  }
+
+  /**
+   * 지도 위의 노출 여부를 설정합니다.
+   *
+   * @param {boolean} visible - 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisible(visible) {
+    this.#visible = visible;
+    this.#customControlGroup.setVisible(this.#visible);
   }
 }
 
