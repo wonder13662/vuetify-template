@@ -16,3 +16,6 @@ export { default as hexagonSelectorHandler } from './hexagonSelectorHandler';
 export { default as mapUtils } from './lib/utils';
 export { default as boundHandler } from './lib/boundHandler';
 export const constants = mapConstants;
+
+// 네이버 지도 공식 문서
+// https://navermaps.github.io/maps.js.ncp/docs/
