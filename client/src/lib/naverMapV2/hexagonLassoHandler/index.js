@@ -2,6 +2,8 @@ import polygonLassoHandler from '../polygonLassoHandler';
 import polygonHandler from '../polygonHandler';
 import hexagonCalculator from '../lib/hexagonCalculator';
 
+// TODO 모드가 없이 작동할 수 있어야 합니다. 모드는 사용하는 측에서 직접 설정해서 사용하는 방향으로 합니다.
+
 class HexagonLasso {
   #map
 
@@ -38,7 +40,7 @@ class HexagonLasso {
     this.#points = [];
     this.#h3Indexes = [];
     this.#polygonLasso = polygonLassoHandler.createPolygonLasso({
-      meta,
+      meta: { ...this.#meta },
       onChange: ({ points }) => {
         if (this.#disabled) {
           return;

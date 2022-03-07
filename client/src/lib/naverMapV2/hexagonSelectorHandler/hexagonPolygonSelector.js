@@ -1,24 +1,37 @@
 import hexagonLassoHandler from '../hexagonLassoHandler';
+import polygonHandler from '../polygonHandler';
+import utils from '@/lib/utils';
 
 class HexagonPolygonSelector {
   #meta
 
   #map
 
+  #disabled
+
   #hexagonLasso
 
-  #disabled
+  #selectedPolygon
+
+  #h3Indexes
 
   constructor({
     meta,
   }) {
-    this.#meta = meta;
+    this.#meta = { ...meta };
+    this.#map = null;
     this.#disabled = false;
     this.#hexagonLasso = hexagonLassoHandler.createHexagonLasso({
       meta: this.#meta,
     });
-    // TODO 모드를 없애야 함
     this.#hexagonLasso.setModeEdit();
+    this.#selectedPolygon = polygonHandler.createPolygon({
+      meta: {
+        ...this.#meta,
+      },
+      clickable: false,
+    });
+    this.#h3Indexes = [];
   }
 
   /**
@@ -36,6 +49,7 @@ class HexagonPolygonSelector {
       return;
     }
     this.#map = map;
+    this.#selectedPolygon.setNaverMap(this.#map);
     this.#hexagonLasso.setNaverMap(this.#map);
   }
 
@@ -49,6 +63,9 @@ class HexagonPolygonSelector {
     if (this.#hexagonLasso) {
       this.#hexagonLasso.remove();
     }
+    if (this.#selectedPolygon) {
+      this.#selectedPolygon.remove();
+    }
   }
 
   /**
@@ -58,11 +75,18 @@ class HexagonPolygonSelector {
    */
   destroy() {
     this.remove();
-    this.#map = null;
+
     if (this.#hexagonLasso) {
       this.#hexagonLasso.destroy();
     }
     this.#hexagonLasso = null;
+
+    if (this.#selectedPolygon) {
+      this.#selectedPolygon.destroy();
+    }
+    this.#selectedPolygon = null;
+
+    this.#map = null;
   }
 
   /**
@@ -93,6 +117,33 @@ class HexagonPolygonSelector {
    */
   clear() {
     this.#hexagonLasso.clear();
+    this.#selectedPolygon.setPaths([]);
+  }
+
+  /**
+   * 선택된 h3Index의 배열을 h3Indexex에 더합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  add() {
+    const current = this.#h3Indexes;
+    const incoming = this.#hexagonLasso.getH3Indexes();
+    this.#h3Indexes = utils.lodashUnion(current, incoming);
+    this.#selectedPolygon.setPathsByH3Indexes(this.#h3Indexes);
+    this.#hexagonLasso.clear();
+  }
+
+  /**
+   * 선택된 h3Index의 배열을 h3Indexex에서 뺍니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  subtract() {
+    const current = this.#h3Indexes;
+    const incoming = this.#hexagonLasso.getH3Indexes();
+    this.#h3Indexes = utils.lodashWithout(current, incoming);
+    this.#selectedPolygon.setPathsByH3Indexes(this.#h3Indexes);
+    this.#hexagonLasso.clear();
   }
 
   /**
@@ -101,7 +152,17 @@ class HexagonPolygonSelector {
    * @return {array<String>} 문자열 h3Index 배열
    */
   getH3Indexes() {
-    return this.#hexagonLasso.getH3Indexes();
+    return this.#h3Indexes;
+  }
+
+  /**
+   * h3Index의 배열을 설정합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  setH3Indexes(h3Indexes) {
+    this.#h3Indexes = h3Indexes;
+    this.#selectedPolygon.setPathsByH3Indexes(this.#h3Indexes);
   }
 }
 

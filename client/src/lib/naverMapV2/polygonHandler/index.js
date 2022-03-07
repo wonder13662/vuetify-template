@@ -1,6 +1,7 @@
 import mapUtils from '../lib/utils';
 import naverMapWrapper from '../lib/naverMapWrapper';
 import overlayEventHandler from '../overlayEventHandler';
+import hexagonCalculator from '../lib/hexagonCalculator';
 import {
   Z_INDEX_POLYGON_BORDER,
 } from '../lib/constants';
@@ -198,6 +199,7 @@ class Polygon {
     onFocus = () => ({}),
     onBlur = () => ({}),
     onClick = () => ({}),
+    onMousemove = () => ({}),
     meta = {},
   }) {
     this.#points = points;
@@ -210,6 +212,7 @@ class Polygon {
       onFocus,
       onBlur,
       onClick,
+      onMousemove,
       meta: { ...this.#meta },
     });
   }
@@ -396,6 +399,19 @@ class Polygon {
   }
 
   /**
+   * h3Index의 배열을 인자로 Polygon 객체의 Path를 여러개 설정합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setPath__anchor
+   *
+   * @param {array<String>} h3Indexes 문자열 h3Index 배열
+   *
+   * @return {void} 리턴값 없음
+   */
+  setPathsByH3Indexes(h3Indexes) {
+    const paths = hexagonCalculator.getPathsFromH3Indexes(h3Indexes);
+    this.setPaths(paths);
+  }
+
+  /**
    * Naver Polygon에 click 이벤트 리스너를 추가합니다.
    *
    * @param {function} listener - click 이벤트 리스너
@@ -547,6 +563,7 @@ export default {
     onFocus = () => ({}),
     onBlur = () => ({}),
     onClick = () => ({}),
+    onMousemove = () => ({}),
     meta = {},
   }) {
     if (points && points.length > 0) {
@@ -562,6 +579,7 @@ export default {
       onFocus,
       onBlur,
       onClick,
+      onMousemove,
       meta,
     });
   },

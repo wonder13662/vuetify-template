@@ -61,13 +61,7 @@ class HexagonPointSelector {
       meta: {
         ...this.#meta,
       },
-    });
-    this.#selectedPolygon.addMousemoveListener(({ point }) => {
-      if (mapUtils.isSameH3IndexByPoints(this.#mousemovePoint, point, this.#h3Resolution)) {
-        return;
-      }
-      this.#mousemovePoint = point;
-      this.updateMouseoverPolygonPath(point);
+      clickable: false,
     });
     this.#mousemovePolygon = polygonHandler.createPolygon({
       meta: { ...this.#meta },
@@ -108,7 +102,7 @@ class HexagonPointSelector {
    * @return {void} 리턴값 없음
    */
   clear() {
-    this.#h3IndexSet = [];
+    this.#h3IndexSet = new Set();
     this.#mousemovePoint = null;
     this.#selectedPolygon.setPaths([]);
     this.#mousemovePolygon.setPaths([]);
@@ -251,16 +245,23 @@ class HexagonPointSelector {
   getDisabled() {
     return this.#disabled;
   }
+
+  /**
+   * 선택된 h3Index의 배열을 줍니다.
+   *
+   * @return {array<String>} 문자열 h3Index 배열
+   */
+  getH3Indexes() {
+    return utils.convertSetToList(this.#h3IndexSet);
+  }
 }
 
 export default {
   createHexagonPointSelector({
     meta = {},
-    onChange = () => ({}),
   }) {
     return new HexagonPointSelector({
       meta,
-      onChange,
     });
   },
 };

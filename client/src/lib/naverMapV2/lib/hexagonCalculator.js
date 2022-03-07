@@ -23,6 +23,8 @@ import mapUtils from './utils';
 /**
  * H3를 좌표값 배열로 바꿔줍니다.
  *
+ * @deprecated
+ *
  * @param {array} h3Indexes - GeoJSON으로 바꿀 H3 배열
  *
  * @return {object} Point{ lat, lng } 배열 객체
@@ -271,6 +273,8 @@ export default {
   /**
    * H3를 경계(Bound) 객체로 바꿔줍니다.
    *
+   * @deprecated convertH3IndexToPoints가 정확하지 않습니다. 사용을 자제해주세요.
+   *
    * @param {array} h3Indexes - GeoJSON으로 바꿀 H3 배열
    *
    * @return {Bound} 경계 객체
@@ -285,6 +289,8 @@ export default {
 
   /**
    * H3를 Naver polygon을 그리기 위한 path 배열로 바꿔줍니다.
+   *
+   * @deprecated getPathsFromH3Indexes를 대신 사용해주세요
    *
    * @param {array} h3Indexes - GeoJSON으로 바꿀 H3 배열
    *
