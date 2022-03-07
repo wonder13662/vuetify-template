@@ -115,6 +115,26 @@ class HexagonSelector {
         // 7. 모든 작업을 마치고 모드를 상태없음(NONE)으로 바꾼다.
         this.#mode = MODE.NONE;
       },
+      onClickBtnCancel: () => {
+        // 1. 지도 상단 중앙 Banner 업데이트
+        this.updateBannerNone();
+        this.#banner.forceUpdate();
+        // 2. 지도 우측 중앙 Buttons 업데이트
+        this.#hexagonSelectorButtonGroup.setDisabled(false);
+        this.#hexagonSelectorButtonGroup.setSelectedNone();
+        this.#hexagonSelectorButtonGroup.forceUpdate();
+        // 3. 모든 hexagon selector를 disabled 처리
+        this.disableAllHexagonSelector();
+
+        // 4-1. hexagon point selector에 저장된 데이터를 모두 삭제
+        this.#hexagonPointSelector.clear();
+        this.#hexagonPointSelector.setDisabled(true);
+        // 4-2. hexagon polygon selector에 저장된 데이터를 모두 삭제
+        this.#hexagonPolygonSelector.clear();
+        this.#hexagonPolygonSelector.setDisabled(true);
+        // 5. 모든 작업을 마치고 모드를 상태없음(NONE)으로 바꾼다.
+        this.#mode = MODE.NONE;
+      },
     });
     this.updateBannerNone();
     // 3. 실제 h3Index를 선택하게 도와주는 selector들
@@ -164,6 +184,7 @@ class HexagonSelector {
     this.#banner.setBannerText('지도 위에 원하는 곳을 클릭해서 Hexagon을 선택해주세요.');
     this.#banner.setVisibleBtnAdd(false);
     this.#banner.setVisibleBtnSubtract(false);
+    this.#banner.setVisibleBtnSave(true);
     this.#banner.setVisibleBtnCancel(true);
   }
 
@@ -176,6 +197,7 @@ class HexagonSelector {
     this.#banner.setBannerText('지도 위에 폴리곤 범위를 그려서 Hexagon을 선택해주세요.');
     this.#banner.setVisibleBtnAdd(true);
     this.#banner.setVisibleBtnSubtract(true);
+    this.#banner.setVisibleBtnSave(true);
     this.#banner.setVisibleBtnCancel(true);
   }
 
@@ -188,6 +210,7 @@ class HexagonSelector {
     this.#banner.setBannerText('Hexagon을 선택할 방식(점, 폴리곤)을 선택해주세요.');
     this.#banner.setVisibleBtnAdd(false);
     this.#banner.setVisibleBtnSubtract(false);
+    this.#banner.setVisibleBtnSave(false);
     this.#banner.setVisibleBtnCancel(false);
   }
 

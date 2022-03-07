@@ -45,9 +45,20 @@ const getStyle = ({
       'margin: 4px;',
     ].join('');
   }
-  // 'btnSave'
+
+  if (key === 'btnSave') {
+    return [
+      focus ? 'background: #42A5F5;' : 'background: #2196F3;',
+      'color: white;',
+      visible ? '' : 'display: none;',
+      'padding: 10px;',
+      'margin: 4px;',
+    ].join('');
+  }
+
+  // 'btnCancel'
   return [
-    focus ? 'background: #42A5F5;' : 'background: #2196F3;',
+    focus ? 'background: #EF5350;' : 'background: #F44336;',
     'color: white;',
     visible ? '' : 'display: none;',
     'padding: 10px;',
@@ -129,6 +140,15 @@ const getElementStatusMapInitialized = () => ({
       text: '저장',
     },
   },
+  btnCancel: {
+    key: 'btnCancel',
+    focus: false,
+    selected: false,
+    visible: true,
+    meta: {
+      text: '취소',
+    },
+  },
 });
 
 class CustomControlBanner {
@@ -144,16 +164,20 @@ class CustomControlBanner {
 
   #onClickBtnSave
 
+  #onClickBtnCancel
+
   constructor({
     meta,
     onClickBtnAdd = () => ({}),
     onClickBtnSubtract = () => ({}),
     onClickBtnSave = () => ({}),
+    onClickBtnCancel = () => ({}),
   }) {
     this.#meta = meta;
     this.#onClickBtnAdd = onClickBtnAdd;
     this.#onClickBtnSubtract = onClickBtnSubtract;
     this.#onClickBtnSave = onClickBtnSave;
+    this.#onClickBtnCancel = onClickBtnCancel;
     this.#customControlGroup = customControlGroup.createCustomControlGroup({
       elementStatusMap: getElementStatusMapInitialized(),
       position: NAVER_MAP_POSITION_MAP.TOP_CENTER,
@@ -173,6 +197,9 @@ class CustomControlBanner {
             break;
           case elementStatusMap.btnSave.key:
             this.#onClickBtnSave();
+            break;
+          case elementStatusMap.btnCancel.key:
+            this.#onClickBtnCancel();
             break;
           default:
             throw new Error(`key:${key}/유효하지 않습니다.`);
@@ -278,6 +305,22 @@ class CustomControlBanner {
   }
 
   /**
+   * banner에 저장버튼의 노출 여부를 외부에서 설정합니다.
+   *
+   * @param {boolean} visible - 저장버튼의 지도 위의 노출 여부
+   *
+   * @return {void} 리턴값 없음
+   */
+  setVisibleBtnSave(visible) {
+    this.#customControlGroup.setElementStatus({
+      key: 'btnSave',
+      props: {
+        visible,
+      },
+    });
+  }
+
+  /**
    * banner에 취소버튼의 노출 여부를 외부에서 설정합니다.
    *
    * @param {boolean} visible - 취소버튼의 지도 위의 노출 여부
@@ -286,7 +329,7 @@ class CustomControlBanner {
    */
   setVisibleBtnCancel(visible) {
     this.#customControlGroup.setElementStatus({
-      key: 'btnSave',
+      key: 'btnCancel',
       props: {
         visible,
       },
@@ -309,12 +352,14 @@ export default {
     onClickBtnAdd = () => ({}),
     onClickBtnSubtract = () => ({}),
     onClickBtnSave = () => ({}),
+    onClickBtnCancel = () => ({}),
   }) {
     return new CustomControlBanner({
       meta,
       onClickBtnAdd,
       onClickBtnSubtract,
       onClickBtnSave,
+      onClickBtnCancel,
     });
   },
 };
