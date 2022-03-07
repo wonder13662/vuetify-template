@@ -142,18 +142,18 @@ class CustomControlBanner {
 
   #onClickBtnSubtract
 
-  #onClickBtnCancel
+  #onClickBtnSave
 
   constructor({
     meta,
     onClickBtnAdd = () => ({}),
     onClickBtnSubtract = () => ({}),
-    onClickBtnCancel = () => ({}),
+    onClickBtnSave = () => ({}),
   }) {
     this.#meta = meta;
     this.#onClickBtnAdd = onClickBtnAdd;
     this.#onClickBtnSubtract = onClickBtnSubtract;
-    this.#onClickBtnCancel = onClickBtnCancel;
+    this.#onClickBtnSave = onClickBtnSave;
     this.#customControlGroup = customControlGroup.createCustomControlGroup({
       elementStatusMap: getElementStatusMapInitialized(),
       position: NAVER_MAP_POSITION_MAP.TOP_CENTER,
@@ -172,7 +172,7 @@ class CustomControlBanner {
             this.#onClickBtnSubtract();
             break;
           case elementStatusMap.btnSave.key:
-            this.#onClickBtnCancel();
+            this.#onClickBtnSave();
             break;
           default:
             throw new Error(`key:${key}/유효하지 않습니다.`);
@@ -308,13 +308,13 @@ export default {
     meta = {},
     onClickBtnAdd = () => ({}),
     onClickBtnSubtract = () => ({}),
-    onClickBtnCancel = () => ({}),
+    onClickBtnSave = () => ({}),
   }) {
     return new CustomControlBanner({
       meta,
       onClickBtnAdd,
       onClickBtnSubtract,
-      onClickBtnCancel,
+      onClickBtnSave,
     });
   },
 };
