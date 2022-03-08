@@ -276,6 +276,7 @@ class Polygon {
       naverPolygonPaths: [path],
       clickable: this.#clickable,
       style: getStyleUnselectedBlur(),
+      visible: this.#visible,
     });
     this.updatePolygonStyle();
     this.#overlayEventController.setOverlay(this.#naverPolygon);
@@ -335,14 +336,19 @@ class Polygon {
    * @return {void} 리턴값 없음
    */
   setPathByPoints(points) {
-    if (!points || points.length === 0) {
-      throw new Error(`points:${points}/유효하지 않음`);
+    if (!this.#naverPolygon) {
+      return;
     }
-    points.forEach((p) => {
-      if (!mapUtils.isValidPoint(p)) {
-        throw new Error(`p:${p}/유효하지 않음`);
-      }
-    });
+
+    if (points.length === 0) {
+      // 빈 배열을 넘기면 마지막으로 그렸던 도형이 그대로 노출됨
+      // 우회방법으로 지도에서 표시하지 않는 것으로 설정
+      this.#naverPolygon.setVisible(false);
+      return;
+    }
+    if (!this.#naverPolygon.getVisible()) {
+      this.#naverPolygon.setVisible(true);
+    }
 
     this.#points = points;
     const path = this.#points.map((p) => naverMapWrapper.getLatLng(p.lat, p.lng));
@@ -357,20 +363,6 @@ class Polygon {
     } else {
       this.#naverPolygon.setPath(path);
     }
-  }
-
-  /**
-   * Polygon 객체의 Path를 설정합니다.
-   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setPath__anchor
-   *
-   * @deprecated setPathByPoints를 대신 사용해주세요
-   *
-   * @param {array} points - Point 객체의 배열
-   *
-   * @return {void} 리턴값 없음
-   */
-  setPath(points) {
-    this.setPathByPoints(points);
   }
 
   /**
@@ -562,7 +554,18 @@ class Polygon {
    */
   setVisible(visible) {
     this.#visible = visible;
-    this.#naverPolygon.setVisible(this.#visible);
+    if (this.#naverPolygon) {
+      this.#naverPolygon.setVisible(this.#visible);
+    }
+  }
+
+  /**
+   * 지도 위의 노출 여부를 가져옵니다.
+   *
+   * @return {boolean} visible - 지도 위의 노출 여부
+   */
+  getVisible() {
+    return this.#visible;
   }
 }
 

@@ -30,6 +30,7 @@ const hexagonSelector = hexagonSelectorHandler.createHexagonSelector({
 
 // TODO 화면을 여닫는 시점에 데이터를 clear 할 수 있어야 한다
 // TODO 쌓인 데이터를 표시해야 한다
+// TODO 변경된 데이터를 Vue component 단으로 전달할 수 있어야 한다
 
 export default {
   name: 'H3PolygonLasso',
@@ -47,13 +48,18 @@ export default {
   },
   watch: {
     show(v) {
+      hexagonSelector.clear();
       if (!v) {
         hexagonSelector.setVisible(false);
         hexagonSelector.setDisabled(true);
+        hexagonSelector.setOnChange(null);
         return;
       }
       hexagonSelector.setVisible(true);
       hexagonSelector.setDisabled(false);
+      hexagonSelector.setOnChange((h3Indexes) => {
+        this.onChange(h3Indexes);
+      });
     },
   },
   created() {
@@ -70,7 +76,7 @@ export default {
     },
     onChange(v) {
       // eslint-disable-next-line no-console
-      console.log('onChange / v:', v);
+      console.log('HERE/onChange/v:', v);
     },
 
   },

@@ -81,8 +81,8 @@ class PolygonLasso {
 
     // 3. 맵의 클릭 이벤트를 받는 overlayEventHandler 추가
     this.#overlayMapEventController = overlayEventHandler.createOverlayEventController({
-      onFocus: () => {},
-      onBlur: () => {},
+      onFocus: () => ({}),
+      onBlur: () => ({}),
       onClick: ({ point }) => this.onClick(point),
       onMousemove: ({ point }) => this.onMousemove(point),
       meta: { ...this.#meta },
@@ -276,7 +276,7 @@ class PolygonLasso {
         }
 
         // 사용자가 pointMarker를 클릭했습니다.
-        if (!this.#polygon && this.#pointMarkers.length <= 2) {
+        if (this.#pointMarkers.length <= 2) {
           return;
         }
 

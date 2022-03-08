@@ -34,10 +34,13 @@ class HexagonSelector {
 
   #visible
 
+  #onChange
+
   constructor({
     meta,
     disabled = false,
     visible = true,
+    onChange = () => ({}),
   }) {
     // eslint-disable-next-line max-len
     this.#meta = { ...meta };
@@ -46,6 +49,7 @@ class HexagonSelector {
     this.#mode = MODE.NONE;
     this.#disabled = disabled;
     this.#visible = visible;
+    this.#onChange = onChange;
     // 1. 지도 우측 중앙의 점/직선/폴리곤 버튼 그룹
     // eslint-disable-next-line max-len
     this.#hexagonSelectorButtonGroup = customControlGroupHandler.createCustomControlHexagonSelectorButtonGroup({
@@ -62,10 +66,11 @@ class HexagonSelector {
         // 2. 지도 우측 중앙 Buttons 업데이트
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
-        // 3. 모든 hexagon selector를 disabled 처리
-        this.disableAllHexagonSelector();
+        // 3. 모든 hexagon selector를 disabled, visible off 처리
+        this.offAllHexagonSelector();
         // 4. 선택된 hexagon point selector를 활성화함
         this.#hexagonPointSelector.setDisabled(false);
+        this.#hexagonPointSelector.setVisible(true);
         this.#hexagonPointSelector.setH3IndexSetByH3Indexes(this.#h3Indexes);
         this.#hexagonPointSelector.updateSelectedPolygonPath();
       },
@@ -82,9 +87,10 @@ class HexagonSelector {
         this.#hexagonSelectorButtonGroup.setDisabled(true);
         this.#hexagonSelectorButtonGroup.forceUpdate();
         // 3. 모든 hexagon selector를 disabled 처리
-        this.disableAllHexagonSelector();
+        this.offAllHexagonSelector();
         // 4. 선택된 hexagon polygon selector를 활성화함
         this.#hexagonPolygonSelector.setDisabled(false);
+        this.#hexagonPolygonSelector.setVisible(true);
         this.#hexagonPolygonSelector.setH3Indexes(this.#h3Indexes);
       },
     });
@@ -120,13 +126,19 @@ class HexagonSelector {
         this.#hexagonSelectorButtonGroup.setSelectedNone();
         this.#hexagonSelectorButtonGroup.forceUpdate();
         // 3. 모든 hexagon selector를 disabled 처리
-        this.disableAllHexagonSelector();
+        this.offAllHexagonSelector();
 
         // 4. 직전에 사용한 selector에서 선택된 h3Index의 배열을 가져와 업데이트한다.
         if (this.#mode === MODE.POINT) {
           this.#h3Indexes = this.#hexagonPointSelector.getH3Indexes();
+          if (this.#onChange) {
+            this.#onChange(this.#h3Indexes);
+          }
         } else if (this.#mode === MODE.POLYGON) {
           this.#h3Indexes = this.#hexagonPolygonSelector.getH3Indexes();
+          if (this.#onChange) {
+            this.#onChange(this.#h3Indexes);
+          }
         }
         // 5. 지도에 지금까지 선택된 h3Index들의 폴리곤을 그린다.
         this.updateSelectedH3Indexes();
@@ -152,7 +164,7 @@ class HexagonSelector {
         this.#hexagonSelectorButtonGroup.setSelectedNone();
         this.#hexagonSelectorButtonGroup.forceUpdate();
         // 3. 모든 hexagon selector를 disabled 처리
-        this.disableAllHexagonSelector();
+        this.offAllHexagonSelector();
 
         // 4-1. hexagon point selector에 저장된 데이터를 모두 삭제
         this.#hexagonPointSelector.clear();
@@ -174,7 +186,7 @@ class HexagonSelector {
     this.#hexagonPolygonSelector = hexagonPolygonSelector.createHexagonPolygonSelector({
       meta: { ...this.#meta },
     });
-    this.disableAllHexagonSelector();
+    this.offAllHexagonSelector();
     // 4. 선택된 h3Index를 표시하는 polygon 객체 만들기
     this.#selectedPolygon = polygonHandler.createPolygon({
       clickable: false,
@@ -198,9 +210,11 @@ class HexagonSelector {
    *
    * @return {void} 리턴값 없음
    */
-  disableAllHexagonSelector() {
+  offAllHexagonSelector() {
     this.#hexagonPointSelector.setDisabled(true);
+    this.#hexagonPointSelector.setVisible(false);
     this.#hexagonPolygonSelector.setDisabled(true);
+    this.#hexagonPolygonSelector.setVisible(false);
   }
 
   /**
@@ -362,6 +376,29 @@ class HexagonSelector {
     this.#hexagonSelectorButtonGroup.setVisible(this.#visible);
     this.#banner.setVisible(this.#visible);
   }
+
+  /**
+   * onChange 콜백함수를 설정합니다.
+   *
+   * @param {function} callback - onChange 콜백함수
+   *
+   * @return {void} 리턴값 없음
+   */
+  setOnChange(callback) {
+    this.#onChange = callback;
+  }
+
+  /**
+   * 외부에서 전달받은 데이터와 이벤트로부터 만들어낸 데이터로 초기화합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  clear() {
+    this.#hexagonPointSelector.clear();
+    this.#hexagonPolygonSelector.clear();
+    this.#h3Indexes = [];
+    this.#selectedPolygon.setPaths([]);
+  }
 }
 
 export default {
@@ -369,11 +406,13 @@ export default {
     meta = {},
     disabled = false,
     visible = true,
+    onChange = () => ({}),
   }) {
     return new HexagonSelector({
       meta,
       disabled,
       visible,
+      onChange,
     });
   },
 };

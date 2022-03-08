@@ -122,6 +122,7 @@ class HexagonPolygonSelector {
    */
   setVisible(visible) {
     this.#visible = visible;
+    this.#selectedPolygon.setVisible(this.#visible);
   }
 
   /**

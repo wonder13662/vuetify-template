@@ -43,7 +43,10 @@ class HexagonLasso {
     this.#points = [];
     this.#h3Indexes = [];
     this.#polygonLasso = polygonLassoHandler.createPolygonLasso({
-      meta: { ...this.#meta },
+      meta: {
+        ...this.#meta,
+        name: 'HexagonLasso>Polygon',
+      },
       onChange: ({ points }) => {
         if (this.#disabled) {
           return;
@@ -51,7 +54,7 @@ class HexagonLasso {
         this.#points = points;
         this.#h3Indexes = hexagonCalculator.convertPointsToH3Indexes(points);
         if (!this.#h3Indexes || this.#h3Indexes.length === 0) {
-          this.#polygonHexagonGroup.remove();
+          this.#polygonHexagonGroup.setPaths([]);
           onChange({ h3Indexes: [] });
           return;
         }
