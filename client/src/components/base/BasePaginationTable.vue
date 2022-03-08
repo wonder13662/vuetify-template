@@ -9,17 +9,19 @@
     <v-data-table
       :headers="headers"
       :items="items"
-      :dense="true"
-      :page="page"
+      dense
+      :page="currentPage"
+      :items-per-page="itemCntPerPage"
       :no-data-text="noDataText"
       :server-items-length="totalCnt"
-      :options="options"
+      :loading="loading"
+      loading-text="로딩중입니다. 잠시만 기다려주세요."
       hide-default-footer
       @click:row="onClickRow"
     />
     <div class="text-center pt-2 pb-2">
       <v-pagination
-        v-model="page"
+        :value="currentPage"
         :length="pageCount"
         @input="onChangePage"
       />
@@ -55,39 +57,25 @@ export default {
       type: Number,
       required: true,
     },
-  },
-  data() {
-    return {
-      page: 1,
-      itemsPerPage: this.itemCntPerPage,
-      pageStart: 0,
-      pageStop: 10,
-    };
+    loading: {
+      type: Boolean,
+    },
   },
   computed: {
-    options() {
-      return {
-        page: this.page,
-        itemsPerPage: this.itemsPerPage,
-        pageStart: this.pageStart,
-        pageStop: this.pageStop,
-        pageCount: this.pageCount,
-      };
-    },
     noDataText() {
       return this.$t('views.admin.common.noData');
     },
     pageCount() {
-      const remainder = this.totalCnt % this.itemsPerPage;
-      return Math.floor(this.totalCnt / this.itemsPerPage) + (remainder > 0 ? 1 : 0);
+      const remainder = this.totalCnt % this.itemCntPerPage;
+      return Math.floor(this.totalCnt / this.itemCntPerPage) + (remainder > 0 ? 1 : 0);
     },
   },
   methods: {
     async onChangePage(v) {
-      this.$emit('on-change-page', v);
+      this.$emit('change:page', v);
     },
     onClickRow(v) {
-      this.$emit('on-click-row', v);
+      this.$emit('click:row', v);
     },
   },
 };

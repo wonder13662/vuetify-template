@@ -40,8 +40,8 @@ import {
   kRingDistances, // https://h3geo.org/docs/api/traversal/#kringdistances
 } from 'h3-js';
 import GeoToH3 from './GeoToH3';
-import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
-import BaseText from '@/components/base/v1/BaseText';
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseText from '@/components/base/BaseText';
 import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
 import utils from '@/lib/naverMapV2/lib/utils';
 

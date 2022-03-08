@@ -5,7 +5,6 @@
     :meta="meta"
     @change="onChange"
     @change-h3-index="onChangeH3Index"
-    @change-overlays="onChangeOverlays"
   >
     <!-- 1. Hex-Ring -->
     <BaseContentHorizontalLayout
@@ -40,10 +39,10 @@ import {
   hexRing, // https://h3geo.org/docs/api/traversal/#hexring
 } from 'h3-js';
 import GeoToH3 from './GeoToH3';
-import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
-import BaseText from '@/components/base/v1/BaseText';
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseText from '@/components/base/BaseText';
 import hexagonGroupHandler from '@/lib/naverMapV2/hexagonGroupHandler';
-import utils from '@/lib/naverMapV2/lib/utils';
+import mapUtils from '@/lib/naverMapV2/lib/utils';
 
 // TODO 경계 h3Index를 받는다면, 외부와 내부의 h3Index를 어떻게 구분할 것인지?
 // TODO point가 선택된 h3Index들 안에 있는지 판단할 수 있는 가장 빠른 방법은?
@@ -73,7 +72,6 @@ export default {
       h3Index: null,
       kDistance: 1,
       naverPolygon: null,
-      overlaysFromGeoToH3: [],
     };
   },
   watch: {
@@ -96,18 +94,15 @@ export default {
       });
     },
     onChangeH3Index({ h3Index }) {
-      if (!utils.h3IsValid(h3Index)) {
+      if (!mapUtils.h3IsValid(h3Index)) {
         return;
       }
       this.h3Index = h3Index;
       this.updatePolygon(this.h3Index, this.kDistance);
       this.emitOverlays();
     },
-    onChangeOverlays(overlays) {
-      this.overlaysFromGeoToH3 = overlays;
-    },
     onChangeHexRing(v) {
-      if (!utils.h3IsValid(this.h3Index)) {
+      if (!mapUtils.h3IsValid(this.h3Index)) {
         return;
       }
       this.kDistance = v;

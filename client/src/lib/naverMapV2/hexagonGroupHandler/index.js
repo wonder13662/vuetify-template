@@ -7,7 +7,6 @@ import {
   HEXAGON_EVENT,
   HEXAGON_EVENT_SET,
 } from '../lib/constants';
-import hexagonHandler from './hexagonHandler';
 import naverMapWrapper from '../lib/naverMapWrapper';
 import naverMapUtils from '../lib/utils';
 import utils from '@/lib/utils';
@@ -56,53 +55,8 @@ const drawPolygon = ({
   };
 };
 
-const createHexagon = (hexagonMap, h3Index) => hexagonHandler.createHexagon({
-  h3Index,
-  onRemove: (h3IndexToRemove) => {
-    if (!hexagonMap.has(h3IndexToRemove)) {
-      return;
-    }
-    // 1-1. hexagon을 네이버 맵에서 제거
-    hexagonMap.get(h3IndexToRemove).remove();
-    // 1-2. hexagon을 hexagonMap에서 제거
-    hexagonMap.delete(h3IndexToRemove);
-  },
-});
+const createHexagonSet = (h3Indexes) => utils.convertListToSet(h3Indexes);
 
-const setHexagonToHexagonMap = (hexagonMap, hexagon) => {
-  hexagonMap.set(hexagon.h3Index, hexagon);
-};
-
-const createHexagonMap = (h3Indexes) => {
-  const hexagonMap = new Map();
-  h3Indexes.forEach((v) => {
-    const hexagon = createHexagon(hexagonMap, v);
-    setHexagonToHexagonMap(hexagonMap, hexagon);
-  });
-  return hexagonMap;
-};
-
-const subtractHexagon = ({ h3Index, h3Indexes, hexagonMap }) => {
-  // (내부의 빈공간의 폴리곤을 저장하는 구조로 바뀌면 아래 조건들은 제거 되어야 함)
-  // 1. 이미 선택되었지만, HexagonGroup의 내부(자신을 다른 Hexagon들 6개가 둘러싼 경우)라면 제거하지 않는다.
-  if (hexagonCalculator.isSurrounded(h3Index, h3Indexes)) {
-    return;
-  }
-  // 2. 다른 Hexagon에 둘러싸여 닫히지 않았고, 이미 선택된 Hexagon이라면 제거
-  // 3. TODO 제거한 뒤에, 따로 떨어져 있는 폴리곤들도 함께 제거(이건 조건이 좀 복잡하다)
-  // ex) 길게 늘어진 선 형태의 폴리곤(두께: 폴리곤 1개)에서 가운데 폴리곤을 제거하면 어느 쪽이 남아야 하는가?
-  hexagonMap.delete(h3Index);
-};
-
-const addHexagon = ({ h3Index, hexagonMap }) => {
-  // 1. 없는 Hexagon이라면 추가
-  // 2. 이미 선택된 Hexagon과 붙어있지 않다면 저장 불가
-  // (2개 이상의 떨어져 있는 폴리곤을 저장하는 구조로 바뀌면 이 조건은 제거 되어야 함)
-  // 3. h3Index로 hexagon 객체를 새로 만든다
-  const hexagon = createHexagon(hexagonMap, h3Index);
-  // 4. 새로 만든 hexagon 객체를 hexagonGroups에 추가한다.
-  setHexagonToHexagonMap(hexagonMap, hexagon);
-};
 
 const notifyEventListeners = ({ eventListenerMap, hexagonGroup, meta }) => {
   if (eventListenerMap.size === 0) {
@@ -113,9 +67,9 @@ const notifyEventListeners = ({ eventListenerMap, hexagonGroup, meta }) => {
     meta,
   }));
 };
-
+// TODO focus, blur, click 이벤트를 overlayEventController로 바꿔야 함!
 class HexagonGroup {
-  #hexagonMap
+  #hexagonSet
 
   #meta
 
@@ -137,7 +91,7 @@ class HexagonGroup {
     h3Indexes = [],
     meta = {},
   }) {
-    this.#hexagonMap = createHexagonMap(h3Indexes);
+    this.#hexagonSet = createHexagonSet(h3Indexes);
     this.#meta = meta;
     this.#mode = HEXAGON_MODE.READ_UNSELECTED;
     this.#naverMapsPolygon = null;
@@ -170,10 +124,10 @@ class HexagonGroup {
    * @return {void} 없음
    */
   get h3Indexes() {
-    if (!this.#hexagonMap || this.#hexagonMap.size === 0) {
+    if (!this.#hexagonSet || this.#hexagonSet.size === 0) {
       return [];
     }
-    return [...this.#hexagonMap.keys()];
+    return utils.convertSetToList(this.#hexagonSet);
   }
 
   /**
@@ -182,6 +136,9 @@ class HexagonGroup {
    * @return {object} Naver bound 객체
    */
   getBound() {
+    if (!this.h3Indexes || this.h3Indexes.length === 0) {
+      return null;
+    }
     return hexagonCalculator.convertH3IndexToBound(this.h3Indexes);
   }
 
@@ -201,18 +158,11 @@ class HexagonGroup {
     const h3Index = hexagonCalculator.convertPointToH3Index(point);
     const hasNoH3Index = this.h3Indexes.length === 0;
     const hasNeighborH3Index = hexagonCalculator.isNeighbor(h3Index, this.h3Indexes);
-    const hasH3Index = this.#hexagonMap.has(h3Index);
+    const hasH3Index = this.#hexagonSet.has(h3Index);
     if (hasH3Index) {
-      subtractHexagon({
-        h3Index,
-        h3Indexes: this.h3Indexes,
-        hexagonMap: this.#hexagonMap,
-      });
+      this.#hexagonSet.delete(h3Index);
     } else if (hasNoH3Index || hasNeighborH3Index) {
-      addHexagon({
-        h3Index,
-        hexagonMap: this.#hexagonMap,
-      });
+      this.#hexagonSet.add(h3Index);
     }
     // 4. 새로 만든 hexagon 객체를 지도 위에 polygon으로 그린다.
     this.draw(map);
@@ -375,11 +325,11 @@ class HexagonGroup {
       throw new Error(`found:${found} 유효하지 않음`);
     }
 
-    if (this.#hexagonMap) {
-      this.#hexagonMap.clear();
-      this.#hexagonMap = null;
+    if (this.#hexagonSet) {
+      this.#hexagonSet.clear();
+      this.#hexagonSet = null;
     }
-    this.#hexagonMap = createHexagonMap(h3Indexes);
+    this.#hexagonSet = createHexagonSet(h3Indexes);
     if (this.#naverMapsPolygon) {
       const paths = hexagonCalculator.convertH3IndexesToNaverPolygonPaths([h3Indexes]);
       this.#naverMapsPolygon.setPaths(paths);
@@ -500,10 +450,10 @@ class HexagonGroup {
     }
     this.#eventListenerMap = null;
     // hexagon 맵 제거
-    if (this.#hexagonMap && this.#hexagonMap.size > 0) {
-      this.#hexagonMap.clear();
+    if (this.#hexagonSet && this.#hexagonSet.size > 0) {
+      this.#hexagonSet.clear();
     }
-    this.#hexagonMap = null;
+    this.#hexagonSet = null;
   }
 }
 
@@ -523,7 +473,15 @@ export default {
   getBound(hexagonGroups) {
     const bounds = hexagonGroups.map((v) => v.getBound());
     const mergedBound = bounds.reduce((acc, v) => {
-      if (!acc) return v;
+      if (!acc && !v) {
+        return null;
+      }
+      if (!acc) {
+        return v;
+      }
+      if (!v) {
+        return acc;
+      }
       return acc.merge(v);
     }, null);
     return mergedBound;

@@ -3,10 +3,10 @@ import utils from './utils';
 class Bound {
   constructor(sw, ne) {
     if (!sw) { // TODO Point 객체로 바꿔야 함
-      throw new Error('sw: 유효하지 않습니다.');
+      throw new Error(`sw:${sw}/유효하지 않습니다.`);
     }
     if (!ne) { // TODO Point 객체로 바꿔야 함
-      throw new Error('ne: 유효하지 않습니다.');
+      throw new Error(`ne:${ne} 유효하지 않습니다.`);
     }
     if (!utils.isLatitude(sw.lat)) { // TODO 일반 util에서 이쪽으로 옮겨야 함
       throw new Error(`sw.lat:${sw.lat}: 유효하지 않습니다.`);
@@ -66,6 +66,19 @@ class Bound {
     return new Bound(result.sw, result.ne);
   }
 
+  /**
+   * Bounds의 정보를 LatLngBoundsObjectLiteral로 바꿔줍니다.
+   *
+   * @return {LatLngBoundsObjectLiteral} Naver의 LatLngBoundsObjectLiteral 인스턴스
+   */
+  getLatLngBoundsObjectLiteral() {
+    return {
+      north: this.ne.lat,
+      east: this.ne.lng,
+      south: this.sw.lat,
+      west: this.sw.lng,
+    };
+  }
   // TODO 현재 경계보다 확대, 축소된 경계를 제공하는 기능이 필요함
 }
 
@@ -82,7 +95,6 @@ export default {
       if (!v || !utils.isLatitude(v.lat) || !utils.isLongitude(v.lng)) {
         return acc;
       }
-
       return {
         sw: utils.getSWby2Points(acc.sw, v),
         ne: utils.getNEby2Points(acc.ne, v),

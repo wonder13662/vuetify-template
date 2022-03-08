@@ -1,4 +1,5 @@
 import moment from 'moment';
+import lodash from 'lodash';
 import {
   h3IsValid,
 } from 'h3-js';
@@ -74,6 +75,9 @@ export default {
       return acc;
     }, new Set());
   },
+  convertSetToList(aSet) {
+    return Array.from(aSet);
+  },
   convertMapToList(map) {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#relation_with_array_objects
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#cloning_and_merging_maps
@@ -81,6 +85,9 @@ export default {
   },
   convertMapKeysToList(map) {
     return Array.from(new Map(map).keys());
+  },
+  convertObjKeysToList(obj) {
+    return Array.from(Object.keys(obj));
   },
   convertObjValuesToList(obj) {
     return Array.from(Object.values(obj));
@@ -129,12 +136,29 @@ export default {
     // '2021-06-28' to '2021-06-28T23:59:59.000Z'
     return moment(yyyymmdd, 'YYYY-MM-DD').endOf('day').utc().toISOString();
   },
+  // @ deprecated
   convertLocalYYYYMMDDHHmmssStrToUTC(str) {
-    return moment(str, YYYYMMDDHHmmss).utc().toISOString();
+    return this.convertLocalToUTCYYYYMMDDHHmmss(str);
   },
-  convertUTCToLocalYYYYMMDDHHmmss(utc) {
-    // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
-    return moment(utc).format(YYYYMMDDHHmmss);
+  /**
+   * local 시각 문자열(YYYYMMDDHHmmss)을 UTC unixTime 시각 문자열로 바꿔줍니다.
+   *
+   * @param {string} localTimeStr - local 기준의 YYYYMMDDHHmmss 포맷의 시각 문자열(ex: '2021-06-28 06:03:01')
+   *
+   * @return {string} UTC 기준의 unixTime 문자열(ex: '2021-06-28T06:03:01.291Z')
+   */
+  convertLocalToUTCYYYYMMDDHHmmss(localTimeStr) {
+    return moment(localTimeStr, YYYYMMDDHHmmss).utc().toISOString();
+  },
+  /**
+   * UTC unixTime 시각 문자열을 local의 시간으로 포맷(YYYYMMDDHHmmss)에 맞게 바꿔줍니다.
+   *
+   * @param {string} utcTimeStr - UTC 기준의 unixTime 문자열(ex: '2021-06-28T06:03:01.291Z')
+   *
+   * @return {string} local 기준의 YYYYMMDDHHmmss 포맷의 시각 문자열(ex: '2021-06-28 06:03:01')
+   */
+  convertUTCToLocalYYYYMMDDHHmmss(utcTimeStr) {
+    return moment(utcTimeStr).format(YYYYMMDDHHmmss);
   },
   convertUTCToLocalYYYYMMDD(utc) {
     // '2021-06-28T06:03:01.291Z' to '2021-06-28'
@@ -143,6 +167,35 @@ export default {
   convertUTCToLocalHHmmss(utc) {
     // '2021-06-28T06:03:01.291Z' to '06:03:01'
     return moment(utc).format(HHmmss);
+  },
+  /**
+   * 문자열 'HH:mm'로 표현된 시간을 UTC에서 Local로 바꿔줍니다.
+   *
+   * @param {string} UTCHHmmStr - UTC 기준의 'HH:mm' 형식의 시간 문자열
+   *
+   * @return {string} Local 기준의 'HH:mm' 형식의 시간 문자열
+   */
+  convertUTCToLocalHHmmStr(UTCHHmmStr) {
+    const UTCHHmmArr = UTCHHmmStr.split(':');
+    const hours = Number(UTCHHmmArr[0]);
+    const minutes = Number(UTCHHmmArr[1]);
+    // eslint-disable-next-line newline-per-chained-call
+    const utcISOString = moment().utc().hour(hours).minute(minutes).toISOString();
+    return moment(utcISOString).format('HH:mm');
+  },
+  /**
+   * 문자열 'HH:mm'로 표현된 시간을 UTC에서 Local로 바꿔줍니다.
+   *
+   * @param {string} UTCHHmmStr - Local 기준의 'HH:mm' 형식의 시간 문자열
+   *
+   * @return {string} Local 기준의 'HH:mm' 형식의 시간 문자열
+   */
+  convertLocalToUTCHHmmStr(LocalHHmmStr) {
+    const LocalHHmmArr = LocalHHmmStr.split(':');
+    const hours = Number(LocalHHmmArr[0]);
+    const minutes = Number(LocalHHmmArr[1]);
+    const localMoment = moment().hour(hours).minute(minutes);
+    return moment(localMoment).utc().format('HH:mm');
   },
   // '2021-06-28T06:03:01.291Z' to '2021-06-28 06:03:01'
   // @ Deprecated
@@ -170,6 +223,13 @@ export default {
     }
     return id.slice(0, 8).toUpperCase();
   },
+  makeStrKey: (key) => `${key}`,
+  isSameKeys(a, b) {
+    if (!a || !b) {
+      return false;
+    }
+    return this.makeStrKey(a) === this.makeStrKey(b);
+  },
   convertServiceUserApproveStatusReadable(approveStatus) {
     if (!approveStatus || !SERVICEUSER_APPROVE_STATUS_SET.has(approveStatus)) {
       throw new Error(`approveStatus: ${i18n.t('common.error.notValid')}`);
@@ -185,29 +245,34 @@ export default {
    * @return {object} add: 추가된 값들, remove 삭제된 값들
    */
   branchAddRemove(origin, modified) {
-    const originSet = this.convertListToSet(origin);
-    const modifiedSet = this.convertListToSet(modified);
-    const mergedSet = new Set([...originSet, ...modifiedSet]);
-    const mergedList = [...mergedSet];
-    const addSet = new Set();
-    const removeSet = new Set();
-    // 1. 지울 것들을 찾는다(orign에는 있고, modified에는 없는 값).
-    mergedList.forEach((v) => {
-      if (originSet.has(v) && !modifiedSet.has(v)) {
-        removeSet.add(v);
-      }
-    });
-
-    // 2. 추가할 것들을 찾는다(orign에는 없고, modified에는 있는 값).
-    mergedList.forEach((v) => {
-      if (!originSet.has(v) && modifiedSet.has(v)) {
-        addSet.add(v);
-      }
-    });
-
+    // 1. https://lodash.com/docs/4.17.15#difference
     return {
-      add: [...addSet],
-      remove: [...removeSet],
+      add: lodash.difference(modified, origin),
+      remove: lodash.difference(origin, modified),
     };
+  },
+  /**
+   * 두 개의 배열을 합칩니다. 중복된 값은 1개만 남겨 unique를 보장합니다.
+   * https://lodash.com/docs/4.17.15#union
+   *
+   * @param {array} origin - 원본 배열
+   * @param {array} add - 추가된 배열
+   *
+   * @return {array} origin과 add가 합쳐진 배열
+   */
+  lodashUnion(origin, add) {
+    return lodash.union(origin, add);
+  },
+  /**
+   * origin 배열에서 remove 배열의 인자들을 제거합니다.
+   * https://lodash.com/docs/4.17.15#without
+   *
+   * @param {array} origin - 원본 배열
+   * @param {array} remove - 제거할 인자들의 배열
+   *
+   * @return {array} origin에서 remove의 인자를 제거한 배열
+   */
+  lodashWithout(origin, remove) {
+    return lodash.without(origin, ...remove);
   },
 };

@@ -1,5 +1,5 @@
-import boundHandler from './lib/boundHandler';
-import naverMapWrapper from './lib/naverMapWrapper';
+import boundHandler from '../lib/boundHandler';
+import naverMapWrapper from '../lib/naverMapWrapper';
 
 /**
  * 네이버 맵 API를 로드할 url을 가져옵니다.
@@ -169,6 +169,7 @@ export default {
           id,
           url: naverMapUrl,
           onLoad: (v) => {
+            scriptLoadingStatus = NAVER_MAP_SCRIPT_LOADING_STATUS__DONE;
             resolve(v);
             callbackMapsOnNaverMapScriptLoaded.forEach((callback) => {
               callback.resolve(v);

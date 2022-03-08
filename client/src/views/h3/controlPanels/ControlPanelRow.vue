@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
-import BaseText from '@/components/base/v1/BaseText';
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseText from '@/components/base/BaseText';
 
 export default {
   name: 'ControlPanelRow',

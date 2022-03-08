@@ -6,7 +6,10 @@
 </template>
 
 <script>
-import naverMapV2 from '@/lib/naverMapV2';
+import {
+  constants,
+  naverMap,
+} from '@/lib/naverMapV2';
 
 export default {
   name: 'BaseNaverMapV2',
@@ -46,6 +49,15 @@ export default {
     bound: {
       type: Object,
       default: null,
+    },
+    // https://navermaps.github.io/maps.js.ncp/docs/naver.maps.html#toc15__anchor
+    // https://navermaps.github.io/maps.js.ncp/docs/tutorial-8-map-maxbounds.example.html
+    // https://navermaps.github.io/maps.js.ncp/docs/global.html#toc33__anchor
+    // LatLngBoundsObjectLiteral로 변환합니다.
+    // 지도에서 보이는 최대 좌표 경계
+    maxBounds: {
+      type: Object,
+      default: () => (constants.NAVER_LAT_LNG_BOUNDS_OBJECT_LITERAL),
     },
     // 마우스 또는 손가락을 이용한 지도 이동(패닝) 허용 여부입니다.
     draggable: {
@@ -92,22 +104,15 @@ export default {
       type: Boolean,
       default: false,
     },
-    // @ Deprecated - overlays로 전달해주세요.
-    // 마커 배열
-    markerGroups: {
-      type: Array,
-      default: () => ([]),
+    // 지도의 최대 줌 레벨
+    maxZoom: {
+      type: Number,
+      default: 18,
     },
-    // @ Deprecated - overlays로 전달해주세요.
-    // 거리 polyline 배열
-    distanceLineGroups: {
-      type: Array,
-      default: () => ([]),
-    },
-    // @ Deprecated - overlays로 전달해주세요.
-    hexagonGroups: {
-      type: Array,
-      default: () => ([]),
+    // 지도의 최소 줌 레벨
+    minZoom: {
+      type: Number,
+      default: 14, // 읍,면,동
     },
     // 지도 위에 그려지는 오버레이 객체의 배열
     // 마커, 거리폴리라인, hexagonGroups도 모두 오버레이 객체입니다.
@@ -116,9 +121,18 @@ export default {
       type: Array,
       default: () => ([]),
       validator: (v) => {
-        // draw, remove 인터페이스를 반드시 가져야 합니다.
-        const found = v.find(({ draw, remove }) => !draw || !remove);
-        return !found;
+        const foundWrong = v.find(({ draw, setNaverMap, remove }) => {
+          // 1. draw, setNaverMap 중에서 하나는 반드시 구현해야 합니다.
+          if (!draw && !setNaverMap) {
+            return true;
+          }
+          // 2. remove는 반드시 구현해야 합니다.
+          if (!remove) {
+            return true;
+          }
+          return false;
+        });
+        return !foundWrong;
       },
     },
   },
@@ -137,39 +151,12 @@ export default {
         this.naverMap.addOverlays(v);
       }
     },
-    markerGroups(val) { // REMOVE ME @deprecated
-      if (!this.naverMap) {
-        return;
-      }
-      this.naverMap.removeMarkerGroups();
-      if (val && val.length > 0) {
-        this.naverMap.addMarkerGroups(val);
-      }
-    },
-    distanceLineGroups(val) { // REMOVE ME @deprecated
-      if (!this.naverMap) {
-        return;
-      }
-      this.naverMap.removeDistanceLineGroups();
-      if (val && val.length > 0) {
-        this.naverMap.addDistanceLineGroups(val);
-      }
-    },
     bound(val) {
       if (!this.naverMap) {
         return;
       }
       if (val) {
         this.naverMap.fitBounds(val);
-      }
-    },
-    hexagonGroups(val) { // REMOVE ME @deprecated
-      if (!this.naverMap) {
-        return;
-      }
-      this.naverMap.removeHexagonGroups();
-      if (val && val.length > 0) {
-        this.naverMap.addHexagonGroups(val);
       }
     },
   },
@@ -186,7 +173,7 @@ export default {
   methods: {
     initMaps() {
       const { mapId } = this;
-      this.naverMap = naverMapV2.createNaverMap({
+      this.naverMap = naverMap.createNaverMap({
         mapId,
         clientId: process.env.VUE_APP_NAVER_MAP_API_KEY || '',
         mapOptions: {
@@ -199,6 +186,9 @@ export default {
           scaleControl: this.scaleControl,
           scrollWheel: this.scrollWheel,
           zoomControl: this.zoomControl,
+          maxBounds: this.maxBounds,
+          maxZoom: this.maxZoom,
+          minZoom: this.minZoom,
         },
         onCompleted: () => {
           this.onLoaded();
@@ -207,21 +197,8 @@ export default {
           this.naverMap.addCallbackOnClick((v) => {
             this.$emit('click', v);
           });
-
           if (this.bound) {
             this.naverMap.fitBounds(this.bound);
-          }
-          // @ Deprecated
-          if (this.markerGroups && this.markerGroups.length > 0) {
-            this.naverMap.addMarkerGroups(this.markerGroups);
-          }
-          // @ Deprecated
-          if (this.distanceLineGroups && this.distanceLineGroups.length > 0) {
-            this.naverMap.addDistanceLineGroups(this.distanceLineGroups);
-          }
-          // @ Deprecated
-          if (this.hexagonGroups && this.hexagonGroups.length > 0) {
-            this.naverMap.addHexagonGroups(this.hexagonGroups);
           }
           if (this.overlays && this.overlays.length > 0) {
             this.naverMap.addOverlays(this.overlays);

@@ -73,25 +73,13 @@ describe('lib/naverMapV2/lib/boundHandler.js', () => {
     expect(() => boundHandler.createBounds(sw, ne)).toThrow();
   });
 
-  test('#2-11 예외상황: sw.lat가 ne.lat와 같음', () => {
-    const sw = { lat: 30, lng: 30 };
-    const ne = { lat: 30, lng: 40 };
-    expect(() => boundHandler.createBounds(sw, ne)).toThrow();
-  });  
-
   test('#2-11 예외상황: sw.lat가 ne.lat보다 큼', () => {
     const sw = { lat: 40, lng: 30 };
     const ne = { lat: 30, lng: 40 };
     expect(() => boundHandler.createBounds(sw, ne)).toThrow();
   });
 
-  test('#2-11 예외상황: sw.lng가 ne.lng와 같음', () => {
-    const sw = { lat: 30, lng: 30 };
-    const ne = { lat: 40, lng: 30 };
-    expect(() => boundHandler.createBounds(sw, ne)).toThrow();
-  });  
-
-  test('#2-11 예외상황: sw.lat가 ne.lat보다 큼', () => {
+  test('#2-12 예외상황: sw.lat가 ne.lat보다 큼', () => {
     const sw = { lat: 30, lng: 40 };
     const ne = { lat: 40, lng: 30 };
     expect(() => boundHandler.createBounds(sw, ne)).toThrow();
@@ -184,4 +172,17 @@ describe('lib/naverMapV2/lib/boundHandler.js', () => {
     expect(bounds.sw).toEqual({ lat: 10, lng: 10 });
     expect(bounds.ne).toEqual({ lat: 30, lng: 30 });
   });
+
+  test('#3-9 대한민국 전체 영역 구하기', () => {    
+    const points = [
+      { lat: 37.643208355947564, lng: 124.65179445354838 },
+      { lat: 38.61217111597735, lng: 128.3710862424549 },
+      { lat: 36.033822975576214, lng: 129.71931194346803 },
+      { lat: 33.13034473005606, lng: 126.26382363432099 },
+      null,
+    ];
+    const bounds = boundHandler.createBoundsByPoints(points);
+    expect(bounds.sw).toEqual({ lat: 33.13034473005606, lng: 124.65179445354838 });
+    expect(bounds.ne).toEqual({ lat: 38.61217111597735, lng: 129.71931194346803 });
+  });  
 });

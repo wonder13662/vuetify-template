@@ -14,7 +14,7 @@
               draggable
               zoom-control
               scroll-wheel
-              @click="onClick"
+              @click="onClickAtNaverMap"
             />
           </div>
         </template>
@@ -36,34 +36,74 @@
               <div>
                 <!-- 3. 리스트: H3 Api 목록 -->
                 <GeoToH3
-                  :meta="geoToH3.meta"
-                  :show="geoToH3.show"
+                  :meta="GeoToH3.meta"
+                  :show="GeoToH3.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
                 <KRing
-                  :meta="kRing.meta"
-                  :show="kRing.show"
+                  :meta="KRing.meta"
+                  :show="KRing.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
                 <KRingDistances
-                  :meta="kRingDistances.meta"
-                  :show="kRingDistances.show"
+                  :meta="KRingDistances.meta"
+                  :show="KRingDistances.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
                 <HexRing
-                  :meta="hexRing.meta"
-                  :show="hexRing.show"
+                  :meta="HexRing.meta"
+                  :show="HexRing.show"
                   @change="onChange"
                   @change-overlays="onChangeOverlays"
                 />
                 <v-divider />
-                <H3Line />
+                <H3Line
+                  :meta="H3Line.meta"
+                  :show="H3Line.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
+                <v-divider />
+                <H3ToParent
+                  :meta="H3ToParent.meta"
+                  :show="H3ToParent.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
+                <v-divider />
+                <H3ToChildren
+                  :meta="H3ToChildren.meta"
+                  :show="H3ToChildren.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
+                <v-divider />
+                <H3ToCenterChild
+                  :meta="H3ToCenterChild.meta"
+                  :show="H3ToCenterChild.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
+                <v-divider />
+                <Compact
+                  :meta="Compact.meta"
+                  :show="Compact.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
+                <v-divider />
+                <H3PolygonSelector
+                  :meta="H3PolygonSelector.meta"
+                  :show="H3PolygonSelector.show"
+                  @change="onChange"
+                  @change-overlays="onChangeOverlays"
+                />
               </div>
             </template>
           </BaseContentVerticalLayout>
@@ -74,21 +114,53 @@
 </template>
 
 <script>
-import BaseNaverMap from '@/components/base/v1/BaseNaverMapV2';
-import BaseContentHorizontalLayout from '@/components/base/v2/BaseContentHorizontalLayout';
-import BaseContentVerticalLayout from '@/components/base/v2/BaseContentVerticalLayout';
-import BaseHeading from '@/components/base/v1/BaseHeading';
+import BaseNaverMap from '@/components/base/BaseNaverMapV2';
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseContentVerticalLayout from '@/components/base/BaseContentVerticalLayout';
+import BaseHeading from '@/components/base/BaseHeading';
 import GeoToH3 from './controlPanels/GeoToH3';
 import KRing from './controlPanels/KRing';
 import KRingDistances from './controlPanels/KRingDistances';
 import HexRing from './controlPanels/HexRing';
 import H3Line from './controlPanels/H3Line';
+import H3ToParent from './controlPanels/H3ToParent';
+import H3ToChildren from './controlPanels/H3ToChildren';
+import H3ToCenterChild from './controlPanels/H3ToCenterChild';
+import Compact from './controlPanels/Compact';
+import H3PolygonSelector from './controlPanels/H3PolygonLasso';
+
 /*
 H3 Api의 기능을 네이버 맵 위에 표시합니다.
 - https://h3geo.org/
 */
+const CONTROL_PANEL_KEYS = [
+  'GeoToH3',
+  'KRing',
+  'KRingDistances',
+  'HexRing',
+  'H3Line',
+  'H3ToParent',
+  'H3ToChildren',
+  'H3ToCenterChild',
+  'Compact',
+  'H3PolygonSelector',
+];
+const createControlPanelMap = () => CONTROL_PANEL_KEYS.reduce((acc, key) => {
+  acc[key] = {
+    meta: {
+      key,
+      point: {
+        lat: null,
+        lng: null,
+      },
+    },
+    show: false,
+  };
+  return acc;
+}, {});
+
 export default {
-  name: 'Map',
+  name: 'H3',
   components: {
     BaseNaverMap,
     BaseContentHorizontalLayout,
@@ -99,50 +171,16 @@ export default {
     KRingDistances,
     HexRing,
     H3Line,
+    H3ToParent,
+    H3ToChildren,
+    H3ToCenterChild,
+    Compact,
+    H3PolygonSelector,
   },
   data() {
     return {
-      keys: ['geoToH3', 'kRing', 'kRingDistances', 'hexRing'],
-      geoToH3: {
-        meta: {
-          key: 'geoToH3',
-          point: {
-            lat: null,
-            lng: null,
-          },
-        },
-        show: false,
-      },
-      kRing: {
-        meta: {
-          key: 'kRing',
-          point: {
-            lat: null,
-            lng: null,
-          },
-        },
-        show: false,
-      },
-      kRingDistances: {
-        meta: {
-          key: 'kRingDistances',
-          point: {
-            lat: null,
-            lng: null,
-          },
-        },
-        show: false,
-      },
-      hexRing: {
-        meta: {
-          key: 'hexRing',
-          point: {
-            lat: null,
-            lng: null,
-          },
-        },
-        show: false,
-      },
+      keys: CONTROL_PANEL_KEYS,
+      ...createControlPanelMap(),
       overlays: [],
     };
   },
@@ -150,15 +188,12 @@ export default {
     onChangeOverlays(overlays) {
       this.overlays = overlays;
     },
+    // TODO 여기서 자식 컴포넌트가 클릭한 좌표 정보를 알아야할 이유가 있을까? 없어도 될 것 같은데?
     onChange({ meta, show }) {
       this.keys.forEach((key) => {
         if (key === meta.key) {
           this[key] = {
             ...this[key],
-            meta: {
-              ...meta,
-              point: !show ? { lat: null, lng: null } : meta.point,
-            },
             show,
           };
         } else {
@@ -169,7 +204,8 @@ export default {
         }
       });
     },
-    onClick({ lat, lng }) {
+    // eslint-disable-next-line no-unused-vars
+    onClickAtNaverMap({ lat, lng }) {
       const foundOpenPanelKey = this.keys.find((key) => (this[key] && this[key].show));
       if (foundOpenPanelKey) {
         this[foundOpenPanelKey] = {

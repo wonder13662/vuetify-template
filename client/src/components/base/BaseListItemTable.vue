@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import BaseText from '@/components/base/v1/BaseText';
+import BaseText from '@/components/base/BaseText';
 
 export default {
   components: {
