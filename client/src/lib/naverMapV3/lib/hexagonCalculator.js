@@ -18,10 +18,12 @@ import {
 } from './constants';
 import naverMapWrapper from './naverMapWrapper';
 import boundHandler from './boundHandler';
-import utils from './utils';
+import mapUtils from './utils';
 
 /**
  * H3를 좌표값 배열로 바꿔줍니다.
+ *
+ * @deprecated
  *
  * @param {array} h3Indexes - GeoJSON으로 바꿀 H3 배열
  *
@@ -48,10 +50,10 @@ const convertPointsToBound = (points) => {
   const src = points.reduce((acc, v) => {
     const { lat, lng } = v;
 
-    if (!utils.isLatitude(lat)) {
+    if (!mapUtils.isLatitude(lat)) {
       throw new Error(`lat:${lat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(lng)) {
+    if (!mapUtils.isLongitude(lng)) {
       throw new Error(`lng:${lng}: 유효하지 않음`);
     }
 
@@ -99,6 +101,28 @@ const convertPointsToBound = (points) => {
 };
 
 export default {
+  /**
+   * Point 배열을 h3Index의 배열로 바꿔줍니다
+   *
+   * @param {array<Point>} - Point의 배열
+   *
+   * @return {array<H3Index>} - h3Index의 배열
+   */
+  convertPointsToH3Indexes(points) {
+    if (!points) {
+      return [];
+    }
+    points.forEach((p) => {
+      if (!mapUtils.isValidPoint(p)) {
+        throw new Error(`p:${p}/유효하지 않습니다.`);
+      }
+    });
+
+    const polygon = points.map(({ lat, lng }) => ([lat, lng]));
+    // https://github.com/uber/h3-js#useful-algorithms
+    return polyfill(polygon, H3_RESOLUTION);
+  },
+
   /**
    * 좌표값을 H3Index로 바꿔줍니다.
    *
@@ -162,16 +186,16 @@ export default {
       _min: { _lat: minLat, _lng: minLng },
     } = naverMapBounds;
 
-    if (!utils.isLatitude(maxLat)) {
+    if (!mapUtils.isLatitude(maxLat)) {
       throw new Error(`lat:${maxLat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(maxLng)) {
+    if (!mapUtils.isLongitude(maxLng)) {
       throw new Error(`lng:${maxLng}: 유효하지 않음`);
     }
-    if (!utils.isLatitude(minLat)) {
+    if (!mapUtils.isLatitude(minLat)) {
       throw new Error(`lat:${minLat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(minLng)) {
+    if (!mapUtils.isLongitude(minLng)) {
       throw new Error(`lng:${minLng}: 유효하지 않음`);
     }
 
@@ -193,16 +217,16 @@ export default {
       _min: { y: minLat, x: minLng },
     } = naverMapPointBounds;
 
-    if (!utils.isLatitude(maxLat)) {
+    if (!mapUtils.isLatitude(maxLat)) {
       throw new Error(`lat:${maxLat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(maxLng)) {
+    if (!mapUtils.isLongitude(maxLng)) {
       throw new Error(`lng:${maxLng}: 유효하지 않음`);
     }
-    if (!utils.isLatitude(minLat)) {
+    if (!mapUtils.isLatitude(minLat)) {
       throw new Error(`lat:${minLat}: 유효하지 않음`);
     }
-    if (!utils.isLongitude(minLng)) {
+    if (!mapUtils.isLongitude(minLng)) {
       throw new Error(`lng:${minLng}: 유효하지 않음`);
     }
 
@@ -249,6 +273,8 @@ export default {
   /**
    * H3를 경계(Bound) 객체로 바꿔줍니다.
    *
+   * @deprecated convertH3IndexToPoints가 정확하지 않습니다. 사용을 자제해주세요.
+   *
    * @param {array} h3Indexes - GeoJSON으로 바꿀 H3 배열
    *
    * @return {Bound} 경계 객체
@@ -264,6 +290,8 @@ export default {
   /**
    * H3를 Naver polygon을 그리기 위한 path 배열로 바꿔줍니다.
    *
+   * @deprecated getPathsFromH3Indexes를 대신 사용해주세요
+   *
    * @param {array} h3Indexes - GeoJSON으로 바꿀 H3 배열
    *
    * @return {Bound} 경계 객체
@@ -271,6 +299,29 @@ export default {
   convertH3IndexesToNaverPolygonPaths(h3Indexes) {
     const points = convertH3IndexToPoints(h3Indexes);
     return points.map(({ lat, lng }) => (naverMapWrapper.getLatLng(lat, lng)));
+  },
+
+  /**
+   * h3Index의 배열을 naver의 polygon들을 나타내는 ArrayOfCoordsLiteral로 바꿉니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/global.html#toc14__anchor
+   *
+   * @param {array} h3Indexes - h3Index 배열
+   *
+   * @return {array<ArrayOfCoordsLiteral>} Naver 폴리곤의 paths를 나타내는 배열
+   */
+  getPathsFromH3Indexes(h3Indexes) {
+    const multiPolygons = h3SetToMultiPolygon(h3Indexes);
+    // eslint-disable-next-line max-len
+    const polygons = [];
+    multiPolygons.forEach((multiPolygon) => {
+      multiPolygon.forEach((polygon) => {
+        polygons.push(polygon);
+      });
+    });
+    return polygons.map((polygon) => polygon.map((point) => ({
+      lat: point[0],
+      lng: point[1],
+    })));
   },
 
   /**

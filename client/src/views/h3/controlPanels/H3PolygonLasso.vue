@@ -23,7 +23,7 @@
 import BaseExpandableRow from '@/components/base/BaseExpandableRow';
 import {
   hexagonSelectorHandler,
-} from '@/lib/naverMapV2';
+} from '@/lib/naverMapV3';
 
 const hexagonSelector = hexagonSelectorHandler.createHexagonSelector({
   meta: {
