@@ -7,7 +7,12 @@
       @click="onClick"
     >
       <template v-slot:body>
-        <div>Content</div>
+        <div
+          v-for="h3Index in h3Indexes"
+          :key="h3Index"
+        >
+          <div>{{ h3Index }}</div>
+        </div>
       </template>
     </BaseExpandableRow>
   </div>
@@ -46,6 +51,11 @@ export default {
       default: () => ({}),
     },
   },
+  data() {
+    return {
+      h3Indexes: [],
+    };
+  },
   watch: {
     show(v) {
       hexagonSelector.clear();
@@ -75,8 +85,7 @@ export default {
       });
     },
     onChange(v) {
-      // eslint-disable-next-line no-console
-      console.log('HERE/onChange/v:', v);
+      this.h3Indexes = v;
     },
 
   },
