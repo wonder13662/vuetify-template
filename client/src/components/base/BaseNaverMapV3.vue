@@ -8,13 +8,11 @@
 <script>
 import {
   constants,
-// eslint-disable-next-line import/no-duplicates
-} from '@/lib/naverMapV2';
-// eslint-disable-next-line import/no-duplicates
-import naverMapV2 from '@/lib/naverMapV2';
+  naverMap,
+} from '@/lib/naverMapV3';
 
 export default {
-  name: 'BaseNaverMapV2',
+  name: 'BaseNaverMapV3',
   props: {
     mapId: {
       type: String,
@@ -123,9 +121,18 @@ export default {
       type: Array,
       default: () => ([]),
       validator: (v) => {
-        // draw, remove 인터페이스를 반드시 가져야 합니다.
-        const found = v.find(({ draw, remove }) => !draw || !remove);
-        return !found;
+        const foundWrong = v.find(({ draw, setNaverMap, remove }) => {
+          // 1. draw, setNaverMap 중에서 하나는 반드시 구현해야 합니다.
+          if (!draw && !setNaverMap) {
+            return true;
+          }
+          // 2. remove는 반드시 구현해야 합니다.
+          if (!remove) {
+            return true;
+          }
+          return false;
+        });
+        return !foundWrong;
       },
     },
   },
@@ -166,7 +173,7 @@ export default {
   methods: {
     initMaps() {
       const { mapId } = this;
-      this.naverMap = naverMapV2.createNaverMap({
+      this.naverMap = naverMap.createNaverMap({
         mapId,
         clientId: process.env.VUE_APP_NAVER_MAP_API_KEY || '',
         mapOptions: {

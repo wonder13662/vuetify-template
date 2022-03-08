@@ -2,6 +2,8 @@ import utils from '@/lib/utils';
 import boundHandler from './boundHandler';
 
 export const H3_RESOLUTION = 9;
+export const H3_RESOLUTION_MIN = 0;
+export const H3_RESOLUTION_MAX = 15;
 export const MIN_ZOOM = 13;
 export const DEFAULT_ZOOM = 13;
 export const MIN_ZOOM_POLYGON_VISIBLE = 15;
@@ -34,6 +36,8 @@ export const OVERLAY_EVENT = {
   FOCUS: 'FOCUS',
   BLUR: 'BLUR',
   CLICK: 'CLICK',
+  RIGHT_CLICK: 'RIGHT_CLICK',
+  MOUSE_MOVE: 'MOUSE_MOVE',
 };
 export const OVERLAY_EVENT_SET = utils.convertObjToSet(OVERLAY_EVENT);
 export const OVERLAY_STATUS = {
@@ -42,6 +46,12 @@ export const OVERLAY_STATUS = {
   NO_STATUS: 'NO_STATUS',
 };
 export const OVERLAY_STATUS_SET = utils.convertObjToSet(HEXAGON_STATUS);
+
+export const OVERLAY_MODE = {
+  READ: 'READ',
+  EDIT: 'EDIT',
+};
+export const OVERLAY_MODE_SET = utils.convertObjToSet(OVERLAY_MODE);
 
 export const DISTANCE_LINE_STROKE_STYLE = {
   SOLID: 'solid',
@@ -57,6 +67,7 @@ export const DISTANCE_LINE_STROKE_STYLE = {
   LONGDASHDOTDOT: 'longdashdotdot',
 };
 export const DISTANCE_LINE_STROKE_STYLE_SET = utils.convertObjToSet(DISTANCE_LINE_STROKE_STYLE);
+
 export const BOUNDS_SOUTH_KOREA = boundHandler.createBoundsByPoints([
   {
     lat: 38.61217111597735,
@@ -81,3 +92,20 @@ export const BOUNDS_SOUTH_KOREA_SEOUL = boundHandler.createBoundsByPoints([
 
 // eslint-disable-next-line max-len
 export const NAVER_LAT_LNG_BOUNDS_OBJECT_LITERAL = BOUNDS_SOUTH_KOREA_SEOUL.getLatLngBoundsObjectLiteral();
+
+export const NAVER_MAP_POSITION_MAP = {
+  CENTER: 'CENTER',
+  TOP_LEFT: 'TOP_LEFT',
+  TOP_CENTER: 'TOP_CENTER',
+  TOP_RIGHT: 'TOP_RIGHT',
+  LEFT_CENTER: 'LEFT_CENTER',
+  LEFT_TOP: 'LEFT_TOP',
+  LEFT_BOTTOM: 'LEFT_BOTTOM',
+  RIGHT_TOP: 'RIGHT_TOP',
+  RIGHT_CENTER: 'RIGHT_CENTER',
+  RIGHT_BOTTOM: 'RIGHT_BOTTOM',
+  BOTTOM_LEFT: 'BOTTOM_LEFT',
+  BOTTOM_CENTER: 'BOTTOM_CENTER',
+  BOTTOM_RIGHT: 'BOTTOM_RIGHT',
+};
+export const NAVER_MAP_POSITION_SET = utils.convertObjToSet(NAVER_MAP_POSITION_MAP);

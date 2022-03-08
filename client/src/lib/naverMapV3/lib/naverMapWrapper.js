@@ -2,6 +2,8 @@ import utils from './utils';
 import {
   MAX_ZOOM,
   MIN_ZOOM_POLYGON_VISIBLE,
+  NAVER_MAP_POSITION_MAP,
+  NAVER_MAP_POSITION_SET,
 } from './constants';
 
 // 네이버 지도 Api를 wrapper로 감싼 이유
@@ -144,6 +146,32 @@ export default {
     return new naver.maps.InfoWindow(options);
   },
   /**
+   * 대상 HTML element에서 이벤트 알림을 받아 핸들러를 호출하는 리스너를 등록합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Event.html#-static-addDOMListener__anchor
+   *
+   * @param {object} element - 이벤트 대상 객체
+   * @param {string} eventName - 이벤트 이름
+   * @param {function} listener - 이벤트 리스너
+   *
+   * @return {DOMEventListener} DOM 이벤트 리스닝 객체
+   */
+  addDOMListener(element, eventName, listener) {
+    const naver = getNaver();
+    return naver.maps.Event.addDOMListener(element, eventName, listener);
+  },
+  /**
+   * 대상 HTML element의 DOM Listener를 제거합니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Event.html#-static-removeDOMListener__anchor
+   *
+   * @param {object|array} listeners - 이벤트 리스닝 객체 또는 이벤트 리스닝 객체의 배열
+   *
+   * @return {void} 반환값 없음
+   */
+  removeDOMListener(listeners) {
+    const naver = getNaver();
+    return naver.maps.Event.removeDOMListener(listeners);
+  },
+  /**
    * 대상 객체에서 이벤트 알림을 받아 핸들러를 호출하는 리스너를 등록합니다.
    * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Event.html#-static-addListener__anchor
    *
@@ -222,6 +250,7 @@ export default {
     return naver.maps.PointingIcon.CIRCLE;
   },
   /**
+   * @depreacted
    * 지도 위에 polygon을 그립니다.
    *
    * @param {object} map naver map 인스턴스
@@ -275,6 +304,43 @@ export default {
     };
   },
   /**
+   * 지도 위에 polygon을 그립니다.
+   * 이벤트 리스너 작업은 여기서 하지 않습니다.
+   * 이벤트 리스너 작업은 overlayEventHandler를 사용해주세요.
+   *
+   * @param {object} map naver map 인스턴스
+   * @param {array} naverPolygonPaths naver map polygon path 배열
+   * @param {object} style naver map polygon에 적용할 css 스타일
+   *
+   * @return {object} 네이버 맵 오버레이 폴리곤 인스턴스
+   */
+  drawPolygonNoListener({
+    map,
+    naverPolygonPaths,
+    visible = true,
+    clickable = true,
+    style = {},
+  }) {
+    if (!map) {
+      throw new Error('map: 유효하지 않습니다.');
+    }
+    if (!naverPolygonPaths || naverPolygonPaths.length === 0) {
+      throw new Error('naverPolygonPaths: 유효하지 않습니다.');
+    }
+
+    // https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-polygon-simple.example.html
+    /* eslint-disable no-new */
+    const polygon = this.getPolygon({
+      map,
+      paths: naverPolygonPaths,
+      visible,
+      clickable,
+      ...style,
+    });
+
+    return polygon;
+  },
+  /**
    * 지도 위에 polygon을 지웁니다.
    *
    * @param {object} polygon naver map polygon 인스턴스
@@ -304,5 +370,53 @@ export default {
     const isEOLThanMaxZoom = zoomLevel <= MAX_ZOOM;
 
     return isEOGThanMinZoom && isEOLThanMaxZoom;
+  },
+  /**
+   * 지도 위에 네이버 customControl을 그립니다.
+   *
+   * @param {string} html customControl의 모양을 나타내는 html
+   * @param {object} map naver map 객체
+   * @param {string} position naver map position
+   *
+   * @return {NaverCustomControl} 네이버 customCtonrol 타입 객체
+   */
+  drawCustomControl({ html, map, position }) {
+    if (!html) {
+      throw new Error(`drawCustomControl/html:${html}/유효하지 않습니다.`);
+    }
+    if (!map) {
+      throw new Error(`drawCustomControl/map:${map}/유효하지 않습니다.`);
+    }
+    let naverPosition = this.getNaverMapPosition(NAVER_MAP_POSITION_MAP.RIGHT_CENTER);
+    if (position) {
+      if (!NAVER_MAP_POSITION_SET.has(position)) {
+        throw new Error(`drawCustomControl/position:${position}/유효하지 않습니다.`);
+      }
+      naverPosition = this.getNaverMapPosition(position);
+    }
+
+    const naver = getNaver();
+    const customControl = new naver.maps.CustomControl(html, {
+      position: naverPosition,
+    });
+
+    customControl.setMap(map);
+
+    return customControl;
+  },
+  /**
+   * 지도 위에 고정 위치 상수값을 돌려줍니다.
+   * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.html#toc11__anchor
+   *
+   * @param {string} position 고정 위치 상수값 customControl의 모양을 나타내는 html
+   *
+   * @return {NaverCustomControl} 네이버 customCtonrol 타입 객체
+   */
+  getNaverMapPosition(position) {
+    if (!NAVER_MAP_POSITION_SET.has(position)) {
+      throw new Error(`getNaverMapPosition/position:${position}/유효하지 않습니다.`);
+    }
+    const naver = getNaver();
+    return naver.maps.Position[position];
   },
 };

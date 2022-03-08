@@ -114,7 +114,7 @@
 </template>
 
 <script>
-import BaseNaverMap from '@/components/base/BaseNaverMapV2';
+import BaseNaverMap from '@/components/base/BaseNaverMapV3';
 import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
 import BaseContentVerticalLayout from '@/components/base/BaseContentVerticalLayout';
 import BaseHeading from '@/components/base/BaseHeading';
