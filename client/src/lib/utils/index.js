@@ -19,7 +19,7 @@ export default {
   isValidArray(v, minLength = 0) {
     return v && v.length > minLength;
   },
-  isValidH3(v) {
+  isValidH3(v) { // REMOVE ME
     // https://h3geo.org/docs/api/inspection#h3isvalid
     return h3IsValid(v);
   },
@@ -29,12 +29,12 @@ export default {
     const rule = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return rule.test(id);
   },
-  isValidPhoneNumber(phoneNumber) {
+  isValidPhoneNumber(phoneNumber) { // REMOVE ME
     // https://luerangler-dev.tistory.com/41
     const rule = /^(01[016789]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
     return rule.test(phoneNumber);
   },
-  isValidEmail(email) {
+  isValidEmail(email) { // REMOVE ME
     // https://www.w3resource.com/javascript/form/email-validation.php
     const rule = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/i;
     return rule.test(email);
@@ -53,10 +53,10 @@ export default {
     const safeNumber = Number(v);
     return Number.isInteger(safeNumber) && safeNumber >= 0;
   },
-  isLatitude(v) {
+  isLatitude(v) { // REMOVE ME
     return Number.isFinite(v) && v >= -90 && v <= 90;
   },
-  isLongitude(v) {
+  isLongitude(v) { // REMOVE ME
     return Number.isFinite(v) && v >= -180 && v <= 180;
   },
   convertObjToSet(obj) {

@@ -1,4 +1,4 @@
-import polygonLassoHandler from '../polygonLassoHandler';
+import polygonLassoHandler from './polygonLassoHandler';
 import polygonHandler from '../polygonHandler';
 import hexagonCalculator from '../lib/hexagonCalculator';
 
