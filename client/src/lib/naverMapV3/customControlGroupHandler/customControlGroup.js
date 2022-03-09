@@ -1,5 +1,5 @@
 import naverMapWrapper from '../lib/naverMapWrapper';
-import htmlElementEventHandler from '../htmlElementEventHandler';
+import htmlElementEventHandler from './htmlElementEventHandler';
 import utils from '@/lib/utils';
 import {
   NAVER_MAP_POSITION_MAP,

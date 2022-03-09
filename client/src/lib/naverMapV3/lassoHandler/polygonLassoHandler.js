@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import mapUtils from '../lib/utils';
-import pointMarkerHandler from '../pointMarkerHandler';
+import pointMarkerHandler from './pointMarkerHandler';
 import polygonHandler from '../polygonHandler';
 import overlayEventHandler from '../overlayEventHandler';
 import {
