@@ -25,17 +25,12 @@ import {
   hexagonSelectorHandler,
 } from '@/lib/naverMapV3';
 
-const hexagonSelector = hexagonSelectorHandler.createHexagonSelector({
-  meta: {
-    name: 'H3PolygonLasso',
-  },
-  disabled: true,
-  visible: false,
-});
 
 // TODO 화면을 여닫는 시점에 데이터를 clear 할 수 있어야 한다
 // TODO 쌓인 데이터를 표시해야 한다
 // TODO 변경된 데이터를 Vue component 단으로 전달할 수 있어야 한다
+
+let hexagonSelector = null;
 
 export default {
   name: 'H3PolygonLasso',
@@ -58,24 +53,14 @@ export default {
   },
   watch: {
     show(v) {
-      hexagonSelector.clear();
       if (!v) {
-        hexagonSelector.setVisible(false);
-        hexagonSelector.setDisabled(true);
-        hexagonSelector.setOnChange(null);
+        this.destroyHexagonSelector();
         return;
       }
-      hexagonSelector.setVisible(true);
-      hexagonSelector.setDisabled(false);
-      hexagonSelector.setOnChange((h3Indexes) => {
-        this.onChange(h3Indexes);
-      });
+      this.destroyHexagonSelector();
+      this.createHexagonSelector();
+      this.emitChangeOverlays();
     },
-  },
-  created() {
-    this.$emit('change-overlays', [
-      hexagonSelector,
-    ]);
   },
   methods: {
     onClick({ meta, show }) {
@@ -87,7 +72,27 @@ export default {
     onChange(v) {
       this.h3Indexes = v;
     },
-
+    destroyHexagonSelector() {
+      if (hexagonSelector) {
+        hexagonSelector.destroy();
+        hexagonSelector = null;
+      }
+    },
+    createHexagonSelector() {
+      hexagonSelector = hexagonSelectorHandler.createHexagonSelector({
+        meta: {
+          name: 'H3PolygonLasso',
+        },
+        disabled: false,
+        visible: true,
+        onChange: (h3Indexes) => this.onChange(h3Indexes),
+      });
+    },
+    emitChangeOverlays() {
+      this.$emit('change-overlays', [
+        hexagonSelector,
+      ]);
+    },
   },
 };
 </script>
