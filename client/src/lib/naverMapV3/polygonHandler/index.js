@@ -1,7 +1,7 @@
-import mapUtils from '../lib/utils';
 import naverMapWrapper from '../lib/naverMapWrapper';
 import overlayEventHandler from '../overlayEventHandler';
 import hexagonCalculator from '../lib/hexagonCalculator';
+import boundHandler from '../lib/boundHandler';
 import {
   Z_INDEX_POLYGON_BORDER,
 } from '../lib/constants';
@@ -171,7 +171,7 @@ const getStyleEditFocus = () => ({
 });
 
 class Polygon {
-  #points
+  #paths
 
   #clickable
 
@@ -190,13 +190,18 @@ class Polygon {
   /**
    * 좌표를 받아 Naver 폴리곤을 제어(그리기,지우기)하는 Polygon 객체를 만듭니다.
    *
-   * @param {array} points - (required)위도(lat), 경도(lng) 속성을 가지는 Point 객체
+   * @param {array<ArrayOfCoordsLiteral>} paths - (required)위도(lat), 경도(lng) 속성을 가지는 Point 객체
+   * @param {boolean} clickable - (optional)Naver polygon 객체가 mouseevent를 받을 수 있는지 여부
+   * @param {function} onFocus - (optional)Naver polygon 객체에 mouseenter 이벤트시 호출되는 콜백
+   * @param {function} onBlur - (optional)Naver polygon 객체에 mouseleave 이벤트시 호출되는 콜백
+   * @param {function} onClick - (optional)Naver polygon 객체에 click 이벤트시 호출되는 콜백
+   * @param {function} onMousemove - (optional)Naver polygon 객체에 mousemove 이벤트시 호출되는 콜백
    * @param {object} meta - (optional)마커의 메타정보
    *
    * @return {Polygon} Polygon의 인스턴스
    */
   constructor({
-    points,
+    paths = [],
     clickable = true,
     onFocus = () => ({}),
     onBlur = () => ({}),
@@ -204,7 +209,7 @@ class Polygon {
     onMousemove = () => ({}),
     meta = {},
   }) {
-    this.#points = points;
+    this.#paths = paths;
     this.#clickable = clickable;
     this.#visible = true;
     this.#meta = { ...meta };
@@ -221,12 +226,23 @@ class Polygon {
   }
 
   /**
+   * 사용자가 입력한 meta 객체의 복사본을 돌려줍니다.
+   *
+   * @return {object} 사용자 meta 객체
+   */
+  get meta() {
+    return {
+      ...this.#meta,
+    };
+  }
+
+  /**
    * 주의: 이 메서드는 외부에서 호출하면 안됩니다.
-   * Polygon의 mode에 따라 Naver Polygon에 스타일을 적용합니다.
+   * Polygon의 mode에 따라 Naver Polygon에 Blur 스타일을 적용합니다.
    *
    * @return {void} 리턴값 없음
    */
-  updatePolygonStyle() {
+  updatePolygonStyleBlur() {
     switch (this.#mode) {
       case MODE.DISABLED:
         this.#naverPolygon.setOptions({
@@ -249,7 +265,40 @@ class Polygon {
         });
         break;
       default:
-        throw new Error(`Polygon/updatePolygonStyle/this.#mode:${this.#mode}/유효하지 않습니다.`);
+        throw new Error(`Polygon/updatePolygonStyleBlur/this.#mode:${this.#mode}/유효하지 않습니다.`);
+    }
+  }
+
+  /**
+   * 주의: 이 메서드는 외부에서 호출하면 안됩니다.
+   * Polygon의 mode에 따라 Naver Polygon에 Blur 스타일을 적용합니다.
+   *
+   * @return {void} 리턴값 없음
+   */
+  updatePolygonStyleFocus() {
+    switch (this.#mode) {
+      case MODE.DISABLED:
+        this.#naverPolygon.setOptions({
+          ...getStyleDisabledFocus(),
+        });
+        break;
+      case MODE.EDIT:
+        this.#naverPolygon.setOptions({
+          ...getStyleEditFocus(),
+        });
+        break;
+      case MODE.SELECTED:
+        this.#naverPolygon.setOptions({
+          ...getStyleSelectedFocus(),
+        });
+        break;
+      case MODE.UNSELECTED:
+        this.#naverPolygon.setOptions({
+          ...getStyleUnselectedFocus(),
+        });
+        break;
+      default:
+        throw new Error(`Polygon/updatePolygonStyleFocus/this.#mode:${this.#mode}/유효하지 않습니다.`);
     }
   }
 
@@ -268,17 +317,17 @@ class Polygon {
     if (this.#map) {
       return;
     }
+
     this.#map = map;
     // 네이버 폴리곤 객체를 지도 위에 그립니다.
-    const path = this.#points.map((p) => (naverMapWrapper.getLatLng(p.lat, p.lng)));
     this.#naverPolygon = naverMapWrapper.drawPolygonNoListener({
       map,
-      naverPolygonPaths: [path],
+      naverPolygonPaths: this.#paths,
       clickable: this.#clickable,
       style: getStyleUnselectedBlur(),
       visible: this.#visible,
     });
-    this.updatePolygonStyle();
+    this.updatePolygonStyleBlur();
     this.#overlayEventController.setOverlay(this.#naverPolygon);
   }
 
@@ -329,6 +378,7 @@ class Polygon {
 
   /**
    * Point들의 배열을 인자로 Polygon 객체의 Path를 설정합니다.
+   * 이 경우에는 오직 1개의 닫힌 다각형만 그리게 됩니다.
    * https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setPath__anchor
    *
    * @param {array} points - Point 객체의 배열
@@ -350,18 +400,19 @@ class Polygon {
       this.#naverPolygon.setVisible(true);
     }
 
-    this.#points = points;
-    const path = this.#points.map((p) => naverMapWrapper.getLatLng(p.lat, p.lng));
+    this.#paths = [
+      points,
+    ];
 
     if (!this.#naverPolygon) {
       this.#naverPolygon = naverMapWrapper.drawPolygonNoListener({
         map: this.#map,
-        naverPolygonPaths: [path],
+        naverPolygonPaths: this.#paths,
         clickable: this.#clickable,
         style: getStyleUnselectedBlur(),
       });
     } else {
-      this.#naverPolygon.setPath(path);
+      this.#naverPolygon.setPaths(this.#paths);
     }
   }
 
@@ -387,6 +438,7 @@ class Polygon {
     if (!this.#naverPolygon.getVisible()) {
       this.#naverPolygon.setVisible(true);
     }
+    this.#paths = paths;
     this.#naverPolygon.setPaths(paths);
   }
 
@@ -401,6 +453,80 @@ class Polygon {
   setPathsByH3Indexes(h3Indexes) {
     const paths = hexagonCalculator.getPathsFromH3Indexes(h3Indexes);
     this.setPaths(paths);
+  }
+
+  /**
+   * Naver Polygon에 focus 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - focus 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addFocusListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#overlayEventController) {
+      throw new Error('this.#overlayEventController/유효하지 않습니다.');
+    }
+
+    const id = this.#overlayEventController.addFocusListener(listener);
+    return id;
+  }
+
+  /**
+   * Naver Polygon에 focus 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeFocusListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    if (!this.#overlayEventController) {
+      throw new Error('this.#overlayEventController/유효하지 않습니다.');
+    }
+
+    this.#overlayEventController.removeFocusListener(id);
+  }
+
+  /**
+   * Naver Polygon에 blur 이벤트 리스너를 추가합니다.
+   *
+   * @param {function} listener - blur 이벤트 리스너
+   *
+   * @return {string} listener가 등록된 id
+   */
+  addBlurListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+    if (!this.#overlayEventController) {
+      throw new Error('this.#overlayEventController/유효하지 않습니다.');
+    }
+
+    const id = this.#overlayEventController.addBlurListener(listener);
+    return id;
+  }
+
+  /**
+   * Naver Polygon에 blur 이벤트 리스너를 제거합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeBlurListener(id) {
+    if (!id) {
+      throw new Error('id: 유효하지 않음');
+    }
+    if (!this.#overlayEventController) {
+      throw new Error('this.#overlayEventController/유효하지 않습니다.');
+    }
+
+    this.#overlayEventController.removeBlurListener(id);
   }
 
   /**
@@ -526,14 +652,31 @@ class Polygon {
     if (disabled) {
       this.#mode = MODE.DISABLED;
       if (this.#naverPolygon) {
-        this.#naverPolygon.setOptions(getStyleDisabledBlur());
+        this.#naverPolygon.setOptions({
+          ...getStyleDisabledBlur(),
+          clickable: false,
+        });
       }
       return;
     }
     this.#mode = MODE.UNSELECTED;
     if (this.#naverPolygon) {
-      this.#naverPolygon.setOptions(getStyleUnselectedBlur());
+      this.#naverPolygon.setOptions({
+        ...getStyleUnselectedBlur(),
+        clickable: true,
+      });
     }
+  }
+
+  /**
+   * 전체 기능의 비활성화 여부를 가져옵니다.
+   *
+   * @deprecated isDisabled를 대신 사용해주세요.
+   *
+   * @return {boolean} 전체 기능의 비활성화 여부
+   */
+  getDisabled() {
+    return this.isDisabled();
   }
 
   /**
@@ -541,8 +684,17 @@ class Polygon {
    *
    * @return {boolean} 전체 기능의 비활성화 여부
    */
-  getDisabled() {
+  isDisabled() {
     return this.#mode === MODE.DISABLED;
+  }
+
+  /**
+   * Polygon이 선택되었는지 여부를 알려줍니다.
+   *
+   * @return {boolean} Polygon이 선택되었는지 여부
+   */
+  isSelected() {
+    return this.#mode === MODE.SELECTED;
   }
 
   /**
@@ -567,11 +719,61 @@ class Polygon {
   getVisible() {
     return this.#visible;
   }
+
+  /**
+   * polygon의 paths를 가져와 Bound 객체를 돌려줍니다.
+   *
+   * @return {Bound} bounds - polygon의 Bounds
+   */
+  getBounds() {
+    // 1. this.#naverPolygon에서 직접 bounds 가져오기
+    if (this.#naverPolygon) {
+      const naverBounds = this.#naverPolygon.getBounds();
+      const ne = naverBounds.getNE();
+      const nePoint = {
+        lat: ne.lat(),
+        lng: ne.lng(),
+      };
+      const sw = naverBounds.getSW();
+      const swPoint = {
+        lat: sw.lat(),
+        lng: sw.lng(),
+      };
+
+      return boundHandler.createBoundsBy2Points(nePoint, swPoint);
+    }
+
+    // 2. this.#paths에서 bounds 가져오기
+    if (this.#paths) {
+      const points = this.#paths.flat();
+      return boundHandler.createBoundsByPoints(points);
+    }
+
+    return null;
+  }
+
+  /**
+   * polygon을 focus합니다.
+   *
+   * @return {void} 반홥값 없음
+   */
+  focus() {
+    this.updatePolygonStyleFocus();
+  }
+
+  /**
+   * polygon을 blur합니다.
+   *
+   * @return {void} 반홥값 없음
+   */
+  blur() {
+    this.updatePolygonStyleBlur();
+  }
 }
 
 export default {
   createPolygon({
-    points = [],
+    paths = [],
     clickable = true,
     onFocus = () => ({}),
     onBlur = () => ({}),
@@ -579,15 +781,8 @@ export default {
     onMousemove = () => ({}),
     meta = {},
   }) {
-    if (points && points.length > 0) {
-      points.forEach((p) => {
-        if (!mapUtils.isValidPoint(p)) {
-          throw new Error(`p:${p}/유효하지 않습니다.`);
-        }
-      });
-    }
     return new Polygon({
-      points,
+      paths,
       clickable,
       onFocus,
       onBlur,
