@@ -107,12 +107,12 @@ export default {
     // 지도의 최대 줌 레벨
     maxZoom: {
       type: Number,
-      default: 18,
+      default: constants.ZOOM_LEVEL_REAL_ESTATE,
     },
     // 지도의 최소 줌 레벨
     minZoom: {
       type: Number,
-      default: 14, // 읍,면,동
+      default: constants.ZOOM_LEVEL_CITY,
     },
     // 지도 위에 그려지는 오버레이 객체의 배열
     // 마커, 거리폴리라인, hexagonGroups도 모두 오버레이 객체입니다.
