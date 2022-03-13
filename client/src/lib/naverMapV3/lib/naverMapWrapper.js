@@ -316,16 +316,13 @@ export default {
    */
   drawPolygonNoListener({
     map,
-    naverPolygonPaths,
+    naverPolygonPaths = [],
     visible = true,
     clickable = true,
     style = {},
   }) {
     if (!map) {
       throw new Error('map: 유효하지 않습니다.');
-    }
-    if (!naverPolygonPaths || naverPolygonPaths.length === 0) {
-      throw new Error('naverPolygonPaths: 유효하지 않습니다.');
     }
 
     // https://navermaps.github.io/maps.js.ncp/docs/tutorial-3-polygon-simple.example.html
