@@ -187,6 +187,8 @@ class Polygon {
 
   #map
 
+  #modeChangeEventListener
+
   /**
    * 좌표를 받아 Naver 폴리곤을 제어(그리기,지우기)하는 Polygon 객체를 만듭니다.
    *
@@ -223,6 +225,7 @@ class Polygon {
       onMousemove,
       meta: { ...this.#meta },
     });
+    this.#modeChangeEventListener = [];
   }
 
   /**
@@ -361,6 +364,7 @@ class Polygon {
       this.#naverPolygon.setMap(null);
       this.#naverPolygon = null;
     }
+    this.#modeChangeEventListener = [];
   }
 
   /**
@@ -604,6 +608,21 @@ class Polygon {
   }
 
   /**
+   * Polygon의 Mode가 변경된 이벤트를 감시하는 리스너를 추가합니다.
+   *
+   * @param {function} listener - mode change 이벤트 리스너
+   *
+   * @return {void} 리턴값 없음
+   */
+  addModeChangeListener(listener) {
+    if (!listener) {
+      throw new Error('listener: 유효하지 않음');
+    }
+
+    this.#modeChangeEventListener.push(listener);
+  }
+
+  /**
    * polygon의 모드를 미선택(UNSELECTED) 모드로 바꿉니다.
    *
    * @return {void} 리턴값 없음
@@ -613,6 +632,7 @@ class Polygon {
     if (this.#naverPolygon) {
       this.#naverPolygon.setOptions(getStyleUnselectedBlur());
     }
+    this.#modeChangeEventListener.forEach((listener) => listener());
   }
 
   /**
@@ -625,6 +645,7 @@ class Polygon {
     if (this.#naverPolygon) {
       this.#naverPolygon.setOptions(getStyleSelectedBlur());
     }
+    this.#modeChangeEventListener.forEach((listener) => listener());
   }
 
   /**
@@ -637,6 +658,7 @@ class Polygon {
     if (this.#naverPolygon) {
       this.#naverPolygon.setOptions(getStyleEditBlur());
     }
+    this.#modeChangeEventListener.forEach((listener) => listener());
   }
 
   /**
@@ -657,6 +679,7 @@ class Polygon {
           clickable: false,
         });
       }
+      this.#modeChangeEventListener.forEach((listener) => listener());
       return;
     }
     this.#mode = MODE.UNSELECTED;
@@ -666,6 +689,7 @@ class Polygon {
         clickable: true,
       });
     }
+    this.#modeChangeEventListener.forEach((listener) => listener());
   }
 
   /**
@@ -753,18 +777,18 @@ class Polygon {
   }
 
   /**
-   * polygon을 focus합니다.
+   * polygon에 사용자 이벤트가 아닌 프로그래밍적으로 강제로 focus 이벤트를 발생시킵니다.
    *
-   * @return {void} 반홥값 없음
+   * @return {void} 반환값 없음
    */
   focus() {
     this.updatePolygonStyleFocus();
   }
 
   /**
-   * polygon을 blur합니다.
+   * polygon에 사용자 이벤트가 아닌 프로그래밍적으로 강제로 blur 이벤트를 발생시킵니다.
    *
-   * @return {void} 반홥값 없음
+   * @return {void} 반환값 없음
    */
   blur() {
     this.updatePolygonStyleBlur();
