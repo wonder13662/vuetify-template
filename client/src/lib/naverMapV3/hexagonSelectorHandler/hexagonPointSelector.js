@@ -66,6 +66,7 @@ class HexagonPointSelector {
       },
       clickable: false,
     });
+    this.#selectedPolygon.setModeEdit();
     this.#mousemovePolygon = polygonHandler.createPolygon({
       meta: { ...this.#meta },
       onClick: ({ point }) => {
@@ -78,6 +79,7 @@ class HexagonPointSelector {
         this.emit();
       },
     });
+    this.#mousemovePolygon.setModeSelected();
   }
 
   /**

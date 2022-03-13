@@ -1,4 +1,4 @@
-import hexagonLassoHandler from '../lassoHandler/hexagonLassoHandler';
+import lassoHandler from '../lassoHandler';
 import polygonHandler from '../polygonHandler';
 import utils from '@/lib/utils';
 
@@ -24,7 +24,7 @@ class HexagonPolygonSelector {
     this.#map = null;
     this.#disabled = false;
     this.#visible = true;
-    this.#hexagonLasso = hexagonLassoHandler.createHexagonLasso({
+    this.#hexagonLasso = lassoHandler.createHexagonLasso({
       meta: this.#meta,
     });
     this.#hexagonLasso.setModeEdit();
@@ -34,6 +34,7 @@ class HexagonPolygonSelector {
       },
       clickable: false,
     });
+    this.#selectedPolygon.setModeEdit();
     this.#h3Indexes = [];
   }
 
