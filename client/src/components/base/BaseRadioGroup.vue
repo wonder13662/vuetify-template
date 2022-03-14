@@ -1,7 +1,8 @@
 <template>
   <v-radio-group
     class="pa-0 ma-0"
-    row
+    :row="directionRow"
+    :column="!directionRow"
     dense
     hide-details="auto"
     :value="selectedValueData"
@@ -39,11 +40,28 @@ export default {
       type: Array,
       default: () => ([]),
     },
+    row: {
+      type: Boolean,
+    },
+    column: {
+      type: Boolean,
+    },
   },
   data() {
     return {
       selectedValueData: this.selectedValue,
     };
+  },
+  computed: {
+    directionRow() {
+      if (this.row) {
+        return true;
+      }
+      if (this.column) {
+        return false;
+      }
+      return true;
+    },
   },
   watch: {
     selectedValue(v) {
