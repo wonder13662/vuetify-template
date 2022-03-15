@@ -293,6 +293,28 @@ class PickupDropPoints {
       this.#driverPointMarker.setVisible(true);
     }
   }
+
+  /**
+   * 지도에서 pickupDropPoint의 driverPoint를 가립니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  setVisibleOffDriverPoint() {
+    if (this.#driverPoint) {
+      this.#driverPointMarker.setVisible(false);
+    }
+  }
+
+  /**
+   * 지도에서 pickupDropPoint의 driverPoint를 보이게 합니다.
+   *
+   * @return {void} 반환값 없음
+   */
+  setVisibleOnDriverPoint() {
+    if (this.#driverPoint) {
+      this.#driverPointMarker.setVisible(true);
+    }
+  }
 }
 
 export default {
