@@ -1,7 +1,7 @@
 <template>
   <v-textarea
     background-color="grey lighten-5"
-    counter="100"
+    :counter="maxCount"
     clearable
     dense
     no-resize
