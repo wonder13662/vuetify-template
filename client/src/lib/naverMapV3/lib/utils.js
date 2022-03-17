@@ -1,4 +1,5 @@
 import {
+  uncompact, // https://h3geo.org/docs/api/hierarchy#uncompact
   h3IsValid, // https://h3geo.org/docs/api/inspection#h3isvalid
   pointDist, // https://h3geo.org/docs/api/misc#pointdistm
   geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
@@ -8,6 +9,7 @@ import utils from '@/lib/utils';
 
 // https://h3geo.org/docs/core-library/restable
 const H3_RESOLUTION_MIN = 0;
+const H3_RESOLUTION_DEFAULT = 9;
 const H3_RESOLUTION_MAX = 15;
 
 export default {
@@ -186,5 +188,16 @@ export default {
       return -1;
     }
     return pointDist([p1.lat, p1.lng], [p2.lat, p2.lng], UNITS.m);
+  },
+  /**
+   * 압축(compact)된 h3Index를 지정된 resolution의 h3Index로 압축을 풉니다(uncompact).
+   *
+   * @param {array<string>} compactH3Indexes
+   * @param {number} resolution - h3 resolution
+   *
+   * @return {array<string>} uncompactH3Indexes
+   */
+  uncompact(compactH3Indexes, resolution = H3_RESOLUTION_DEFAULT) {
+    return uncompact(compactH3Indexes, resolution);
   },
 };
