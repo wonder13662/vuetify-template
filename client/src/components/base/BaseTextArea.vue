@@ -10,7 +10,7 @@
     :value="text"
     :rules="rules"
     :disabled="disabled"
-    @change="onChange"
+    @input="onInput"
   />
 </template>
 
@@ -51,7 +51,7 @@ export default {
     },
   },
   methods: {
-    onChange(value) {
+    onInput(value) {
       this.$emit('change', value);
     },
     getRules() {
