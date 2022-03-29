@@ -39,7 +39,7 @@ export default {
   },
   data() {
     return {
-      rules: this.getRules(),
+      rules: this.getRules(this.allowEmpty),
     };
   },
   computed: {
@@ -50,18 +50,25 @@ export default {
       return 'auto';
     },
   },
+  watch: {
+    allowEmpty: {
+      handler(v) {
+        this.rules = this.getRules(v);
+      },
+      immediate: true,
+    },
+  },
   methods: {
     onInput(value) {
       this.$emit('change', value);
     },
-    getRules() {
-      if (this.allowEmpty) {
-        return [];
+    getRules(allowEmpty) {
+      const rules = [];
+      if (!allowEmpty) {
+        rules.push((value) => (value && value.length > 0) || '내용을 입력해야 합니다.');
       }
-      return [
-        (value) => (value && value.length > 0) || '내용을 입력해야 합니다.',
-        (value) => (value && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`,
-      ];
+      rules.push((value) => (value && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`);
+      return rules;
     },
   },
 };
