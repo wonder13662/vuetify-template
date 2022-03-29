@@ -31,7 +31,6 @@
     </template>
     <v-form
       ref="form"
-      v-model="valid"
       lazy-validation
       @input="onChangeValidation"
     >
@@ -115,7 +114,6 @@ export default {
   data() {
     return {
       dialog: this.isShow,
-      valid: false,
     };
   },
   watch: {
