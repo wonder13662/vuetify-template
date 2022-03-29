@@ -53,7 +53,21 @@ export default {
   watch: {
     allowEmpty: {
       handler(v) {
+        if (this.disabled) {
+          this.rules = [];
+          return;
+        }
         this.rules = this.getRules(v);
+      },
+      immediate: true,
+    },
+    disabled: {
+      handler(v) {
+        if (v) {
+          this.rules = [];
+          return;
+        }
+        this.rules = this.getRules(this.allowEmpty);
       },
       immediate: true,
     },
