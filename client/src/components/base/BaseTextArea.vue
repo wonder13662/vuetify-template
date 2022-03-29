@@ -81,7 +81,7 @@ export default {
       if (!allowEmpty) {
         rules.push((value) => (value && value.length > 0) || '내용을 입력해야 합니다.');
       }
-      rules.push((value) => (value && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`);
+      rules.push((value) => ((!!value || value === '') && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`);
       return rules;
     },
   },
