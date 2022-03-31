@@ -31,7 +31,7 @@
     </template>
     <v-form
       ref="form"
-      lazy-validation
+      :lazy-validation="lazyValidation"
       @input="onChangeValidation"
     >
       <v-list
@@ -110,6 +110,10 @@ export default {
     disabledSubmitBtn: {
       type: Boolean,
     },
+    lazyValidation: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
@@ -120,6 +124,11 @@ export default {
     isShow(v) {
       this.dialog = v;
     },
+  },
+  updated() {
+    if (!this.lazyValidation) {
+      this.$refs.form.validate();
+    }
   },
   methods: {
     onCancel() {
