@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import {
   RULE_KEY_SET,
   RULE_KEY,
@@ -12,6 +13,38 @@ const convertRuleMapToRules = (ruleMap) => {
 const checkRules = (ruleMap, v) => !Object.values(ruleMap).find(({ rule }) => !rule(v));
 
 const RULE_MAP = {
+  [RULE_KEY.DRIVER_WORKING_STATUS]: {
+    oneOrAll: {
+      rule: (v) => {
+        if (v.length === 0) {
+          return false;
+        }
+        return true;
+      },
+      message: i18n.t('common.error.driverWorkingStatus.mustContainAtLeastOne'),
+    },
+  },
+  [RULE_KEY.DRIVER_TRANSPORTATION]: {
+    oneOrAll: {
+      rule: (v) => {
+        if (v.length === 0) {
+          return false;
+        }
+        return true;
+      },
+      message: i18n.t('common.error.driverTransportation.mustContainAtLeastOne'),
+    },
+  },
+  [RULE_KEY.ACCOUNT_NUMBER]: {
+    required: {
+      rule: (v) => !!v,
+      message: i18n.t('common.error.accountNumber.required'),
+    },
+    phoneNumber: {
+      rule: (v) => /^\d{1,}(-\d{1,}){1,}/.test(v),
+      message: i18n.t('common.error.accountNumber.notValidFormat'),
+    },
+  },
   // https://luerangler-dev.tistory.com/41
   [RULE_KEY.PHONE_NUMBER]: {
     required: {
@@ -87,27 +120,44 @@ const RULE_MAP = {
       message: i18n.t('common.error.email.notValidFormat'),
     },
   },
+  [RULE_KEY.DIRECTOR_GROUP_NAME]: {
+    required: {
+      rule: (v) => !!v,
+      message: i18n.t('common.error.directorGroupList.required'),
+    },
+    mustGreaterThanOrEqual2Letters: {
+      rule: (v) => v && v.length >= 2,
+      message: i18n.t('common.error.directorGroupList.mustGreaterThanOrEqual2Letters'),
+    },
+    mustLessThanOrEqual10Letters: {
+      // TODO DB와 동일한 200자로 맞춤.
+      // 향후 정책에 따라 글자수 제한이 필요함.
+      // Api쪽 제한도 함께 진행되어야 함
+      rule: (v) => v && v.length <= 200,
+      message: i18n.t('common.error.directorGroupList.mustLessThanOrEqual200Letters'),
+    },
+  },
 };
 
 export default {
   isValid(type, v) {
     if (!RULE_KEY_SET.has(type)) {
-      throw new Error(`type:${type} / ${i18n.t('common.error.notValid')}`);
+      throw new Error(`type:${type} / ${i18n.t('common.error.notValidValue')}`);
     }
     const ruleMap = RULE_MAP[type];
     if (!ruleMap) {
-      throw new Error(`type:${type} / ruleMap / ${i18n.t('common.error.notValid')}`);
+      throw new Error(`type:${type} / ruleMap / ${i18n.t('common.error.notValidValue')}`);
     }
 
     return checkRules(ruleMap, v);
   },
   getRule(type) {
     if (!RULE_KEY_SET.has(type)) {
-      throw new Error(`type:${type} / ${i18n.t('common.error.notValid')}`);
+      throw new Error(`type:${type} / ${i18n.t('common.error.notValidValue')}`);
     }
     const ruleMap = RULE_MAP[type];
     if (!ruleMap) {
-      throw new Error(`type:${type} / ruleMap / ${i18n.t('common.error.notValid')}`);
+      throw new Error(`type:${type} / ruleMap / ${i18n.t('common.error.notValidValue')}`);
     }
 
     return convertRuleMapToRules(ruleMap);

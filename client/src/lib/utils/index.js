@@ -3,31 +3,24 @@ import lodash from 'lodash';
 import {
   h3IsValid,
 } from 'h3-js';
-import {
-  SERVICEUSER_APPROVE_STATUS_SET,
-} from '@/lib/constants';
-import i18n from '@/plugins/vueI18n';
-
-export { default as rules } from './rules';
-export { default as ruleMap } from './ruleMap';
 
 const YYYYMMDD = 'YYYY-MM-DD';
 const YYYYMMDDHHmmss = 'YYYY-MM-DD HH:mm:ss';
 const HHmmss = 'HH:mm:ss';
 
 export default {
-  isValidArray(v, minLength = 0) {
-    return v && v.length > minLength;
-  },
-  isValidH3(v) { // REMOVE ME
-    // https://h3geo.org/docs/api/inspection#h3isvalid
-    return h3IsValid(v);
-  },
   isUUIDType(id) {
     // https://www.postgresql.org/docs/9.1/datatype-uuid.html
     // https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
     const rule = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return rule.test(id);
+  },
+  isValidArray(v, minLength = 1) {
+    return v && typeof v === 'object' && v.length >= minLength;
+  },
+  isValidH3(v) { // REMOVE ME
+    // https://h3geo.org/docs/api/inspection#h3isvalid
+    return h3IsValid(v);
   },
   isValidPhoneNumber(phoneNumber) { // REMOVE ME
     // https://luerangler-dev.tistory.com/41
@@ -60,7 +53,7 @@ export default {
     return Number.isFinite(v) && v >= -180 && v <= 180;
   },
   convertObjToSet(obj) {
-    if (!obj) {
+    if (!obj || typeof obj !== 'object') {
       return new Set();
     }
     return this.convertListToSet(Object.values(obj));
@@ -76,6 +69,9 @@ export default {
     }, new Set());
   },
   convertSetToList(aSet) {
+    if (!aSet || typeof aSet !== 'object' || aSet.size === undefined || aSet.size === 0) {
+      return [];
+    }
     return Array.from(aSet);
   },
   convertMapToList(map) {
@@ -230,12 +226,6 @@ export default {
     }
     return this.makeStrKey(a) === this.makeStrKey(b);
   },
-  convertServiceUserApproveStatusReadable(approveStatus) {
-    if (!approveStatus || !SERVICEUSER_APPROVE_STATUS_SET.has(approveStatus)) {
-      throw new Error(`approveStatus: ${i18n.t('common.error.notValid')}`);
-    }
-    return i18n.t(`models.serviceUser.approveStatus.${approveStatus}`);
-  },
   /**
    * 값을 요소로 가지는 2개 배열을 비교하여, 추가(add)된 것과 삭제(remove)된 것을 구분해줍니다.
    *
@@ -274,5 +264,30 @@ export default {
    */
   lodashWithout(origin, remove) {
     return lodash.without(origin, ...remove);
+  },
+  /**
+   * 두 개의 정수(숫자,문자열)를 비교해서 같은지 알려줍니다.
+   * @param {string|number} a
+   * @param {string|number} b
+   *
+   * @return {void} 같은 정수인지 여부
+   */
+  isSameInteger(a, b) {
+    if (a !== '0' && a !== 0 && b !== '0' && b !== 0 && (!a || !b)) {
+      return false;
+    }
+    if (Number.isNaN(a) || Number.isNaN(b)) {
+      return false;
+    }
+    // 소수점을 가지는 실수는 비교하지 않는다.
+    const aInt = parseInt(a, 10);
+    const bInt = parseInt(b, 10);
+    if (aInt !== Number(a)) {
+      return false;
+    }
+    if (bInt !== Number(b)) {
+      return false;
+    }
+    return aInt === bInt;
   },
 };

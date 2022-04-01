@@ -9,7 +9,7 @@ import i18n from '@/plugins/vueI18n';
 export default {
   addAlertSuccess({ commit, dispatch }, { message }) {
     if (!message) {
-      const errMsg = `addAlertSuccess:message:${message} - ${i18n.t('common.error.notValid')}`;
+      const errMsg = `addAlertSuccess:message:${message} - ${i18n.t('common.error.notValidValue')}`;
       dispatch('error/addError', { message: errMsg }, { root: true });
       return;
     }
@@ -17,7 +17,7 @@ export default {
   },
   addAlertError({ commit, dispatch }, { message }) {
     if (!message) {
-      const errMsg = `addAlertFail:message:${message} - ${i18n.t('common.error.notValid')}`;
+      const errMsg = `addAlertFail:message:${message} - ${i18n.t('common.error.notValidValue')}`;
       dispatch('error/addError', { message: errMsg }, { root: true });
       return;
     }
@@ -25,7 +25,7 @@ export default {
   },
   removeAlert({ commit, dispatch }, { id }) {
     if (!utils.isUUIDType(id)) {
-      const errMsg = `removeAlert:id:${id} - ${i18n.t('common.error.notValid')}`;
+      const errMsg = `removeAlert:id:${id} - ${i18n.t('common.error.notValidValue')}`;
       dispatch('error/addError', { message: errMsg }, { root: true });
       return;
     }
