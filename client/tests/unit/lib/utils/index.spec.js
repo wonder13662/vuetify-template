@@ -1,10 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import utils from '@/lib/utils';
-import ruleMap from '@/lib/ruleMap';
-import {
-  PERIOD_OPTION_FEE_STATUS,
-  RULE_KEY,
-} from '@/lib/constants';
 
 describe('#1 isUUIDType', () => {
   test('#1-1', () => {
@@ -301,251 +296,376 @@ describe('#6 convertSetToList', () => {
   });
 
   test('#6-3', () => {
-    const list = utils.convertSetToList(null);
+    const map = new Map();
+    map.set('a', 1);
+    map.set('b', 2);
+    map.set('c', 3);    
+    const list = utils.convertSetToList(map);
     expect(list.length).toBe(0);
   });
 
   test('#6-4', () => {
-    const list = utils.convertSetToList(undefined);
+    const map = new Map();
+    const list = utils.convertSetToList(map);
     expect(list.length).toBe(0);
   });
 
   test('#6-5', () => {
-    const list = utils.convertSetToList(NaN);
+    const list = utils.convertSetToList(null);
     expect(list.length).toBe(0);
   });
 
   test('#6-6', () => {
-    const list = utils.convertSetToList('a');
+    const list = utils.convertSetToList(undefined);
     expect(list.length).toBe(0);
   });
 
   test('#6-7', () => {
-    const list = utils.convertSetToList({});
+    const list = utils.convertSetToList(NaN);
     expect(list.length).toBe(0);
   });
 
   test('#6-8', () => {
-    const list = utils.convertSetToList(1);
+    const list = utils.convertSetToList('a');
     expect(list.length).toBe(0);
   });
 
   test('#6-9', () => {
-    const list = utils.convertSetToList(true);
+    const list = utils.convertSetToList({});
     expect(list.length).toBe(0);
   });
 
   test('#6-10', () => {
-    const list = utils.convertSetToList(false);
+    const list = utils.convertSetToList(1);
     expect(list.length).toBe(0);
   });
 
   test('#6-11', () => {
-    const list = utils.convertSetToList(() => {});
+    const list = utils.convertSetToList(true);
     expect(list.length).toBe(0);
   });
 
   test('#6-12', () => {
+    const list = utils.convertSetToList(false);
+    expect(list.length).toBe(0);
+  });
+
+  test('#6-13', () => {
+    const list = utils.convertSetToList(() => {});
+    expect(list.length).toBe(0);
+  });
+
+  test('#6-14', () => {
     const list = utils.convertSetToList(Symbol());
     expect(list.length).toBe(0);
-  });   
+  });
 });
 
-describe('#1 RULE_KEY.EMAIL', () => {
-  test('#1-1', () => {
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, undefined)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, null)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, '')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, 1)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, NaN)).toBeFalsy();
+describe('#7 convertMapToList', () => {
+  test('#7-1', () => {
+    const map = new Map();
+    map.set('a', 1);
+    map.set('b', 2);
+    map.set('c', 3);    
+    const list = utils.convertMapToList(map);
+    expect(list.length).toBe(map.size);
   });
 
-  test('#1-2', () => {
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, 'barogo_director')).toBeFalsy();
+  test('#7-2', () => {
+    const map = new Map();
+    const list = utils.convertMapToList(map);
+    expect(list.length).toBe(map.size);
   });
 
-  test('#1-3', () => {
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, '@barogo.com')).toBeFalsy();
+  test('#7-3', () => {
+    const set = new Set();
+    const list = utils.convertMapToList(set);
+    expect(list.length).toBe(0);
   });
 
-  test('#1-4', () => {
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, 'barogo.com')).toBeFalsy();
+  test('#7-4', () => {
+    const set = new Set();
+    set.add(1);
+    set.add(2);
+    const list = utils.convertMapToList(set);
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-5', () => {
+    const list = utils.convertMapToList(null);
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-6', () => {
+    const list = utils.convertMapToList(undefined);
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-7', () => {
+    const list = utils.convertMapToList(NaN);
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-8', () => {
+    const list = utils.convertMapToList('a');
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-9', () => {
+    const list = utils.convertMapToList({});
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-10', () => {
+    const list = utils.convertMapToList(1);
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-11', () => {
+    const list = utils.convertMapToList(true);
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-12', () => {
+    const list = utils.convertMapToList(false);
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-13', () => {
+    const list = utils.convertMapToList(() => {});
+    expect(list.length).toBe(0);
+  });
+
+  test('#7-14', () => {
+    const list = utils.convertMapToList(Symbol());
+    expect(list.length).toBe(0);
+  });
+});
+
+describe('#8 convertObjValuesToList', () => {
+  test('#8-1', () => {
+    const obj = {
+      'a': 1,
+      'b': 2,
+      'c': 3,
+    };
+    const list = utils.convertObjValuesToList(obj);
+    expect(list.length).toBe(3);
+    expect(list.find((v) => v === 1)).toBeTruthy();
+  });
+
+  test('#8-2', () => {
+    const obj = {};
+    const list = utils.convertObjValuesToList(obj);
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-3', () => {
+    const list = utils.convertObjValuesToList(null);
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-4', () => {
+    const list = utils.convertObjValuesToList(undefined);
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-5', () => {
+    const list = utils.convertObjValuesToList(NaN);
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-6', () => {
+    const list = utils.convertObjValuesToList('a');
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-7', () => {
+    const list = utils.convertObjValuesToList({});
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-8', () => {
+    const list = utils.convertObjValuesToList(1);
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-9', () => {
+    const list = utils.convertObjValuesToList(true);
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-10', () => {
+    const list = utils.convertObjValuesToList(false);
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-11', () => {
+    const list = utils.convertObjValuesToList(() => {});
+    expect(list.length).toBe(0);
+  });
+
+  test('#8-12', () => {
+    const list = utils.convertObjValuesToList(Symbol());
+    expect(list.length).toBe(0);
   });  
+});
 
-  test('#1-5', () => {
-    expect(ruleMap.isValid(RULE_KEY.EMAIL, 'barogo_director@barogo.com')).toBeTruthy();
+describe('#9 getNowYYYYMMDD', () => {
+  test('#9-1', () => {
+    const result = utils.getNowYYYYMMDD();
+    expect(result).toBeTruthy();
+    expect(utils.isBefore(result, result)).toBeFalsy();
+    expect(utils.isAfter(result, result)).toBeFalsy();
   });
 });
 
-describe('#2-1 RULE_KEY.PASSWORD_STRONG', () => {
-  test('#2-1-1', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, undefined)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, null)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, 1)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, NaN)).toBeFalsy();
+describe('#10 isBefore', () => {
+  test('#10-1', () => {
+    const before = '2022-04-01';
+    const after = '2022-04-02';
+    expect(utils.isBefore(before, after)).toBeTruthy();
   });
 
-  test('#2-1-2 비밀번호는 8글자 이상이어야 합니다.', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '1234aA$')).toBeFalsy();
+  test('#10-2', () => {
+    const before = '2022-04-01';
+    const after = '2022-04-01';
+    expect(utils.isBefore(before, after)).toBeFalsy();
   });
 
-  test('#2-1-3 비멀번호는 1개 이상의 영어 소문자를 포함해야 합니다.', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678A$')).toBeFalsy();
-  });
-
-  test('#2-1-4 비멀번호는 1개 이상의 영어 대문자를 포함해야 합니다.', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678a$')).toBeFalsy();
-  });
-
-  test('#2-1-5 비멀번호는 1개 이상의 숫자를 포함해야 합니다.', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, 'abcdefgA^')).toBeFalsy();
-  });
-
-  test('#2-1-6 비멀번호는 1개 이상의 특수문자(!@#$%^&*) 포함해야 합니다.', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa')).toBeFalsy();
-  });
-
-  test('#2-1-7 정상케이스', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa!')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa@')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa#')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa$')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa%')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa^')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa&')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa*')).toBeTruthy();
+  test('#10-3', () => {
+    const before = '2022-04-01';
+    const after = '2022-03-31';
+    expect(utils.isBefore(before, after)).toBeFalsy();
   });  
 });
 
-
-describe('#2-3 isValidPassword(Weak)', () => {
-  test('#2-3-1', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, undefined)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, null)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, 1)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, NaN)).toBeFalsy();
+describe('#11 isAfter', () => {
+  test('#11-1', () => {
+    const before = '2022-04-01';
+    const after = '2022-04-02';
+    expect(utils.isAfter(after, before)).toBeTruthy();
   });
 
-  test('#2-3-2 비밀번호는 8글자 이상이어야 합니다.', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '1234aA$')).toBeFalsy();
+  test('#11-2', () => {
+    const before = '2022-04-01';
+    const after = '2022-04-01';
+    expect(utils.isAfter(after, before)).toBeFalsy();
   });
 
-  test('#2-3-7 정상케이스', () => {
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa!')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa@')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa#')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa$')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa%')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa^')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa&')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PASSWORD_STRONG, '12345678Aa*')).toBeTruthy();
+  test('#11-3', () => {
+    const before = '2022-04-01';
+    const after = '2022-03-31';
+    expect(utils.isAfter(after, before)).toBeFalsy();
+  });
+});
+
+describe('#12 convertDateNHourToUTC', () => {
+  test('#12-1', () => {
+    const nowLocalYYYYMMDD = utils.getNowYYYYMMDD();
+    const nowUTC = utils.convertDateNHourToUTC(nowLocalYYYYMMDD);
+    expect(nowLocalYYYYMMDD).not.toBe(nowUTC);
+  });
+});
+
+describe('#13 convertYYYYMMDDStrToUTCStartOfTime', () => {
+  test('#13-1', () => {
+    const nowLocalYYYYMMDD = utils.getNowYYYYMMDD();
+    const startOfTime = utils.convertYYYYMMDDStrToUTCStartOfTime(nowLocalYYYYMMDD);
+    expect(nowLocalYYYYMMDD).not.toBe(startOfTime);
+    const endOfTime = utils.convertYYYYMMDDStrToUTCEndOfTime(nowLocalYYYYMMDD);
+    expect(utils.isBefore(startOfTime, endOfTime)).toBeTruthy();
+  });
+});
+
+describe('#14 convertYYYYMMDDStrToUTCEndOfTime', () => {
+  test('#14-1', () => {
+    const nowLocalYYYYMMDD = utils.getNowYYYYMMDD();
+    const endOfTime = utils.convertYYYYMMDDStrToUTCEndOfTime(nowLocalYYYYMMDD);
+    expect(nowLocalYYYYMMDD).not.toBe(endOfTime);
+    const startOfTime = utils.convertYYYYMMDDStrToUTCStartOfTime(nowLocalYYYYMMDD);
+    expect(utils.isAfter(endOfTime, startOfTime)).toBeTruthy();
+  });
+});
+
+describe('#15 convertUTCToLocalYYYYMMDD', () => {
+  test('#15-1', () => {
+    const nowLocalYYYYMMDD = utils.getNowYYYYMMDD();
+    const endOfTime = utils.convertYYYYMMDDStrToUTCEndOfTime(nowLocalYYYYMMDD);
+    const localYYYYMMDD = utils.convertUTCToLocalYYYYMMDD(endOfTime);
+    expect(nowLocalYYYYMMDD).toBe(localYYYYMMDD);
+  });
+});
+
+describe('#16 convertUTCToLocalHHmmss', () => {
+  test('#16-1', () => {
+    const nowLocalYYYYMMDD = utils.getNowYYYYMMDD();
+    const startOfTime = utils.convertYYYYMMDDStrToUTCStartOfTime(nowLocalYYYYMMDD);
+    const result = utils.convertUTCToLocalHHmmss(startOfTime);
+    expect(result).toBe('00:00:00');
+  });
+
+  test('#16-2', () => {
+    const nowLocalYYYYMMDD = utils.getNowYYYYMMDD();
+    const endOfTime = utils.convertYYYYMMDDStrToUTCEndOfTime(nowLocalYYYYMMDD);
+    const result = utils.convertUTCToLocalHHmmss(endOfTime);
+    expect(result).toBe('23:59:59');
   });  
 });
 
-describe('#3 RULE_KEY.PHONE_NUMBER', () => {
-  test('#3-1', () => {
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, undefined)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, null)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, 1)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, NaN)).toBeFalsy();
-  });
-
-  test('#3-2 첫번째 숫자 그룹은 010, 011, 016, 017, 018, 019중 하나여야 합니다', () => {
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1234-5678')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '011-1234-5678')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '012-1234-5678')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '013-1234-5678')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '014-1234-5678')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '015-1234-5678')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '016-1234-5678')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '017-1234-5678')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '018-1234-5678')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '019-1234-5678')).toBeTruthy();
-  });
-
-  test('#3-3 두번째 숫자 그룹은 0부터 9까지의 숫자로 구성된 3자리 또는 4자리 숫자들입니다', () => {
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-123456-5678')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-12345-5678')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1234-5678')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-123-4567')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-12-4567')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1-4567')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010--4567')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-4567')).toBeFalsy();
-  });
-
-  test('#3-4 세번째 숫자 그룹은 0부터 9까지의 숫자로 구성된 4자리 숫자들입니다', () => {
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1234-567890')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1234-56789')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1234-5678')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1234-567')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1234-56')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PHONE_NUMBER, '010-1234-5')).toBeFalsy();
+describe('#17 convertLocalToUTCYYYYMMDDHHmmss', () => {
+  test('#17-1', () => {
+    const local = '2021-06-28 06:03:01';
+    const utc = utils.convertLocalToUTCYYYYMMDDHHmmss(local);
+    expect(local).not.toBe(utc);
   });
 });
 
-describe('#4 RULE_KEY.PERSON_NAME', () => {
-  test('#4-1', () => {
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, undefined)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, null)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, '')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, 1)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, NaN)).toBeFalsy();
-  });
-  
-  test('#4-2 사람의 이름은 최소 3글자 이상입니다.', () => {
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, '가나다라')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, '가나다')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, '가나')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, '가')).toBeFalsy();
-  });
-
-  test('#4-3 사람의 이름은 최대 10글자 이하입니다.', () => {
-    const name10Chars = '가나다라마바사아자차';
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, name10Chars)).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, `${name10Chars}1`)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, `${name10Chars}가`)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, `${name10Chars}12`)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.PERSON_NAME, `${name10Chars}가나`)).toBeFalsy();
+describe('#18 convertUTCToLocalYYYYMMDDHHmmss', () => {
+  test('#18-1', () => {
+    const utc = '2021-06-28T06:03:01.291Z';
+    const local = utils.convertLocalToUTCYYYYMMDDHHmmss(utc);
+    expect(utc).not.toBe(local);
   });
 });
 
-describe('#5 RULE_KEY.DIRECTOR_GROUP_NAME', () => {
-  test('#5-1', async () => {
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, undefined)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, null)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, '')).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, 1)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, NaN)).toBeFalsy();
-  });
-  
-  test('#5-2 Director group의 이름은 최소 3글자 이상입니다.', async () => {
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, '가나다라')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, '가나다')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, '가나')).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, '가')).toBeFalsy();
-  });
-
-  test('#5-3 Director group의 이름은 최대 200글자 이하입니다.', async () => {
-    const name10Chars = '가나다라마바사아자차';
-    const names = [];
-    for (let idx = 0; idx < 20; idx++) {
-      names.push(name10Chars);
-    }
-    const name200Chars = names.join('');
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, name200Chars)).toBeTruthy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, `${name200Chars}1`)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, `${name200Chars}가`)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, `${name200Chars}12`)).toBeFalsy();
-    expect(ruleMap.isValid(RULE_KEY.DIRECTOR_GROUP_NAME, `${name200Chars}가나`)).toBeFalsy();
+describe('#19 convertUTCToLocalHHmmStr', () => {
+  test('#19-1', () => {
+    const UTCHHmmStr = '00:00';
+    const LocalHHmmStr = utils.convertUTCToLocalHHmmStr(UTCHHmmStr);
+    expect(UTCHHmmStr).not.toBe(LocalHHmmStr);
+    const UTCHHmmStrAgain = utils.convertLocalToUTCHHmmStr(LocalHHmmStr);
+    expect(UTCHHmmStr).toBe(UTCHHmmStrAgain);
   });
 });
 
-describe('#6 branchAddRemove', () => {
-  test('#6-1', async () => {
+describe('#20 convertLocalToUTCHHmmStr', () => {
+  test('#20-1', () => {
+    const LocalHHmmStr = '00:00'
+    const UTCHHmmStr = utils.convertLocalToUTCHHmmStr(LocalHHmmStr);
+    expect(LocalHHmmStr).not.toBe(UTCHHmmStr);
+    const LocalHHmmStrAgain = utils.convertUTCToLocalHHmmStr(UTCHHmmStr);
+    expect(LocalHHmmStr).toBe(LocalHHmmStrAgain);
+  });
+});
+
+describe('#21 isSameKeys', () => {
+  test('#21-1', () => {
+    expect(utils.isSameKeys(1, '1')).toBeTruthy();
+    expect(utils.isSameKeys(1, 1)).toBeTruthy();
+    expect(utils.isSameKeys('1', 1)).toBeTruthy();
+  });
+
+  test('#21-2', () => {
+    expect(utils.isSameKeys(null, '1')).toBeFalsy();
+    expect(utils.isSameKeys(undefined, '1')).toBeFalsy();
+    expect(utils.isSameKeys('1', null)).toBeFalsy();
+    expect(utils.isSameKeys('1', undefined)).toBeFalsy();
+  });  
+});
+
+describe('#22 branchAddRemove', () => {
+  test('#22-1', () => {
     const origin = [0,1,2,3];
     const modified = [2,3,4,5];
     const { add, remove } = utils.branchAddRemove(origin, modified);
@@ -553,7 +673,7 @@ describe('#6 branchAddRemove', () => {
     expect(remove).toEqual([0,1]);
   });
 
-  test('#6-2', async () => {
+  test('#22-2', () => {
     const origin = [0,1,2,3];
     const modified = [];
     const { add, remove } = utils.branchAddRemove(origin, modified);
@@ -561,7 +681,7 @@ describe('#6 branchAddRemove', () => {
     expect(remove).toEqual(origin);
   });  
 
-  test('#6-3', async () => {
+  test('#22-3', () => {
     const origin = [];
     const modified = [0,1,2,3];
     const { add, remove } = utils.branchAddRemove(origin, modified);
@@ -569,7 +689,7 @@ describe('#6 branchAddRemove', () => {
     expect(remove).toEqual(origin);
   });
 
-  test('#6-4', async () => {
+  test('#22-4', () => {
     const origin = [];
     const modified = [];
     const { add, remove } = utils.branchAddRemove(origin, modified);
@@ -578,91 +698,8 @@ describe('#6 branchAddRemove', () => {
   });
 });
 
-describe('#6 convertObjValuesToList', () => {
-  test('#6-1', () => {
-    const obj = { a: 1, b: 2, c: 3 };
-    const list = utils.convertObjValuesToList(obj);
-    expect(list).toEqual([1, 2, 3]);
-  });
-
-  test('#6-2', () => {
-    const obj = {};
-    const list = utils.convertObjValuesToList(obj);
-    expect(list).toEqual([]);
-  });  
-});
-
-describe('#7 convertObjToSet', () => {
-  test('#7-1', () => {
-    const set = utils.convertObjToSet(PERIOD_OPTION_FEE_STATUS);
-    expect(set.has(PERIOD_OPTION_FEE_STATUS.ACTIVATED)).toBeTruthy();
-    expect(set.has(PERIOD_OPTION_FEE_STATUS.DEACTIVATED)).toBeTruthy();
-    expect(set.has(PERIOD_OPTION_FEE_STATUS.TERMINATED)).toBeTruthy();
-    expect(set.has(null)).toBeFalsy();
-    expect(set.has(false)).toBeFalsy();
-    expect(set.has(undefined)).toBeFalsy();
-  });
-});
-
-describe('#8 convertListToSet', () => {
-  const {
-    ACTIVATED,
-    DEACTIVATED,
-    TERMINATED,
-  } = PERIOD_OPTION_FEE_STATUS;
-  test('#8-1', () => {
-    const set = utils.convertListToSet([ACTIVATED, DEACTIVATED, TERMINATED]);
-    expect(set.has(ACTIVATED)).toBeTruthy();
-    expect(set.has(DEACTIVATED)).toBeTruthy();
-    expect(set.has(TERMINATED)).toBeTruthy();
-    expect(set.has(null)).toBeFalsy();
-    expect(set.has(false)).toBeFalsy();
-    expect(set.has(undefined)).toBeFalsy();
-  });
-});
-
-describe('#9 convertMapToList', () => {
-  const {
-    ACTIVATED,
-    DEACTIVATED,
-    TERMINATED,
-  } = PERIOD_OPTION_FEE_STATUS;
-  const map = new Map();
-  map.set(ACTIVATED, '활성');
-  map.set(DEACTIVATED, '비활성');
-  map.set(TERMINATED, '종료');
-
-  test('#9-1', () => {
-    const list = utils.convertMapToList(map);
-    expect(list.length).toBe(3);
-    expect(list.find((v) => v === '활성')).toBeTruthy();
-    expect(list.find((v) => v === '비활성')).toBeTruthy();
-    expect(list.find((v) => v === '종료')).toBeTruthy();
-  });
-});
-
-describe('#10 convertMapKeysToList', () => {
-  const {
-    ACTIVATED,
-    DEACTIVATED,
-    TERMINATED,
-  } = PERIOD_OPTION_FEE_STATUS;
-  const map = new Map();
-  map.set(ACTIVATED, '활성');
-  map.set(DEACTIVATED, '비활성');
-  map.set(TERMINATED, '종료');
-
-  test('#10-1', () => {
-    const list = utils.convertMapKeysToList(map);
-    expect(list.length).toBe(3);
-    expect(list.find((v) => v === ACTIVATED)).toBeTruthy();
-    expect(list.find((v) => v === DEACTIVATED)).toBeTruthy();
-    expect(list.find((v) => v === TERMINATED)).toBeTruthy();
-  });
-});
-
-describe('#11 isSameInteger', () => {
-  test('#11-1', () => {
+describe('#23 isSameInteger', () => {
+  test('#23-1', () => {
     expect(utils.isSameInteger(10, 10)).toBeTruthy();
     expect(utils.isSameInteger(10, '10')).toBeTruthy();
     expect(utils.isSameInteger(1, 1)).toBeTruthy();

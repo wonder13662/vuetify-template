@@ -69,23 +69,40 @@ export default {
     }, new Set());
   },
   convertSetToList(aSet) {
-    if (!aSet || typeof aSet !== 'object' || aSet.size === undefined || aSet.size === 0) {
+    // https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Set
+    if (!aSet
+        || typeof aSet !== 'object'
+        || aSet.add === undefined
+        || aSet.size === undefined
+        || aSet.size === 0) {
       return [];
     }
     return Array.from(aSet);
   },
-  convertMapToList(map) {
+  convertMapToList(aMap) {
+    if (!aMap
+        || typeof aMap !== 'object'
+        || aMap.set === undefined
+        || aMap.size === undefined
+        || aMap.size === 0) {
+      return [];
+    }
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#relation_with_array_objects
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#cloning_and_merging_maps
-    return Array.from(new Map(map).values());
+    return Array.from(new Map(aMap).values());
   },
   convertMapKeysToList(map) {
     return Array.from(new Map(map).keys());
   },
+  // @ deprecated
   convertObjKeysToList(obj) {
     return Array.from(Object.keys(obj));
   },
   convertObjValuesToList(obj) {
+    if (!obj
+      || typeof obj !== 'object') {
+      return [];
+    }
     return Array.from(Object.values(obj));
   },
   // '2021-06-28'
@@ -118,9 +135,6 @@ export default {
     // https://momentjs.com/docs/#/manipulating/utc/
     // ex: "2020-10-09T00:00:00Z"
     return this.convertDateNHourToMoment(yyyymmdd, hour).utc().format();
-  },
-  convertYYYYMMDDStrToUTCTime(yyyymmdd) {
-    return moment(yyyymmdd, 'YYYY-MM-DD').utc().toISOString();
   },
   convertYYYYMMDDStrToUTCStartOfTime(yyyymmdd) {
     // https://momentjs.com/docs/#/manipulating/start-of/
@@ -182,7 +196,7 @@ export default {
   /**
    * 문자열 'HH:mm'로 표현된 시간을 UTC에서 Local로 바꿔줍니다.
    *
-   * @param {string} UTCHHmmStr - Local 기준의 'HH:mm' 형식의 시간 문자열
+   * @param {string} LocalHHmmStr - Local 기준의 'HH:mm' 형식의 시간 문자열
    *
    * @return {string} Local 기준의 'HH:mm' 형식의 시간 문자열
    */
@@ -211,7 +225,7 @@ export default {
   // @ Deprecated
   convertDeliveryIdShortReadable(deliveryId) {
     if (!deliveryId) return '';
-    return deliveryId.slice(0, 8).toUpperCase();
+    return this.convertUUIDShortReadable(deliveryId);
   },
   convertUUIDShortReadable(id) {
     if (!id) {
