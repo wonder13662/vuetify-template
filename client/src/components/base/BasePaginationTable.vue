@@ -3,7 +3,7 @@
     :elevation="0"
   >
     <!-- eslint-disable max-len -->
-    <v-card-title>
+    <v-card-title v-if="!hideTotalCnt">
       {{ `${$t('views.admin.common.total')} ${totalCnt} ${$t('views.admin.common.rowUnit')}` }}
     </v-card-title>
     <v-data-table
@@ -58,6 +58,9 @@ export default {
       required: true,
     },
     loading: {
+      type: Boolean,
+    },
+    hideTotalCnt: {
       type: Boolean,
     },
   },
