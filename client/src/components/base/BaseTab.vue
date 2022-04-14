@@ -3,6 +3,7 @@
     color="indigo"
     grow
     slider-size="4"
+    :value="selectedIdx"
     @change="onChange"
   >
     <v-tab
@@ -30,6 +31,10 @@ export default {
     names: {
       type: Array,
       required: true,
+    },
+    selectedIdx: {
+      type: Number,
+      default: 0,
     },
   },
   methods: {
