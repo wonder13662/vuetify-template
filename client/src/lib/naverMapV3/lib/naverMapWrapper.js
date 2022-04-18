@@ -1,7 +1,5 @@
 import utils from './utils';
 import {
-  MAX_ZOOM,
-  MIN_ZOOM_POLYGON_VISIBLE,
   NAVER_MAP_POSITION_MAP,
   NAVER_MAP_POSITION_SET,
 } from './constants';
@@ -356,17 +354,6 @@ export default {
     // https://navermaps.github.io/maps.js.ncp/docs/naver.maps.Polygon.html#setMap__anchor
     polygon.setMap(null);
     this.removeListener(listeners);
-  },
-  /**
-   * Naver map에서 H3 polygon을 표시할 수 있는 zoom level인지 판단합니다.
-   *
-   * @return {boolean} 표시 가능 zoom level 플래그 값
-   */
-  isZoomLevelPolygonVisible(zoomLevel) {
-    const isEOGThanMinZoom = zoomLevel >= MIN_ZOOM_POLYGON_VISIBLE;
-    const isEOLThanMaxZoom = zoomLevel <= MAX_ZOOM;
-
-    return isEOGThanMinZoom && isEOLThanMaxZoom;
   },
   /**
    * 지도 위에 네이버 customControl을 그립니다.

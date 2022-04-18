@@ -1,5 +1,5 @@
 import naverMapWrapper from '../lib/naverMapWrapper';
-import overlayEventHandler from '../overlayEventHandler';
+import overlayEventHandler from '../lib/overlayEventHandler';
 import hexagonCalculator from '../lib/hexagonCalculator';
 import boundHandler from '../lib/boundHandler';
 import {

@@ -1,7 +1,7 @@
 import {
   geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
 } from 'h3-js';
-import overlayEventHandler from '../overlayEventHandler';
+import overlayEventHandler from '../lib/overlayEventHandler';
 import {
   H3_RESOLUTION,
 } from '../lib/constants';

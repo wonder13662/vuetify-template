@@ -6,7 +6,6 @@ export const H3_RESOLUTION_MIN = 0;
 export const H3_RESOLUTION_MAX = 15;
 export const MIN_ZOOM = 13;
 export const DEFAULT_ZOOM = 13;
-export const MIN_ZOOM_POLYGON_VISIBLE = 15; // REMOVE ME
 export const ZOOM_LEVEL_REAL_ESTATE = 21; // 줌레벨 부동산
 export const ZOOM_LEVEL_CITY = 10; // 줌레벨 시,군,구
 export const MAX_ZOOM = 21;
@@ -111,3 +110,10 @@ export const NAVER_MAP_POSITION_MAP = {
   BOTTOM_RIGHT: 'BOTTOM_RIGHT',
 };
 export const NAVER_MAP_POSITION_SET = utils.convertObjToSet(NAVER_MAP_POSITION_MAP);
+
+export const UNIT_DISTANCE = {
+  KILOMETER: 'kilometer',
+  METER: 'meter',
+  NAUTICALMILE: 'nauticalmile',
+  MILE: 'mile',
+};
