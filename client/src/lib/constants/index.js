@@ -69,7 +69,7 @@ export const PERIOD_OPTION_FEE_STATUS = periodOptionFeeType.STATUS;
 export const PERIOD_OPTION_FEE_STATUS_SET = utils.convertObjToSet(PERIOD_OPTION_FEE_STATUS);
 
 export const DIRECTOR_GROUP__PAGE_MODE = directorGroup.PAGE_MODE;
-export const DIRECTOR_GROUP__PAGE_MODE_SET = utils.convertObjToSet(DIRECTOR_GROUP__PAGE_MODE);;
+export const DIRECTOR_GROUP__PAGE_MODE_SET = utils.convertObjToSet(DIRECTOR_GROUP__PAGE_MODE);
 
 export const ALERT_TYPE = alert.TYPE;
 export const ALERT_TYPE_LIST = utils.convertObjValuesToList(alert.TYPE);
