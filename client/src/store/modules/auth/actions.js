@@ -3,16 +3,20 @@ import {
   AUTH__SET_USER_DATA,
   AUTH__CLEAR_USER_DATA,
 } from '@/store/mutationTypes';
-import { rules } from '@/lib/utils';
 import i18n from '@/plugins/vueI18n';
+import ruleMap from '@/lib/ruleMap';
+import {
+  RULE_KEY,
+} from '@/lib/constants';
+
 
 export default {
   async signIn({ commit, dispatch }, { email, password }) {
     try {
-      if (!rules.isValidEmail(email)) {
+      if (!ruleMap.isValid(RULE_KEY.EMAIL, email)) {
         throw new Error(`email:${email}/${i18n.t('common.error.notValidValue')}`);
       }
-      if (!rules.isValidPassword(password)) {
+      if (!ruleMap.isValid(RULE_KEY.PASSWORD_WEAK, password)) {
         throw new Error(`password:${password}/${i18n.t('common.error.notValidValue')}`);
       }
 
