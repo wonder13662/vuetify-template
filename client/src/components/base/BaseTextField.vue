@@ -35,10 +35,14 @@ export default {
     isSearchType: {
       type: Boolean,
     },
+    // @ deprecated
     isPassword: {
       type: Boolean,
     },
-    isNumber: {
+    typePassword: {
+      type: Boolean,
+    },
+    typeNumber: {
       type: Boolean,
     },
     disabled: {
@@ -50,10 +54,10 @@ export default {
       return this.isSearchType ? 'mdi-magnify' : '';
     },
     type() {
-      if (this.isPassword) {
+      if (this.typePassword || this.isPassword) {
         return 'password';
       }
-      if (this.isNumber) {
+      if (this.typeNumber) {
         return 'number';
       }
       return 'text';
