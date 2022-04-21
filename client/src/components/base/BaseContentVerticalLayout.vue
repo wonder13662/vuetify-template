@@ -6,18 +6,28 @@
     <div
       class="bcvl-head base-content-vertial-layout-row transparent"
     >
-      <slot name="head" />
+      <div
+        :class="classObjectHead"
+      >
+        <slot name="head" />
+      </div>
     </div>
     <div
       class="bcvl-body base-content-vertial-layout-row base-content-vertial-layout-row-body transparent lighten-1 flex-grow-1"
       :style="{ height: bodyHeight }"
     >
-      <slot name="body" />
+      <slot
+        name="body"
+      />
     </div>
     <div
       class="bcvl-tail base-content-vertial-layout-row transparent darken-1"
     >
-      <slot name="tail" />
+      <div
+        :class="classObjectTail"
+      >
+        <slot name="tail" />
+      </div>
     </div>
   </div>
 </template>
@@ -29,6 +39,32 @@ export default {
     bodyHeight: {
       type: String,
       required: true,
+    },
+    dividerHead: {
+      type: Boolean,
+    },
+    dividerHeadBody: {
+      type: Boolean,
+    },
+    dividerBodyTail: {
+      type: Boolean,
+    },
+    dividerTail: {
+      type: Boolean,
+    },
+  },
+  computed: {
+    classObjectHead() {
+      return {
+        'divider-head': this.dividerHead,
+        'divider-head-body': this.dividerHeadBody,
+      };
+    },
+    classObjectTail() {
+      return {
+        'divider-body-tail': this.dividerBodyTail,
+        'divider-tail': this.dividerTail,
+      };
     },
   },
 };
@@ -44,5 +80,17 @@ export default {
 .base-content-vertial-layout-row-body {
   overflow-y: auto;
   overflow-x: hidden;
+}
+.divider-head {
+  border-top: solid 1px rgba(0, 0, 0, 0.12);
+}
+.divider-head-body {
+  border-bottom: solid 1px rgba(0, 0, 0, 0.12);
+}
+.divider-body-tail {
+  border-top: solid 1px rgba(0, 0, 0, 0.12);
+}
+.divider-tail {
+  border-bottom: solid 1px rgba(0, 0, 0, 0.12);
 }
 </style>
