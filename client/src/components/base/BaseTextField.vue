@@ -72,6 +72,10 @@ export default {
   },
   methods: {
     onChange(v) {
+      if (this.typeNumber && (!v || Number.isNaN(v))) {
+        this.$emit('change', 0);
+        return;
+      }
       const safeStr = !v ? '' : v;
       this.$emit('change', safeStr);
     },
