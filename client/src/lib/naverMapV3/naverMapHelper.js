@@ -1,5 +1,5 @@
-import boundHandler from '../lib/boundHandler';
-import naverMapWrapper from '../lib/naverMapWrapper';
+import boundHandler from './lib/boundHandler';
+import naverMapWrapper from './lib/naverMapWrapper';
 
 /**
  * 네이버 맵 API를 로드할 url을 가져옵니다.

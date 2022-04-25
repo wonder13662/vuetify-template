@@ -6,9 +6,8 @@
 </template>
 
 <script>
-import {
+import naverMap, {
   constants,
-  naverMap,
 } from '@/lib/naverMapV3';
 
 export default {
@@ -104,15 +103,15 @@ export default {
       type: Boolean,
       default: false,
     },
-    // 지도의 최대 줌 레벨
+    // 지도의 최대 확대 줌 레벨
     maxZoom: {
       type: Number,
       default: constants.ZOOM_LEVEL_REAL_ESTATE,
     },
-    // 지도의 최소 줌 레벨
+    // 지도의 최소 축소 줌 레벨
     minZoom: {
       type: Number,
-      default: constants.ZOOM_LEVEL_CITY,
+      default: constants.ZOOM_LEVEL_NATION,
     },
     // 지도 위에 그려지는 오버레이 객체의 배열
     // 마커, 거리폴리라인, hexagonGroups도 모두 오버레이 객체입니다.

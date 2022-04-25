@@ -8,6 +8,7 @@ export const MIN_ZOOM = 13;
 export const DEFAULT_ZOOM = 13;
 export const ZOOM_LEVEL_REAL_ESTATE = 21; // 줌레벨 부동산
 export const ZOOM_LEVEL_CITY = 10; // 줌레벨 시,군,구
+export const ZOOM_LEVEL_NATION = 7; // 줌레벨 국가(대한민국)
 export const MAX_ZOOM = 21;
 export const Z_INDEX_HEXGON_USER_SELECT = 0;
 export const Z_INDEX_HEXGON_GRID = -200;
