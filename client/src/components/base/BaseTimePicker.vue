@@ -30,6 +30,8 @@
       full-width
       format="24hr"
       :use-seconds="useSecond"
+      :min="min"
+      :max="max"
     >
       <v-spacer />
       <v-btn
@@ -69,6 +71,14 @@ export default {
       type: Boolean,
     },
     errorMessage: {
+      type: String,
+      default: '',
+    },
+    min: {
+      type: String,
+      default: '',
+    },
+    max: {
       type: String,
       default: '',
     },
