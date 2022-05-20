@@ -211,7 +211,7 @@ class Polygon {
     onMousemove = () => ({}),
     meta = {},
   }) {
-    this.#paths = paths;
+    this.#paths = [...paths];
     this.#clickable = clickable;
     this.#visible = true;
     this.#meta = { ...meta };
@@ -246,6 +246,9 @@ class Polygon {
    * @return {void} 리턴값 없음
    */
   updatePolygonStyleBlur() {
+    if (!this.#naverPolygon) {
+      return;
+    }
     switch (this.#mode) {
       case MODE.DISABLED:
         this.#naverPolygon.setOptions({
@@ -279,6 +282,9 @@ class Polygon {
    * @return {void} 리턴값 없음
    */
   updatePolygonStyleFocus() {
+    if (!this.#naverPolygon) {
+      return;
+    }
     switch (this.#mode) {
       case MODE.DISABLED:
         this.#naverPolygon.setOptions({
@@ -750,9 +756,13 @@ class Polygon {
    * @return {Bound} bounds - polygon의 Bounds
    */
   getBounds() {
-    // 1. this.#naverPolygon에서 직접 bounds 가져오기
     if (this.#naverPolygon) {
+      // 1. this.#naverPolygon에서 직접 bounds 가져오기
       const naverBounds = this.#naverPolygon.getBounds();
+      if (!naverBounds) {
+        return null;
+      }
+
       const ne = naverBounds.getNE();
       const nePoint = {
         lat: ne.lat(),
@@ -767,8 +777,8 @@ class Polygon {
       return boundHandler.createBoundsBy2Points(nePoint, swPoint);
     }
 
-    // 2. this.#paths에서 bounds 가져오기
-    if (this.#paths) {
+    if (this.#paths && this.#paths.length > 0) {
+      // 2. this.#paths에서 bounds 가져오기
       const points = this.#paths.flat();
       return boundHandler.createBoundsByPoints(points);
     }
