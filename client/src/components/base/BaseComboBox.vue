@@ -74,8 +74,11 @@ export default {
     },
   },
   watch: {
-    select(v) {
-      this.selectedItemsData = v;
+    selectedItems: {
+      handler(v) {
+        this.selectedItemsData = v;
+      },
+      immediate: true,
     },
   },
   methods: {
