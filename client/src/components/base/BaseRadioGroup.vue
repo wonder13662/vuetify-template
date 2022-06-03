@@ -8,6 +8,7 @@
     :value="selectedValueData"
     :rules="rules"
     :validate-on-blur="true"
+    :disabled="disabled"
     @change="onChange"
   >
     <v-radio
@@ -44,6 +45,9 @@ export default {
       type: Boolean,
     },
     column: {
+      type: Boolean,
+    },
+    disabled: {
       type: Boolean,
     },
   },
