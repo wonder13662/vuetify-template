@@ -3,6 +3,7 @@
     v-model="selectedItemsData"
     :items="items"
     :disabled="disabled"
+    :rules="rules"
     item-text="text"
     item-value="value"
     return-object
@@ -10,7 +11,7 @@
     multiple
     clearable
     outlined
-    hide-details
+    hide-details="auto"
     small-chips
     @change="onChange"
   >
@@ -54,10 +55,14 @@ export default {
     disabled: {
       type: Boolean,
     },
+    allowEmpty: {
+      type: Boolean,
+    },
   },
   data() {
     return {
       selectedItemsData: this.selectedItems,
+      rules: this.getRules(this.allowEmpty),
     };
   },
   computed: {
@@ -74,6 +79,18 @@ export default {
     },
   },
   watch: {
+    disabled: {
+      handler(v) {
+        this.updateRules(v, this.allowEmpty);
+      },
+      immediate: true,
+    },
+    allowEmpty: {
+      handler(v) {
+        this.updateRules(this.disabled, v);
+      },
+      immediate: true,
+    },
     selectedItems: {
       handler(v) {
         this.selectedItemsData = v;
@@ -94,6 +111,20 @@ export default {
     },
     onChange(value) {
       this.$emit('change', value);
+    },
+    getRules(allowEmpty) {
+      const rules = [];
+      if (!allowEmpty) {
+        rules.push((value) => (value && value.length > 0) || '1개 이상 선택해야 합니다.');
+      }
+      return rules;
+    },
+    updateRules(disabled, allowEmpty) {
+      if (disabled) {
+        this.rules = [];
+        return;
+      }
+      this.rules = this.getRules(allowEmpty);
     },
   },
 };
