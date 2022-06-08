@@ -2,7 +2,7 @@
   <v-textarea
     background-color="grey lighten-5"
     :counter="maxCount"
-    clearable
+    :clearable="!disabled && !readonly"
     dense
     no-resize
     outlined
@@ -10,6 +10,7 @@
     :value="text"
     :rules="rules"
     :disabled="disabled"
+    :readonly="readonly"
     @input="onInput"
   />
 </template>
@@ -34,6 +35,9 @@ export default {
       type: Boolean,
     },
     disabled: {
+      type: Boolean,
+    },
+    readonly: {
       type: Boolean,
     },
   },
