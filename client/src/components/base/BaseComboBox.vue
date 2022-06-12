@@ -3,7 +3,7 @@
     v-model="selectedItemsData"
     :items="items"
     :disabled="disabled"
-    :rules="rules"
+    :rules="rulesData"
     item-text="text"
     item-value="value"
     return-object
@@ -52,6 +52,10 @@ export default {
         return values.findIndex((v) => !v || !v.text || !v.value);
       },
     },
+    rules: {
+      type: Array,
+      default: () => ([]),
+    },
     disabled: {
       type: Boolean,
     },
@@ -62,7 +66,7 @@ export default {
   data() {
     return {
       selectedItemsData: this.selectedItems,
-      rules: this.getRules(this.allowEmpty),
+      rulesData: [],
     };
   },
   computed: {
@@ -81,13 +85,19 @@ export default {
   watch: {
     disabled: {
       handler(v) {
-        this.updateRules(v, this.allowEmpty);
+        this.rulesData = this.getRules(v, this.allowEmpty, this.rules);
       },
       immediate: true,
     },
     allowEmpty: {
       handler(v) {
-        this.updateRules(this.disabled, v);
+        this.rulesData = this.getRules(this.disabled, v, this.rules);
+      },
+      immediate: true,
+    },
+    rules: {
+      handler(v) {
+        this.rulesData = this.getRules(this.disabled, this.allowEmpty, v);
       },
       immediate: true,
     },
@@ -112,19 +122,21 @@ export default {
     onChange(value) {
       this.$emit('change', value);
     },
-    getRules(allowEmpty) {
-      const rules = [];
-      if (!allowEmpty) {
-        rules.push((value) => (value && value.length > 0) || '1개 이상 선택해야 합니다.');
-      }
-      return rules;
-    },
-    updateRules(disabled, allowEmpty) {
+    getRules(disabled, allowEmpty, rules) {
       if (disabled) {
-        this.rules = [];
-        return;
+        return [];
       }
-      this.rules = this.getRules(allowEmpty);
+
+      if (!allowEmpty) {
+        return [
+          (value) => (value && value.length > 0) || '1개 이상 선택해야 합니다.',
+          ...rules,
+        ];
+      }
+
+      return [
+        ...rules,
+      ];
     },
   },
 };
