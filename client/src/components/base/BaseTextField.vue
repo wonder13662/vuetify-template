@@ -4,11 +4,15 @@
     outlined
     dense
     hide-details="auto"
-    clearable
+    :clearable="!readonly"
     :prepend-inner-icon="prependInnerIcon"
     :value="value"
     :rules="rules"
     :type="type"
+    :counter="counter"
+    :placeholder="placeholder"
+    :readonly="readonly"
+    :suffix="suffix"
     :disabled="disabled"
     autocomplete="new-password"
     @change="onChange"
@@ -43,6 +47,21 @@ export default {
       type: Boolean,
     },
     typeNumber: {
+      type: Boolean,
+    },
+    counter: {
+      type: Number,
+      default: null,
+    },
+    placeholder: {
+      type: String,
+      default: null,
+    },
+    suffix: {
+      type: String,
+      default: null,
+    },
+    readonly: {
       type: Boolean,
     },
     disabled: {
