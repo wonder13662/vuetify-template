@@ -11,7 +11,7 @@
     <BaseListItemDense>
       <BaseComboBox
         :items="items"
-        :select="select"
+        :selected-items="select"
         :disabled="disabled"
         @select-item="onChange"
       />
@@ -23,7 +23,7 @@
   >
     <BaseComboBox
       :items="items"
-      :select="select"
+      :selected-items="select"
       :disabled="disabled"
       @select-item="onChange"
     />

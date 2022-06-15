@@ -45,6 +45,10 @@ class Bound {
    * @return {Bound} Bound 클래스의 인스턴스
    */
   merge(bound) {
+    if (!bound) {
+      return null;
+    }
+
     const { sw, ne } = bound;
     const result = {
       sw: this.sw,

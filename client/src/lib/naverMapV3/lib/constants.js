@@ -6,7 +6,9 @@ export const H3_RESOLUTION_MIN = 0;
 export const H3_RESOLUTION_MAX = 15;
 export const MIN_ZOOM = 13;
 export const DEFAULT_ZOOM = 13;
-export const MIN_ZOOM_POLYGON_VISIBLE = 15;
+export const ZOOM_LEVEL_REAL_ESTATE = 21; // 줌레벨 부동산
+export const ZOOM_LEVEL_CITY = 10; // 줌레벨 시,군,구
+export const ZOOM_LEVEL_NATION = 7; // 줌레벨 국가(대한민국)
 export const MAX_ZOOM = 21;
 export const Z_INDEX_HEXGON_USER_SELECT = 0;
 export const Z_INDEX_HEXGON_GRID = -200;
@@ -91,7 +93,7 @@ export const BOUNDS_SOUTH_KOREA_SEOUL = boundHandler.createBoundsByPoints([
 ]);
 
 // eslint-disable-next-line max-len
-export const NAVER_LAT_LNG_BOUNDS_OBJECT_LITERAL = BOUNDS_SOUTH_KOREA_SEOUL.getLatLngBoundsObjectLiteral();
+export const NAVER_LAT_LNG_BOUNDS_OBJECT_LITERAL = BOUNDS_SOUTH_KOREA.getLatLngBoundsObjectLiteral();
 
 export const NAVER_MAP_POSITION_MAP = {
   CENTER: 'CENTER',
@@ -109,3 +111,10 @@ export const NAVER_MAP_POSITION_MAP = {
   BOTTOM_RIGHT: 'BOTTOM_RIGHT',
 };
 export const NAVER_MAP_POSITION_SET = utils.convertObjToSet(NAVER_MAP_POSITION_MAP);
+
+export const UNIT_DISTANCE = {
+  KILOMETER: 'kilometer',
+  METER: 'meter',
+  NAUTICALMILE: 'nauticalmile',
+  MILE: 'mile',
+};

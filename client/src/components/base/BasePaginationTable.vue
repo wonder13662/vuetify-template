@@ -3,7 +3,9 @@
     :elevation="0"
   >
     <!-- eslint-disable max-len -->
-    <v-card-title>
+    <v-card-title
+      v-if="!hideTotalCnt"
+    >
       {{ `${$t('views.admin.common.total')} ${totalCnt} ${$t('views.admin.common.rowUnit')}` }}
     </v-card-title>
     <v-data-table
@@ -18,7 +20,11 @@
       loading-text="로딩중입니다. 잠시만 기다려주세요."
       hide-default-footer
       @click:row="onClickRow"
-    />
+    >
+      <template v-slot:item.actions="{ item }">
+        <slot :item="item" />
+      </template>
+    </v-data-table>
     <div class="text-center pt-2 pb-2">
       <v-pagination
         :value="currentPage"
@@ -30,6 +36,7 @@
 </template>
 
 <script>
+// https://v2.vuejs.org/v2/guide/components-slots.html#Scoped-Slots
 export default {
   name: 'BasePaginationTable',
   props: {
@@ -48,6 +55,9 @@ export default {
     totalCnt: {
       type: Number,
       required: true,
+    },
+    hideTotalCnt: {
+      type: Boolean,
     },
     currentPage: {
       type: Number,

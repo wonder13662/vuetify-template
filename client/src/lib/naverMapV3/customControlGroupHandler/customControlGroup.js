@@ -306,7 +306,7 @@ class CustomControlButtonGroup {
       position: this.#position,
     });
     this.setEventController();
-    if (this.#visible) {
+    if (!this.#visible) {
       this.#naverCustomControl.setMap(null);
     }
   }

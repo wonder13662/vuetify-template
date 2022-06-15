@@ -4,11 +4,15 @@
     outlined
     dense
     hide-details="auto"
-    clearable
+    :clearable="!readonly"
     :prepend-inner-icon="prependInnerIcon"
     :value="value"
     :rules="rules"
     :type="type"
+    :counter="counter"
+    :placeholder="placeholder"
+    :readonly="readonly"
+    :suffix="suffix"
     :disabled="disabled"
     autocomplete="new-password"
     @change="onChange"
@@ -35,10 +39,29 @@ export default {
     isSearchType: {
       type: Boolean,
     },
+    // @ deprecated
     isPassword: {
       type: Boolean,
     },
-    isNumber: {
+    typePassword: {
+      type: Boolean,
+    },
+    typeNumber: {
+      type: Boolean,
+    },
+    counter: {
+      type: Number,
+      default: null,
+    },
+    placeholder: {
+      type: String,
+      default: null,
+    },
+    suffix: {
+      type: String,
+      default: null,
+    },
+    readonly: {
       type: Boolean,
     },
     disabled: {
@@ -50,10 +73,10 @@ export default {
       return this.isSearchType ? 'mdi-magnify' : '';
     },
     type() {
-      if (this.isPassword) {
+      if (this.typePassword || this.isPassword) {
         return 'password';
       }
-      if (this.isNumber) {
+      if (this.typeNumber) {
         return 'number';
       }
       return 'text';
@@ -68,6 +91,10 @@ export default {
   },
   methods: {
     onChange(v) {
+      if (this.typeNumber && (!v || Number.isNaN(v))) {
+        this.$emit('change', 0);
+        return;
+      }
       const safeStr = !v ? '' : v;
       this.$emit('change', safeStr);
     },

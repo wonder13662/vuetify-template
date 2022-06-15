@@ -1,7 +1,9 @@
 <template>
-  <v-combobox
-    v-model="userSelect"
+  <v-select
+    v-model="selectedItemsData"
     :items="items"
+    :disabled="disabled"
+    :rules="rulesData"
     item-text="text"
     item-value="value"
     return-object
@@ -9,41 +11,37 @@
     multiple
     clearable
     outlined
-    hide-details
+    hide-details="auto"
     small-chips
-    :disabled="disabled"
     @change="onChange"
   >
-    <template v-slot:selection="{ attrs, item, parent, selected }">
-      <v-chip
-        v-if="item === Object(item)"
-        v-bind="attrs"
-        :color="`${item.color} lighten-3`"
-        :input-value="selected"
-        label
-        small
-        class="ma-1"
+    <template v-slot:prepend-item>
+      <v-list-item
+        ripple
+        @mousedown.prevent
+        @click="toggle"
       >
-        <span class="pr-2">
-          {{ item.text }}
-        </span>
-        <v-icon
-          small
-          @click="parent.selectItem(item)"
-        >
-          $delete
-        </v-icon>
-      </v-chip>
+        <v-list-item-action>
+          <v-icon :color="selectedItems.length > 0 ? 'indigo darken-4' : ''">
+            {{ icon }}
+          </v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>
+            Select All
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-divider class="mt-2" />
     </template>
-  </v-combobox>
+  </v-select>
 </template>
 
 <script>
-// FIX ME: select를 나중에 다시 입력받으면 반영되지 않는 문제가 있음
 export default {
   name: 'BaseComboBox',
   props: {
-    select: {
+    selectedItems: {
       type: Array,
       default: () => ([]),
     },
@@ -54,24 +52,91 @@ export default {
         return values.findIndex((v) => !v || !v.text || !v.value);
       },
     },
+    rules: {
+      type: Array,
+      default: () => ([]),
+    },
     disabled: {
       type: Boolean,
-      default: false,
+    },
+    allowEmpty: {
+      type: Boolean,
     },
   },
   data() {
     return {
-      userSelect: this.select,
+      selectedItemsData: this.selectedItems,
+      rulesData: [],
     };
   },
+  computed: {
+    selectAllItems() {
+      return this.selectedItemsData.length === this.items.length;
+    },
+    selectSomeItems() {
+      return this.selectedItemsData.length > 0 && !this.selectAllItems;
+    },
+    icon() {
+      if (this.selectAllItems) return 'mdi-close-box';
+      if (this.selectSomeItems) return 'mdi-minus-box';
+      return 'mdi-checkbox-blank-outline';
+    },
+  },
   watch: {
-    select(v) {
-      this.userSelect = v;
+    disabled: {
+      handler(v) {
+        this.rulesData = this.getRules(v, this.allowEmpty, this.rules);
+      },
+      immediate: true,
+    },
+    allowEmpty: {
+      handler(v) {
+        this.rulesData = this.getRules(this.disabled, v, this.rules);
+      },
+      immediate: true,
+    },
+    rules: {
+      handler(v) {
+        this.rulesData = this.getRules(this.disabled, this.allowEmpty, v);
+      },
+      immediate: true,
+    },
+    selectedItems: {
+      handler(v) {
+        this.selectedItemsData = v;
+      },
+      immediate: true,
     },
   },
   methods: {
+    toggle() {
+      this.$nextTick(() => {
+        if (this.selectAllItems) {
+          this.selectedItemsData = [];
+        } else {
+          this.selectedItemsData = this.items.slice();
+        }
+        this.onChange([...this.selectedItemsData]);
+      });
+    },
     onChange(value) {
-      this.$emit('select-item', value);
+      this.$emit('change', value);
+    },
+    getRules(disabled, allowEmpty, rules) {
+      if (disabled) {
+        return [];
+      }
+
+      if (!allowEmpty) {
+        return [
+          (value) => (value && value.length > 0) || '1개 이상 선택해야 합니다.',
+          ...rules,
+        ];
+      }
+
+      return [
+        ...rules,
+      ];
     },
   },
 };

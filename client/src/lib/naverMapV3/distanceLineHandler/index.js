@@ -4,13 +4,14 @@ import {
   divide,
 } from 'mathjs';
 import mapUtils from '../lib/utils';
+import distanceCalculator from '../lib/distanceCalculator';
 import naverMapWrapper from '../lib/naverMapWrapper';
 import {
   OVERLAY_STATUS,
   DISTANCE_LINE_STROKE_STYLE,
   DISTANCE_LINE_STROKE_STYLE_SET,
 } from '../lib/constants';
-import overlayEventHandler from '../overlayEventHandler';
+import overlayEventHandler from '../lib/overlayEventHandler';
 import utils from '@/lib/utils';
 
 const createPath = (start, end) => ([
@@ -90,6 +91,8 @@ class DistanceLine {
 
   #strokeStyle
 
+  #distanceInMeter
+
   #naverPolyline
 
   #naverMarkerDistance
@@ -102,6 +105,7 @@ class DistanceLine {
     start,
     end,
     strokeStyle,
+    distanceInMeter,
     meta = {},
   }) {
     if (!mapUtils.isLatitude(start.lat)) {
@@ -123,6 +127,7 @@ class DistanceLine {
     this.#start = start;
     this.#end = end;
     this.#strokeStyle = strokeStyle;
+    this.#distanceInMeter = distanceInMeter;
     this.#meta = meta;
 
     this.#naverPolyline = null;
@@ -218,7 +223,7 @@ class DistanceLine {
    * @return {number} DistanceLine을 거리(m)
    */
   getDistance() {
-    return mapUtils.pointDist(this.#start, this.#end);
+    return distanceCalculator.calculateActualDistanceBy2Points(this.#start, this.#end);
   }
 
   /**
@@ -227,9 +232,9 @@ class DistanceLine {
    * @return {string} 사용자가 읽기 쉬운 거리단위(m, km)
    */
   getDistanceReadable() {
-    return utils.formatDistanceInMeterReadable(this.getDistance());
+    const distance = this.#distanceInMeter > 0 ? this.#distanceInMeter : this.getDistance();
+    return utils.formatDistanceInMeterReadable(distance);
   }
-
 
   /**
    * distanceLine이 그려질 path를 설정합니다.
@@ -428,6 +433,7 @@ export default {
     start,
     end,
     strokeStyle = DISTANCE_LINE_STROKE_STYLE.SOLID,
+    distanceInMeter = 0,
     meta = {},
   }) {
     if (!start || !mapUtils.isLatitude(start.lat) || !mapUtils.isLongitude(start.lng)) {
@@ -444,34 +450,8 @@ export default {
       start,
       end,
       strokeStyle,
+      distanceInMeter,
       meta,
     });
-  },
-  // REMOVE ME
-  /**
-   * 네이버 맵 위에 DistanceLine 인스턴스를 그립니다.
-   *
-   * @param {object} map - (required)Naver 지도 클래스로 만든 Naver 지도 instance
-   * @param {object} distanceLine - (required)DistanceLine 인스턴스
-   *
-   * @return {void} 반환값 없음
-   */
-  drawDistanceLine(map, distanceLine) {
-    if (!map) {
-      throw new Error('map: 유효하지 않음');
-    }
-    if (!distanceLine) {
-      throw new Error('distanceLine: 유효하지 않음');
-    }
-
-    distanceLine.draw(map);
-  },
-  // REMOVE ME
-  removeDistanceLine(distanceLine) {
-    if (!distanceLine) {
-      throw new Error('distanceLine: 유효하지 않음');
-    }
-
-    distanceLine.remove();
   },
 };

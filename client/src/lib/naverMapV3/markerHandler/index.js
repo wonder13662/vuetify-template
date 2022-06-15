@@ -1,5 +1,5 @@
 import naverMapWrapper from '../lib/naverMapWrapper';
-import overlayEventHandler from '../overlayEventHandler';
+import overlayEventHandler from '../lib/overlayEventHandler';
 import utils from '../lib/utils';
 
 const getStyle = (color, bgColor) => {

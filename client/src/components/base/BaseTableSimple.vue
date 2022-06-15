@@ -20,6 +20,8 @@
         <tr
           v-for="item in items"
           :key="item.value"
+          @mouseenter="onFocus(item)"
+          @mouseleave="onBlur(item)"
         >
           <td
             v-for="header in headers"
@@ -54,6 +56,14 @@ export default {
     items: {
       type: Array,
       required: true,
+    },
+  },
+  methods: {
+    onFocus(item) {
+      this.$emit('focus', item);
+    },
+    onBlur(item) {
+      this.$emit('blur', item);
     },
   },
 };

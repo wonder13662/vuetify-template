@@ -31,8 +31,8 @@
     </template>
     <v-form
       ref="form"
-      v-model="valid"
-      lazy-validation
+      :lazy-validation="lazyValidation"
+      @input="onChangeValidation"
     >
       <v-list
         class="pa-0"
@@ -110,17 +110,25 @@ export default {
     disabledSubmitBtn: {
       type: Boolean,
     },
+    lazyValidation: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
       dialog: this.isShow,
-      valid: false,
     };
   },
   watch: {
     isShow(v) {
       this.dialog = v;
     },
+  },
+  updated() {
+    if (!this.lazyValidation) {
+      this.$refs.form.validate();
+    }
   },
   methods: {
     onCancel() {
@@ -162,6 +170,9 @@ export default {
         // 부모 컴포넌트에 모달이 닫히는 이벤트를 전달한다.
         this.$emit('on-close-dialog');
       }
+    },
+    onChangeValidation(v) {
+      this.$emit('change:validation', v);
     },
   },
 };

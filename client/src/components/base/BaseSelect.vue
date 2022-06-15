@@ -9,6 +9,7 @@
     dense
     :disabled="disabled"
     :hide-details="!errorMessage"
+    :rules="rules"
     :error-messages="errorMessage"
     v-bind="$attrs"
     @change="onChange"
@@ -42,6 +43,10 @@ export default {
     },
     disabled: {
       type: Boolean,
+    },
+    rules: {
+      type: Array,
+      default: () => ([]),
     },
   },
   methods: {

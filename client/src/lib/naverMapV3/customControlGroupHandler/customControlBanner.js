@@ -4,21 +4,13 @@ import {
 } from '../lib/constants';
 import utils from '@/lib/utils';
 
-// CustomControlBanner의 기능
-// 1. 지도화면 최상단 중앙에 위치한다(확인 필요!)
-// 2. 사용하는 쪽에서 배너에 표시될 텍스트를 입력받을 수 있다.
-// 3. 사용하는 쪽에서 버튼을 visible 속성으로 보이거나 가릴 수 있다.
-// 3-1. element의 갯수가 변경되면 관리해야 할 조건이 너무 많으므로 갯수를 고정하자.
-// 4. 사용하는 쪽에서 버튼의 클릭 이벤트를 받을 수 있다.
-// 5. 사용하는 쪽에서 배너를 가리거나 보여줄 수 있다.
-
 const getStyle = ({
   key,
   focus,
   visible,
 }) => {
   if (key === 'message') {
-    // message는 focus, selected 이벤트에 영향을 받지 않습니다.
+    // NOTE: message는 focus, selected 이벤트에 영향을 받지 않습니다.
     return [
       'background: white;',
       'color: grey;',

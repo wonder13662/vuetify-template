@@ -13,7 +13,7 @@
       :rules="rules"
       :disabled="disabled || disabledItem"
       dense
-      hide-details
+      hide-details="auto"
       @change="onChange"
     />
     <div

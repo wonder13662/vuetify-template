@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import mapUtils from '../lib/utils';
 import pointMarkerHandler from './pointMarkerHandler';
 import polygonHandler from '../polygonHandler';
-import overlayEventHandler from '../overlayEventHandler';
+import overlayEventHandler from '../lib/overlayEventHandler';
 import {
   OVERLAY_MODE,
 } from '../lib/constants';
@@ -48,9 +48,6 @@ class PolygonLasso {
   #mode
 
   #onChange
-
-  // TODO 확장성을 위해서는 points를 외부에서 받을 수 있어야 한다.
-  // TODO 삭제하는 방법은 선택시 pointMarker에 삭제 버튼을 노출하는 것으로 하자.
 
   /**
    * TODO Points를 받아 네이버 지도 위에서 영역을 나타내는 폴리곤을 그립니다.

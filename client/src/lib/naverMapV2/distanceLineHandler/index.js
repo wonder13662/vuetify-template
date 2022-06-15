@@ -12,6 +12,7 @@ import {
 } from '../lib/constants';
 import overlayEventHandler from '../overlayEventHandler';
 import utils from '@/lib/utils';
+import distanceCalculator from '../lib/distanceCalculator';
 
 const createPath = (start, end) => ([
   naverMapWrapper.getLatLng(start.lat, start.lng),
@@ -90,6 +91,8 @@ class DistanceLine {
 
   #strokeStyle
 
+  #distanceInMeter
+
   #naverPolyline
 
   #naverMarkerDistance
@@ -102,6 +105,7 @@ class DistanceLine {
     start,
     end,
     strokeStyle,
+    distanceInMeter,
     meta = {},
   }) {
     if (!mapUtils.isLatitude(start.lat)) {
@@ -123,6 +127,7 @@ class DistanceLine {
     this.#start = start;
     this.#end = end;
     this.#strokeStyle = strokeStyle;
+    this.#distanceInMeter = distanceInMeter;
     this.#meta = meta;
 
     this.#naverPolyline = null;
@@ -218,7 +223,7 @@ class DistanceLine {
    * @return {number} DistanceLine을 거리(m)
    */
   getDistance() {
-    return mapUtils.pointDist(this.#start, this.#end);
+    return distanceCalculator.calculateActualDistanceBy2Points(this.#start, this.#end);
   }
 
   /**
@@ -227,9 +232,9 @@ class DistanceLine {
    * @return {string} 사용자가 읽기 쉬운 거리단위(m, km)
    */
   getDistanceReadable() {
-    return utils.formatDistanceInMeterReadable(this.getDistance());
+    const distance = this.#distanceInMeter > 0 ? this.#distanceInMeter : this.getDistance();
+    return utils.formatDistanceInMeterReadable(distance);
   }
-
 
   /**
    * distanceLine이 그려질 path를 설정합니다.
@@ -429,6 +434,7 @@ export default {
     start,
     end,
     strokeStyle = DISTANCE_LINE_STROKE_STYLE.SOLID,
+    distanceInMeter = 0,
     meta = {},
   }) {
     if (!start || !mapUtils.isLatitude(start.lat) || !mapUtils.isLongitude(start.lng)) {
@@ -445,6 +451,7 @@ export default {
       start,
       end,
       strokeStyle,
+      distanceInMeter,
       meta,
     });
   },

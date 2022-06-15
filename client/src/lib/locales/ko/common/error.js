@@ -1,5 +1,9 @@
 export default {
   notValidValue: '유효한 값이 아닙니다.',
+  notValidDelivery: 'delivery가 유효하지 않습니다.',
+  notValidSubDelivery: 'subDelivery가 유효하지 않습니다.',
+  notValidCSTicket: 'customerServiceTicket이 유효하지 않습니다.',
+  notValidDriver: 'driver가 유효하지 않습니다.',
   password: {
     required: '필수값입니다.',
     mustContainAtLeast1LowercaseAlphabet: '알파벳 소문자가 1개 이상 포함되어야 합니다.',
@@ -20,6 +24,21 @@ export default {
   email: {
     required: '필수값입니다.',
     notValidFormat: '유효한 이메일 형식이 아닙니다.',
+  },
+  accountNumber: {
+    required: '필수값입니다.',
+    notValidFormat: '유효한 계좌번호 형식이 아닙니다.',
+  },
+  driverWorkingStatus: {
+    mustContainAtLeastOne: '드라이버 근무 상태를 최소 1개 이상 선택해야 합니다',
+  },
+  driverTransportation: {
+    mustContainAtLeastOne: '드라이버 선택 운송수단을 최소 1개 이상 선택해야 합니다',
+  },
+  directorGroupList: {
+    required: '필수값입니다.',
+    mustGreaterThanOrEqual2Letters: '2글자 이상이어야 합니다.',
+    mustLessThanOrEqual200Letters: '200글자 이하여야 합니다.',
   },
   lib: {
     auth: {

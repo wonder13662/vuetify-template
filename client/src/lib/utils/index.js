@@ -3,31 +3,24 @@ import lodash from 'lodash';
 import {
   h3IsValid,
 } from 'h3-js';
-import {
-  SERVICEUSER_APPROVE_STATUS_SET,
-} from '@/lib/constants';
-import i18n from '@/plugins/vueI18n';
-
-export { default as rules } from './rules';
-export { default as ruleMap } from './ruleMap';
 
 const YYYYMMDD = 'YYYY-MM-DD';
 const YYYYMMDDHHmmss = 'YYYY-MM-DD HH:mm:ss';
 const HHmmss = 'HH:mm:ss';
 
 export default {
-  isValidArray(v, minLength = 0) {
-    return v && v.length > minLength;
-  },
-  isValidH3(v) { // REMOVE ME
-    // https://h3geo.org/docs/api/inspection#h3isvalid
-    return h3IsValid(v);
-  },
   isUUIDType(id) {
     // https://www.postgresql.org/docs/9.1/datatype-uuid.html
     // https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
     const rule = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return rule.test(id);
+  },
+  isValidArray(v, minLength = 1) {
+    return v && typeof v === 'object' && v.length >= minLength;
+  },
+  isValidH3(v) { // REMOVE ME
+    // https://h3geo.org/docs/api/inspection#h3isvalid
+    return h3IsValid(v);
   },
   isValidPhoneNumber(phoneNumber) { // REMOVE ME
     // https://luerangler-dev.tistory.com/41
@@ -53,6 +46,19 @@ export default {
     const safeNumber = Number(v);
     return Number.isInteger(safeNumber) && safeNumber >= 0;
   },
+  castStringToBoolean(v) {
+    if (!this.isValidString(v)) {
+      return null;
+    }
+    const safeLowerCase = v.toLowerCase();
+    if (safeLowerCase === 'true') {
+      return true;
+    }
+    if (safeLowerCase === 'false') {
+      return false;
+    }
+    return null;
+  },
   isLatitude(v) { // REMOVE ME
     return Number.isFinite(v) && v >= -90 && v <= 90;
   },
@@ -60,7 +66,7 @@ export default {
     return Number.isFinite(v) && v >= -180 && v <= 180;
   },
   convertObjToSet(obj) {
-    if (!obj) {
+    if (!obj || typeof obj !== 'object') {
       return new Set();
     }
     return this.convertListToSet(Object.values(obj));
@@ -76,20 +82,40 @@ export default {
     }, new Set());
   },
   convertSetToList(aSet) {
+    // https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Set
+    if (!aSet
+        || typeof aSet !== 'object'
+        || aSet.add === undefined
+        || aSet.size === undefined
+        || aSet.size === 0) {
+      return [];
+    }
     return Array.from(aSet);
   },
-  convertMapToList(map) {
+  convertMapToList(aMap) {
+    if (!aMap
+        || typeof aMap !== 'object'
+        || aMap.set === undefined
+        || aMap.size === undefined
+        || aMap.size === 0) {
+      return [];
+    }
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#relation_with_array_objects
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#cloning_and_merging_maps
-    return Array.from(new Map(map).values());
+    return Array.from(new Map(aMap).values());
   },
   convertMapKeysToList(map) {
     return Array.from(new Map(map).keys());
   },
+  // @ deprecated
   convertObjKeysToList(obj) {
     return Array.from(Object.keys(obj));
   },
   convertObjValuesToList(obj) {
+    if (!obj
+      || typeof obj !== 'object') {
+      return [];
+    }
     return Array.from(Object.values(obj));
   },
   // '2021-06-28'
@@ -122,9 +148,6 @@ export default {
     // https://momentjs.com/docs/#/manipulating/utc/
     // ex: "2020-10-09T00:00:00Z"
     return this.convertDateNHourToMoment(yyyymmdd, hour).utc().format();
-  },
-  convertYYYYMMDDStrToUTCTime(yyyymmdd) {
-    return moment(yyyymmdd, 'YYYY-MM-DD').utc().toISOString();
   },
   convertYYYYMMDDStrToUTCStartOfTime(yyyymmdd) {
     // https://momentjs.com/docs/#/manipulating/start-of/
@@ -186,7 +209,7 @@ export default {
   /**
    * 문자열 'HH:mm'로 표현된 시간을 UTC에서 Local로 바꿔줍니다.
    *
-   * @param {string} UTCHHmmStr - Local 기준의 'HH:mm' 형식의 시간 문자열
+   * @param {string} LocalHHmmStr - Local 기준의 'HH:mm' 형식의 시간 문자열
    *
    * @return {string} Local 기준의 'HH:mm' 형식의 시간 문자열
    */
@@ -215,7 +238,7 @@ export default {
   // @ Deprecated
   convertDeliveryIdShortReadable(deliveryId) {
     if (!deliveryId) return '';
-    return deliveryId.slice(0, 8).toUpperCase();
+    return this.convertUUIDShortReadable(deliveryId);
   },
   convertUUIDShortReadable(id) {
     if (!id) {
@@ -229,12 +252,6 @@ export default {
       return false;
     }
     return this.makeStrKey(a) === this.makeStrKey(b);
-  },
-  convertServiceUserApproveStatusReadable(approveStatus) {
-    if (!approveStatus || !SERVICEUSER_APPROVE_STATUS_SET.has(approveStatus)) {
-      throw new Error(`approveStatus: ${i18n.t('common.error.notValid')}`);
-    }
-    return i18n.t(`models.serviceUser.approveStatus.${approveStatus}`);
   },
   /**
    * 값을 요소로 가지는 2개 배열을 비교하여, 추가(add)된 것과 삭제(remove)된 것을 구분해줍니다.
@@ -274,5 +291,30 @@ export default {
    */
   lodashWithout(origin, remove) {
     return lodash.without(origin, ...remove);
+  },
+  /**
+   * 두 개의 정수(숫자,문자열)를 비교해서 같은지 알려줍니다.
+   * @param {string|number} a
+   * @param {string|number} b
+   *
+   * @return {void} 같은 정수인지 여부
+   */
+  isSameInteger(a, b) {
+    if (a !== '0' && a !== 0 && b !== '0' && b !== 0 && (!a || !b)) {
+      return false;
+    }
+    if (Number.isNaN(a) || Number.isNaN(b)) {
+      return false;
+    }
+    // 소수점을 가지는 실수는 비교하지 않는다.
+    const aInt = parseInt(a, 10);
+    const bInt = parseInt(b, 10);
+    if (aInt !== Number(a)) {
+      return false;
+    }
+    if (bInt !== Number(b)) {
+      return false;
+    }
+    return aInt === bInt;
   },
 };

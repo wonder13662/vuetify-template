@@ -1,14 +1,15 @@
 import {
+  uncompact, // https://h3geo.org/docs/api/hierarchy#uncompact
   h3IsValid, // https://h3geo.org/docs/api/inspection#h3isvalid
   pointDist, // https://h3geo.org/docs/api/misc#pointdistm
   geoToH3, // https://h3geo.org/docs/api/indexing#geotoh3
   UNITS,
 } from 'h3-js';
-import * as turf from '@turf/turf';
 import utils from '@/lib/utils';
 
 // https://h3geo.org/docs/core-library/restable
 const H3_RESOLUTION_MIN = 0;
+const H3_RESOLUTION_DEFAULT = 9;
 const H3_RESOLUTION_MAX = 15;
 
 export default {
@@ -189,47 +190,14 @@ export default {
     return pointDist([p1.lat, p1.lng], [p2.lat, p2.lng], UNITS.m);
   },
   /**
-   * point 배열에서 중심점 point를 구합니다.
+   * 압축(compact)된 h3Index를 지정된 resolution의 h3Index로 압축을 풉니다(uncompact).
    *
-   * @param {array} points - point의 배열
+   * @param {array<string>} compactH3Indexes
+   * @param {number} resolution - h3 resolution
    *
-   * @return {Point} point 배열의 중심점 point
+   * @return {array<string>} uncompactH3Indexes
    */
-  centerFromPoints(points) {
-    if (!points || points.length === 0) {
-      throw new Error(`points:${points}/유효하지 않습니다.`);
-    }
-    points.forEach((v) => {
-      if (!this.isValidPoint(v)) {
-        throw new Error(`v:${v}/유효하지 않습니다.`);
-      }
-    });
-    const features = turf.points(points.map((v) => ([v.lat, v.lng])));
-    const center = turf.center(features);
-    const coord = turf.getCoord(center);
-    return {
-      lat: coord[0],
-      lng: coord[1],
-    };
-  },
-  /**
-   * 북쪽 0도를 기준으로 두 point의 각도를 구합니다.
-   *
-   * @param {point} p1 - 각도를 나타내는 첫번째 point
-   * @param {point} p2 - 각도를 나타내는 두번째 point
-   *
-   * @return {number} 두 point의 각도
-   */
-  rhumbBearing(p1, p2) {
-    if (!this.isValidPoint(p1)) {
-      throw new Error(`p1:${p1}/유효하지 않습니다.`);
-    }
-    if (!this.isValidPoint(p2)) {
-      throw new Error(`p2:${p2}/유효하지 않습니다.`);
-    }
-    return turf.rhumbBearing(
-      turf.point([p1.lat, p1.lng]),
-      turf.point([p2.lat, p2.lng]),
-    );
+  uncompact(compactH3Indexes, resolution = H3_RESOLUTION_DEFAULT) {
+    return uncompact(compactH3Indexes, resolution);
   },
 };

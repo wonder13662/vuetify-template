@@ -1,8 +1,8 @@
 <template>
   <v-textarea
     background-color="grey lighten-5"
-    counter="100"
-    clearable
+    :counter="maxCount"
+    :clearable="!disabled && !readonly"
     dense
     no-resize
     outlined
@@ -10,7 +10,8 @@
     :value="text"
     :rules="rules"
     :disabled="disabled"
-    @change="onChange"
+    :readonly="readonly"
+    @input="onInput"
   />
 </template>
 
@@ -36,10 +37,13 @@ export default {
     disabled: {
       type: Boolean,
     },
+    readonly: {
+      type: Boolean,
+    },
   },
   data() {
     return {
-      rules: this.getRules(),
+      rules: this.getRules(this.allowEmpty),
     };
   },
   computed: {
@@ -50,18 +54,39 @@ export default {
       return 'auto';
     },
   },
+  watch: {
+    allowEmpty: {
+      handler(v) {
+        if (this.disabled) {
+          this.rules = [];
+          return;
+        }
+        this.rules = this.getRules(v);
+      },
+      immediate: true,
+    },
+    disabled: {
+      handler(v) {
+        if (v) {
+          this.rules = [];
+          return;
+        }
+        this.rules = this.getRules(this.allowEmpty);
+      },
+      immediate: true,
+    },
+  },
   methods: {
-    onChange(value) {
+    onInput(value) {
       this.$emit('change', value);
     },
-    getRules() {
-      if (this.allowEmpty) {
-        return [];
+    getRules(allowEmpty) {
+      const rules = [];
+      if (!allowEmpty) {
+        rules.push((value) => (value && value.length > 0) || '내용을 입력해야 합니다.');
       }
-      return [
-        (value) => (value && value.length > 0) || '내용을 입력해야 합니다.',
-        (value) => (value && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`,
-      ];
+      rules.push((value) => ((!!value || value === '') && value.length <= this.maxCount) || `입력된 내용이 ${this.maxCount}자 이하여야 합니다.`);
+      return rules;
     },
   },
 };

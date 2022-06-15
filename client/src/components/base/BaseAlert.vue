@@ -1,5 +1,6 @@
 <template>
   <v-alert
+    class="base-alert"
     :type="alert.type"
     :value="value"
     dense
@@ -58,5 +59,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.base-alert {
+  z-index: 150;
+}
 </style>

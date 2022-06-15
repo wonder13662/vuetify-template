@@ -3,8 +3,8 @@ import {
   OVERLAY_EVENT,
   OVERLAY_EVENT_SET,
   OVERLAY_STATUS,
-} from '../lib/constants';
-import naverMapWrapper from '../lib/naverMapWrapper';
+} from './constants';
+import naverMapWrapper from './naverMapWrapper';
 import utils from '@/lib/utils';
 
 /**

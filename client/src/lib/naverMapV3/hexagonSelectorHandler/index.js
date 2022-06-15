@@ -192,7 +192,7 @@ class HexagonSelector {
       clickable: false,
       meta: { ...this.#meta },
     });
-    this.#selectedPolygon.setModeSelected();
+    this.#selectedPolygon.setModeEdit();
   }
 
   /**
@@ -385,6 +385,9 @@ class HexagonSelector {
    * @return {void} 리턴값 없음
    */
   setOnChange(callback) {
+    if (this.#disabled) {
+      return;
+    }
     this.#onChange = callback;
   }
 
@@ -398,6 +401,20 @@ class HexagonSelector {
     this.#hexagonPolygonSelector.clear();
     this.#h3Indexes = [];
     this.#selectedPolygon.setPaths([]);
+  }
+
+  /**
+   * 외부에서 h3Index의 배열을 받아서 선택된 h3Index의 배열을 업데이트합니다.
+   *
+   * @param {array<string>} h3Indexes h3의 고유 id 문자열
+   *
+   * @return {void} 리턴값 없음
+   */
+  setH3Indexes(h3Indexes) {
+    if (this.#mode !== MODE.NONE) {
+      return;
+    }
+    this.#h3Indexes = h3Indexes;
   }
 }
 
