@@ -46,6 +46,19 @@ export default {
     const safeNumber = Number(v);
     return Number.isInteger(safeNumber) && safeNumber >= 0;
   },
+  castStringToBoolean(v) {
+    if (!this.isValidString(v)) {
+      return null;
+    }
+    const safeLowerCase = v.toLowerCase();
+    if (safeLowerCase === 'true') {
+      return true;
+    }
+    if (safeLowerCase === 'false') {
+      return false;
+    }
+    return null;
+  },
   isLatitude(v) { // REMOVE ME
     return Number.isFinite(v) && v >= -90 && v <= 90;
   },
