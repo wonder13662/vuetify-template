@@ -1,10 +1,12 @@
-import naverMapWrapper from '../lib/naverMapWrapper';
-import overlayEventHandler from '../lib/overlayEventHandler';
-import hexagonCalculator from '../lib/hexagonCalculator';
-import boundHandler from '../lib/boundHandler';
+import { v4 as uuidv4 } from 'uuid';
+import utils from '@/lib/utils';
+import naverMapWrapper from './naverMapWrapper';
+import overlayEventHandler from './overlayEventHandler';
+import hexagonCalculator from './hexagonCalculator';
+import boundHandler from './boundHandler';
 import {
   Z_INDEX_POLYGON_BORDER,
-} from '../lib/constants';
+} from './constants';
 
 // TODO HexagonGroupHandler와 HexagonHandler가 이 객체를 사용하도록 변경해야 합니다.
 
@@ -187,7 +189,7 @@ class Polygon {
 
   #map
 
-  #modeChangeEventListener
+  #modeChangeEventListenerMap
 
   /**
    * 좌표를 받아 Naver 폴리곤을 제어(그리기,지우기)하는 Polygon 객체를 만듭니다.
@@ -225,7 +227,7 @@ class Polygon {
       onMousemove,
       meta: { ...this.#meta },
     });
-    this.#modeChangeEventListener = [];
+    this.#modeChangeEventListenerMap = new Map();
   }
 
   /**
@@ -370,7 +372,7 @@ class Polygon {
       this.#naverPolygon.setMap(null);
       this.#naverPolygon = null;
     }
-    this.#modeChangeEventListener = [];
+    this.#modeChangeEventListenerMap.clear();
   }
 
   /**
@@ -618,14 +620,38 @@ class Polygon {
    *
    * @param {function} listener - mode change 이벤트 리스너
    *
-   * @return {void} 리턴값 없음
+   * @return {string} listener가 등록된 id
    */
   addModeChangeListener(listener) {
     if (!listener) {
       throw new Error('listener: 유효하지 않음');
     }
 
-    this.#modeChangeEventListener.push(listener);
+    const id = uuidv4();
+    this.#modeChangeEventListenerMap.set(id, listener);
+    return id;
+  }
+
+  /**
+   * Polygon의 Mode가 변경된 이벤트를 감시하는 리스너를 삭제합니다.
+   *
+   * @param {string} id - listener가 등록된 id
+   *
+   * @return {void} 반환값 없음
+   */
+  removeModeChangeListener(id) {
+    if (this.#modeChangeEventListenerMap.has(id)) {
+      this.#modeChangeEventListenerMap.delete(id);
+    }
+  }
+
+  /**
+   * Polygon의 Mode가 변경된 이벤트를 감시하는 리스너의 맵을 배열로 바꾸어 줍니다.
+   *
+   * @return {array} listener의 배열
+   */
+  getModeChangeListeners() {
+    return utils.convertMapToList(this.#modeChangeEventListenerMap);
   }
 
   /**
@@ -638,7 +664,7 @@ class Polygon {
     if (this.#naverPolygon) {
       this.#naverPolygon.setOptions(getStyleUnselectedBlur());
     }
-    this.#modeChangeEventListener.forEach((listener) => listener());
+    this.getModeChangeListeners().forEach((listener) => listener());
   }
 
   /**
@@ -651,7 +677,7 @@ class Polygon {
     if (this.#naverPolygon) {
       this.#naverPolygon.setOptions(getStyleSelectedBlur());
     }
-    this.#modeChangeEventListener.forEach((listener) => listener());
+    this.getModeChangeListeners().forEach((listener) => listener());
   }
 
   /**
@@ -664,7 +690,7 @@ class Polygon {
     if (this.#naverPolygon) {
       this.#naverPolygon.setOptions(getStyleEditBlur());
     }
-    this.#modeChangeEventListener.forEach((listener) => listener());
+    this.getModeChangeListeners().forEach((listener) => listener());
   }
 
   /**
@@ -685,7 +711,7 @@ class Polygon {
           clickable: false,
         });
       }
-      this.#modeChangeEventListener.forEach((listener) => listener());
+      this.getModeChangeListeners().forEach((listener) => listener());
       return;
     }
     this.#mode = MODE.UNSELECTED;
@@ -695,7 +721,7 @@ class Polygon {
         clickable: true,
       });
     }
-    this.#modeChangeEventListener.forEach((listener) => listener());
+    this.getModeChangeListeners().forEach((listener) => listener());
   }
 
   /**
