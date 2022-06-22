@@ -189,14 +189,6 @@ class Polygon {
 
   #map
 
-  #focusEventListenerIdSet
-
-  #blurEventListenerIdSet
-
-  #clickEventListenerIdSet
-
-  #mouseMoveEventListenerIdSet
-
   #modeChangeEventListenerMap
 
   /**
@@ -236,10 +228,6 @@ class Polygon {
       meta: { ...this.#meta },
     });
     this.#modeChangeEventListenerMap = new Map();
-    this.#focusEventListenerIdSet = new Set();
-    this.#blurEventListenerIdSet = new Set();
-    this.#clickEventListenerIdSet = new Set();
-    this.#mouseMoveEventListenerIdSet = new Set();
   }
 
   /**
@@ -495,7 +483,6 @@ class Polygon {
     }
 
     const id = this.#overlayEventController.addFocusListener(listener);
-    this.#focusEventListenerIdSet.add(id);
     return id;
   }
 
@@ -513,24 +500,8 @@ class Polygon {
     if (!this.#overlayEventController) {
       throw new Error('this.#overlayEventController/유효하지 않습니다.');
     }
-    if (!this.#focusEventListenerIdSet.has(id)) {
-      throw new Error('id: 등록된 id가 아닙니다.');
-    }
 
     this.#overlayEventController.removeFocusListener(id);
-    this.#focusEventListenerIdSet.delete(id);
-  }
-
-  /**
-   * Naver Polygon에 등록된 모든 focus 이벤트 리스너를 제거합니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeAllFocusListeners() {
-    utils.convertSetToList(this.#focusEventListenerIdSet).forEach((v) => {
-      this.#overlayEventController.removeFocusListener(v);
-    });
-    this.#focusEventListenerIdSet.clear();
   }
 
   /**
@@ -549,7 +520,6 @@ class Polygon {
     }
 
     const id = this.#overlayEventController.addBlurListener(listener);
-    this.#blurEventListenerIdSet.add(id);
     return id;
   }
 
@@ -567,24 +537,8 @@ class Polygon {
     if (!this.#overlayEventController) {
       throw new Error('this.#overlayEventController/유효하지 않습니다.');
     }
-    if (!this.#blurEventListenerIdSet.has(id)) {
-      throw new Error('id: 등록된 id가 아닙니다.');
-    }
 
     this.#overlayEventController.removeBlurListener(id);
-    this.#blurEventListenerIdSet.delete(id);
-  }
-
-  /**
-   * Naver Polygon에 등록된 모든 blur 이벤트 리스너를 제거합니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeAllBlurListeners() {
-    utils.convertSetToList(this.#blurEventListenerIdSet).forEach((v) => {
-      this.#overlayEventController.removeBlurListener(v);
-    });
-    this.#blurEventListenerIdSet.clear();
   }
 
   /**
@@ -603,7 +557,6 @@ class Polygon {
     }
 
     const id = this.#overlayEventController.addClickListener(listener);
-    this.#clickEventListenerIdSet.add(id);
     return id;
   }
 
@@ -621,23 +574,7 @@ class Polygon {
     if (!this.#overlayEventController) {
       throw new Error('this.#overlayEventController/유효하지 않습니다.');
     }
-    if (!this.#clickEventListenerIdSet.has(id)) {
-      throw new Error('id: 등록된 id가 아닙니다.');
-    }
     this.#overlayEventController.removeClickListener(id);
-    this.#clickEventListenerIdSet.delete(id);
-  }
-
-  /**
-   * Naver Polygon에 등록된 모든 click 이벤트 리스너를 제거합니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeAllClickListeners() {
-    utils.convertSetToList(this.#clickEventListenerIdSet).forEach((v) => {
-      this.#overlayEventController.removeClickListener(v);
-    });
-    this.#clickEventListenerIdSet.clear();
   }
 
   /**
@@ -656,7 +593,6 @@ class Polygon {
     }
 
     const id = this.#overlayEventController.addMousemoveListener(listener);
-    this.#mouseMoveEventListenerIdSet.add(id);
     return id;
   }
 
@@ -674,24 +610,8 @@ class Polygon {
     if (!this.#overlayEventController) {
       throw new Error('this.#overlayEventController/유효하지 않습니다.');
     }
-    if (!this.#mouseMoveEventListenerIdSet.has(id)) {
-      throw new Error('id: 등록된 id가 아닙니다.');
-    }
 
     this.#overlayEventController.removeMousemoveListener(id);
-    this.#mouseMoveEventListenerIdSet.delete(id);
-  }
-
-  /**
-   * Naver Polygon에 등록된 모든 mousemove 이벤트 리스너를 제거합니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeAllMousemoveListeners() {
-    utils.convertSetToList(this.#mouseMoveEventListenerIdSet).forEach((v) => {
-      this.#overlayEventController.removeMousemoveListener(v);
-    });
-    this.#mouseMoveEventListenerIdSet.clear();
   }
 
   /**
@@ -722,28 +642,6 @@ class Polygon {
     if (this.#modeChangeEventListenerMap.has(id)) {
       this.#modeChangeEventListenerMap.delete(id);
     }
-  }
-
-  /**
-   * Naver Polygon에 등록된 모든 modeChange 이벤트 리스너를 제거합니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeAllModeChangeListeners() {
-    this.#modeChangeEventListenerMap.clear();
-  }
-
-  /**
-   * Naver Polygon에 등록된 모든 이벤트 리스너를 제거합니다.
-   *
-   * @return {void} 반환값 없음
-   */
-  removeAllEventListeners() {
-    this.removeAllFocusListeners();
-    this.removeAllBlurListeners();
-    this.removeAllClickListeners();
-    this.removeAllMousemoveListeners();
-    this.removeAllModeChangeListeners();
   }
 
   /**
