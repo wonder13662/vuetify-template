@@ -864,6 +864,15 @@ class Polygon {
   }
 
   /**
+   * Polygon의 focus 여부를 알려줍니다.
+   *
+   * @return {boolean} Polygon이 선택되었는지 여부
+   */
+  isFocus() {
+    return this.#overlayEventController.isFocus();
+  }
+
+  /**
    * 지도 위의 노출 여부를 설정합니다.
    *
    * @param {boolean} visible - 지도 위의 노출 여부
