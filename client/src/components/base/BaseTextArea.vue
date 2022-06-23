@@ -81,6 +81,9 @@ export default {
       this.$emit('change', value);
     },
     getRules(allowEmpty) {
+      if (this.disabled || this.readonly) {
+        return [];
+      }
       const rules = [];
       if (!allowEmpty) {
         rules.push((value) => (value && value.length > 0) || '내용을 입력해야 합니다.');
