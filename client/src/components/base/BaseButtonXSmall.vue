@@ -5,7 +5,7 @@
     :block="block"
     outlined
     x-small
-    @click="onClick"
+    @click.stop="onClick"
   >
     {{ name }}
   </v-btn>
