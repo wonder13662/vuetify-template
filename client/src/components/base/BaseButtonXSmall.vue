@@ -1,5 +1,6 @@
 <template>
   <v-btn
+    class="no-effect-upper-case"
     :disabled="disabled"
     :block="block"
     outlined
@@ -21,7 +22,7 @@ export default {
       type: Boolean,
     },
     name: {
-      type: String,
+      type: [String, Number],
       required: true,
     },
   },
@@ -34,5 +35,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.no-effect-upper-case {
+  text-transform: none;
+}
 </style>
