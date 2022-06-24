@@ -2,6 +2,7 @@
   <v-dialog
     v-model="dialog"
     fullscreen
+    persistent
     hide-overlay
     transition="dialog-bottom-transition"
     @input="onChange"

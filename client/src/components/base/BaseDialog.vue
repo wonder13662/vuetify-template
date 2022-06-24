@@ -105,7 +105,7 @@ export default {
     },
     persistent: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     disabledSubmitBtn: {
       type: Boolean,
