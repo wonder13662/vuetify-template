@@ -131,6 +131,17 @@ export default {
     // https://momentjs.com/docs/#/query/is-same-or-before/
     return moment(yyyymmddA).isSameOrBefore(yyyymmddB);
   },
+  /**
+   * 오늘 날짜를 기준으로 정수형인 일수를 더합니다.
+   * YYYY-MM-DD 포맷의 문자열로 결과를 돌려줍니다.
+   *
+   * @param {number} daysToSubtract - 오늘 날짜를 기준으로 더할 일수
+   *
+   * @return {string} YYYY-MM-DD 포맷의 문자열 ex) 2010-10-21
+   */
+  getLocalYYYYMMDDByAddDaysFromNow(daysToAdd) {
+    return moment().add(daysToAdd, 'days').format(YYYYMMDD);
+  },
   isBefore(yyyymmddA, yyyymmddB) {
     // moment('2010-10-20').isBefore('2010-10-21'); // true
     // https://momentjs.com/docs/#/query/is-before/
