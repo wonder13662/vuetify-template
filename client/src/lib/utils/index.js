@@ -471,18 +471,17 @@ const isSameKeys = (a, b) => {
 /**
  * 값을 요소로 가지는 2개 배열을 비교하여, 추가(add)된 것과 삭제(remove)된 것을 구분해줍니다.
  *
+ * https://lodash.com/docs/4.17.15#difference
+ *
  * @param {array} origin - 원본 배열
  * @param {array} modified - 수정된 배열
  *
  * @return {object} add: 추가된 값들, remove 삭제된 값들
  */
-const branchAddRemove = (origin, modified) => {
-  // 1. https://lodash.com/docs/4.17.15#difference
-  return {
-    add: lodash.difference(modified, origin),
-    remove: lodash.difference(origin, modified),
-  };
-};
+const branchAddRemove = (origin, modified) => ({
+  add: lodash.difference(modified, origin),
+  remove: lodash.difference(origin, modified),
+});
 
 export default {
   isValidArray,
