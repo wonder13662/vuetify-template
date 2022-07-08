@@ -4,30 +4,22 @@
     class="base-content-vertial-layout d-flex align-start flex-column"
   >
     <div
+      :class="classHeadBorderBottom"
       class="bcvl-head base-content-vertial-layout-row transparent"
     >
-      <div
-        :class="classObjectHead"
-      >
-        <slot name="head" />
-      </div>
+      <slot name="head" />
     </div>
     <div
+      :class="classBodyBorderBottom"
       class="bcvl-body base-content-vertial-layout-row base-content-vertial-layout-row-body transparent lighten-1 flex-grow-1"
       :style="{ height: bodyHeight }"
     >
-      <slot
-        name="body"
-      />
+      <slot name="body" />
     </div>
     <div
       class="bcvl-tail base-content-vertial-layout-row transparent darken-1"
     >
-      <div
-        :class="classObjectTail"
-      >
-        <slot name="tail" />
-      </div>
+      <slot name="tail" />
     </div>
   </div>
 </template>
@@ -40,30 +32,19 @@ export default {
       type: String,
       required: true,
     },
-    dividerHead: {
-      type: Boolean,
-    },
-    dividerHeadBody: {
-      type: Boolean,
-    },
-    dividerBodyTail: {
-      type: Boolean,
-    },
-    dividerTail: {
+    divider: {
       type: Boolean,
     },
   },
   computed: {
-    classObjectHead() {
+    classHeadBorderBottom() {
       return {
-        'divider-head': this.dividerHead,
-        'divider-head-body': this.dividerHeadBody,
+        'base-content-vertial-layout__divider-bottom': this.$slots.body && this.divider,
       };
     },
-    classObjectTail() {
+    classBodyBorderBottom() {
       return {
-        'divider-body-tail': this.dividerBodyTail,
-        'divider-tail': this.dividerTail,
+        'base-content-vertial-layout__divider-bottom': this.$slots.tail && this.divider,
       };
     },
   },
@@ -78,19 +59,9 @@ export default {
   width: 100%;
 }
 .base-content-vertial-layout-row-body {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: auto;
 }
-.divider-head {
-  border-top: solid 1px rgba(0, 0, 0, 0.12);
-}
-.divider-head-body {
-  border-bottom: solid 1px rgba(0, 0, 0, 0.12);
-}
-.divider-body-tail {
-  border-top: solid 1px rgba(0, 0, 0, 0.12);
-}
-.divider-tail {
-  border-bottom: solid 1px rgba(0, 0, 0, 0.12);
+.base-content-vertial-layout__divider-bottom {
+  border-bottom: solid 1px rgba(0, 0, 0, 0.12) !important;
 }
 </style>
