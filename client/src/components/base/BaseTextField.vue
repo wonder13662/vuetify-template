@@ -36,7 +36,11 @@ export default {
       type: Array,
       default: () => ([]),
     },
+    // @ deprecated
     isSearchType: {
+      type: Boolean,
+    },
+    typeSearch: {
       type: Boolean,
     },
     // @ deprecated
@@ -70,7 +74,7 @@ export default {
   },
   computed: {
     prependInnerIcon() {
-      return this.isSearchType ? 'mdi-magnify' : '';
+      return this.isSearchType || this.typeSearch ? 'mdi-magnify' : '';
     },
     type() {
       if (this.typePassword || this.isPassword) {
