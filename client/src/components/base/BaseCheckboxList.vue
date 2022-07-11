@@ -13,7 +13,7 @@
       :rules="rules"
       :disabled="disabled || disabledItem"
       dense
-      hide-details="auto"
+      hide-details
       @change="onChange"
     />
     <div
@@ -68,11 +68,15 @@ export default {
         return;
       }
       this.selected = v;
+      this.validateAndShowError(v);
     },
   },
   methods: {
     onChange(v) {
       this.$emit('change', v);
+      this.validateAndShowError(v);
+    },
+    validateAndShowError(v) {
       const result = this.validate(v);
       if (typeof result === 'string') {
         this.errorMsg = result;
