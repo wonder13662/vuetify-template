@@ -31,7 +31,7 @@ import BaseText from '@/components/base/BaseText';
 import BaseCheckboxList from '@/components/base/BaseCheckboxList';
 
 export default {
-  name: 'BaseCheckboxListSelectAll',
+  name: 'BaseCheckboxListRowSelectAll',
   components: {
     BaseText,
     BaseCheckboxList,
