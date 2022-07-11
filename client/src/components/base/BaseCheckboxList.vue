@@ -1,21 +1,23 @@
 <template>
-  <div
-    :class="{ 'd-flex':!vertical, 'flex-wrap':!vertical }"
-  >
-    <v-checkbox
-      v-for="({ text, value, disabled: disabledItem }, idx) in items"
-      :key="value"
-      v-model="selected"
-      class="pa-0 ma-0"
-      :class="{ 'pl-2': idx > 0 }"
-      :label="text"
-      :value="value"
-      :rules="rules"
-      :disabled="disabled || disabledItem"
-      dense
-      hide-details
-      @change="onChange"
-    />
+  <div>
+    <div
+      :class="{ 'd-flex':!vertical, 'flex-wrap':!vertical }"
+    >
+      <v-checkbox
+        v-for="({ text, value, disabled: disabledItem }, idx) in items"
+        :key="value"
+        v-model="selected"
+        class="pa-0 ma-0"
+        :class="{ 'pl-2': idx > 0 }"
+        :label="text"
+        :value="value"
+        :rules="rules"
+        :disabled="disabled || disabledItem"
+        dense
+        hide-details
+        @change="onChange"
+      />
+    </div>
     <div
       v-if="errorMsg"
     >
