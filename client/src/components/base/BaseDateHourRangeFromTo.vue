@@ -1,36 +1,73 @@
 <!-- eslint-disable max-len -->
 <template>
   <div>
-    <!-- 1. 검색 시작 일/시각 입력 필드 -->
-    <div class="pt-2">
-      <BaseDateHourRange
-        :date="startDateData"
-        :min-date="minDate"
-        :max-date="endDateData"
-        :min-hour="minStartHour"
-        :max-hour="maxStartHour"
-        :hour="startHourData"
-        :suffix="startDateHourSuffix"
-        @change="onChangeStart"
-      />
+    <!-- 1. 가로모드 -->
+    <div v-if="horizontal">
+      <BaseContentHorizontalLayout
+        col-width-left="350px"
+      >
+        <template v-slot:left>
+          <!-- 1-1. 검색 시작 일/시각 입력 필드 -->
+          <BaseDateHourRange
+            :date="startDateData"
+            :min-date="minDate"
+            :max-date="endDateData"
+            :min-hour="minStartHour"
+            :max-hour="maxStartHour"
+            :hour="startHourData"
+            :suffix="startDateHourSuffix"
+            @change="onChangeStart"
+          />
+        </template>
+        <template v-slot:right>
+          <!-- 1-2. 검색 종료 일/시각 입력 필드 -->
+          <BaseDateHourRange
+            :date="endDateData"
+            :min-date="startDateData"
+            :max-date="maxDate"
+            :min-hour="minEndHour"
+            :max-hour="maxEndHour"
+            :hour="endHourData"
+            :suffix="endDateHourSuffix"
+            @change="onChangeEnd"
+          />
+        </template>
+      </BaseContentHorizontalLayout>
     </div>
-    <!-- 2. 검색 종료 일/시각 입력 필드 -->
-    <div class="pt-1">
-      <BaseDateHourRange
-        :date="endDateData"
-        :min-date="startDateData"
-        :max-date="maxDate"
-        :min-hour="minEndHour"
-        :max-hour="maxEndHour"
-        :hour="endHourData"
-        :suffix="endDateHourSuffix"
-        @change="onChangeEnd"
-      />
+    <!-- 2. 세로모드 -->
+    <div v-else>
+      <!-- 2-1. 검색 시작 일/시각 입력 필드 -->
+      <div class="pt-2">
+        <BaseDateHourRange
+          :date="startDateData"
+          :min-date="minDate"
+          :max-date="endDateData"
+          :min-hour="minStartHour"
+          :max-hour="maxStartHour"
+          :hour="startHourData"
+          :suffix="startDateHourSuffix"
+          @change="onChangeStart"
+        />
+      </div>
+      <!-- 2-2. 검색 종료 일/시각 입력 필드 -->
+      <div class="pt-1">
+        <BaseDateHourRange
+          :date="endDateData"
+          :min-date="startDateData"
+          :max-date="maxDate"
+          :min-hour="minEndHour"
+          :max-hour="maxEndHour"
+          :hour="endHourData"
+          :suffix="endDateHourSuffix"
+          @change="onChangeEnd"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
 import BaseDateHourRange from '@/components/base/BaseDateHourRange';
 import utils from '@/lib/utils';
 import {
@@ -42,6 +79,7 @@ import {
 export default {
   name: 'BaseDateHourRangeFromTo',
   components: {
+    BaseContentHorizontalLayout,
     BaseDateHourRange,
   },
   props: {
@@ -62,6 +100,9 @@ export default {
       type: Number,
       required: true,
       validator: (v) => utils.is3HourUnit(v),
+    },
+    horizontal: {
+      type: Boolean,
     },
   },
   data() {
