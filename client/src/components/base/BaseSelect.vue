@@ -6,6 +6,7 @@
     item-value="value"
     return-object
     single-line
+    outlined
     dense
     :disabled="disabled"
     :hide-details="!errorMessage"
@@ -19,7 +20,7 @@
 <script>
 export default {
   props: {
-    select: { // @ deprecated
+    select: { // @ deprecated - value를 사용해주세요
       type: Object,
       default: null,
       validator(value) {

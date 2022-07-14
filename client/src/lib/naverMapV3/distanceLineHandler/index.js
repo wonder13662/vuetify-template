@@ -266,7 +266,7 @@ class DistanceLine {
       return;
     }
 
-    this.#naverPolyline.setPathByPoints([this.#start, this.#end]);
+    this.#naverPolyline.setPath([this.#start, this.#end]);
 
     // 거리마커의 위치 업데이트
     const { lat, lng } = calculateDistanceMarkerPoint(this.#start, this.#end);
