@@ -1,18 +1,17 @@
 <template>
   <v-select
+    :label="label"
     :value="value || select"
     :items="items"
     item-text="text"
     item-value="value"
     return-object
-    single-line
     outlined
     dense
     :disabled="disabled"
     :hide-details="!errorMessage"
     :rules="rules"
     :error-messages="errorMessage"
-    v-bind="$attrs"
     @change="onChange"
   />
 </template>
@@ -20,6 +19,10 @@
 <script>
 export default {
   props: {
+    label: {
+      type: String,
+      default: '',
+    },
     select: { // @ deprecated - value를 사용해주세요
       type: Object,
       default: null,
