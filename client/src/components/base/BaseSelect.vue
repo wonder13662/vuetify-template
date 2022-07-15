@@ -8,6 +8,7 @@
     return-object
     outlined
     dense
+    :readonly="readonly"
     :disabled="disabled"
     :hide-details="!errorMessage"
     :rules="rules"
@@ -46,6 +47,9 @@ export default {
       default: '',
     },
     disabled: {
+      type: Boolean,
+    },
+    readonly: {
       type: Boolean,
     },
     rules: {
