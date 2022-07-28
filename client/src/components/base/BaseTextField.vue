@@ -12,6 +12,7 @@
     :counter="counter"
     :placeholder="placeholder"
     :readonly="readonly"
+    :prefix="prefix"
     :suffix="suffix"
     :disabled="disabled"
     autocomplete="new-password"
@@ -58,6 +59,10 @@ export default {
       default: null,
     },
     placeholder: {
+      type: String,
+      default: null,
+    },
+    prefix: {
       type: String,
       default: null,
     },
