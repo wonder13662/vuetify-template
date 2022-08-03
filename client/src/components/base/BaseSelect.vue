@@ -10,7 +10,7 @@
     dense
     :readonly="readonly"
     :disabled="disabled"
-    :hide-details="!errorMessage"
+    hide-details="auto"
     :rules="rules"
     :error-messages="errorMessage"
     @change="onChange"
