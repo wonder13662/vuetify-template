@@ -1,9 +1,11 @@
 <template>
   <v-btn
+    elevation="0"
     class="no-effect-upper-case"
     :disabled="disabled"
     :block="block"
-    outlined
+    :outlined="!primary && !error"
+    :color="color"
     x-small
     @click.stop="onClick"
   >
@@ -24,6 +26,23 @@ export default {
     name: {
       type: [String, Number],
       required: true,
+    },
+    primary: {
+      type: Boolean,
+    },
+    error: {
+      type: Boolean,
+    },
+  },
+  computed: {
+    color() {
+      if (this.primary) {
+        return 'primary';
+      }
+      if (this.error) {
+        return 'error';
+      }
+      return null;
     },
   },
   methods: {
