@@ -15,9 +15,12 @@
     :prefix="prefix"
     :suffix="suffix"
     :disabled="disabled"
+    :append-icon="appendIcon"
     autocomplete="new-password"
     @change="onChange"
     @input="onInput"
+    @click:append="onAppendIconClick"
+    @keydown.space="spaceHandler"
   />
 </template>
 
@@ -44,14 +47,13 @@ export default {
     typeSearch: {
       type: Boolean,
     },
-    // @ deprecated
-    isPassword: {
-      type: Boolean,
-    },
     typePassword: {
       type: Boolean,
     },
     typeNumber: {
+      type: Boolean,
+    },
+    typeEmail: {
       type: Boolean,
     },
     counter: {
@@ -65,7 +67,7 @@ export default {
     prefix: {
       type: String,
       default: null,
-    },
+    },    
     suffix: {
       type: String,
       default: null,
@@ -77,18 +79,35 @@ export default {
       type: Boolean,
     },
   },
+  data() {
+    return {
+      showPassword: false,
+    };
+  },
   computed: {
     prependInnerIcon() {
       return this.isSearchType || this.typeSearch ? 'mdi-magnify' : '';
     },
     type() {
-      if (this.typePassword || this.isPassword) {
-        return 'password';
+      if (this.typePassword) {
+        return this.showPassword ? 'text' : 'password';
       }
       if (this.typeNumber) {
         return 'number';
       }
+      if (this.typeEmail) {
+        return 'email';
+      }
       return 'text';
+    },
+    appendIcon() {
+      if (!this.typePassword) {
+        return '';
+      }
+      if (this.showPassword) {
+        return 'mdi-eye';
+      }
+      return 'mdi-eye-off';
     },
   },
   watch: {
@@ -109,7 +128,25 @@ export default {
     },
     onInput(v) {
       const safeStr = !v ? '' : v;
+      if (this.typeEmail) {
+        const trimAndLowercaseStr = safeStr.split(' ').join('').toLowerCase();
+        this.$emit('input', trimAndLowercaseStr);
+        return;
+      }
+      if (this.typePassword) {
+        const trimStr = safeStr.split(' ').join('');
+        this.$emit('input', trimStr);
+        return;
+      }
       this.$emit('input', safeStr);
+    },
+    onAppendIconClick() {
+      this.showPassword = !this.showPassword;
+    },
+    spaceHandler(event) {
+      if (this.typeEmail || this.typePassword) {
+        event.preventDefault();
+      }
     },
   },
 };
