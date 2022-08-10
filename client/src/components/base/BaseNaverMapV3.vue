@@ -9,6 +9,7 @@
 import naverMap, {
   constants,
 } from '@/lib/naverMapV3';
+import utils from '@/lib/utils';
 
 export default {
   name: 'BaseNaverMapV3',
@@ -103,15 +104,15 @@ export default {
       type: Boolean,
       default: false,
     },
-    // 지도의 최대 확대 줌 레벨
+    // 지도의 최대 줌 레벨
     maxZoom: {
       type: Number,
       default: constants.ZOOM_LEVEL_REAL_ESTATE,
     },
-    // 지도의 최소 축소 줌 레벨
+    // 지도의 최소 줌 레벨
     minZoom: {
       type: Number,
-      default: constants.ZOOM_LEVEL_NATION,
+      default: constants.ZOOM_LEVEL_CITY,
     },
     // 지도 위에 그려지는 오버레이 객체의 배열
     // 마커, 거리폴리라인, hexagonGroups도 모두 오버레이 객체입니다.
@@ -190,18 +191,22 @@ export default {
           minZoom: this.minZoom,
         },
         onCompleted: () => {
+          // NOTE: naver map 로딩이 완료됨. 내부적으로 처리할 일을 수행.
           this.onLoaded();
           this.naverMap.addCallbackOnBoundChanged(this.onBoundChanged);
           this.naverMap.addCallbackOnZoomChanged(this.onZoomChanged);
           this.naverMap.addCallbackOnClick((v) => {
             this.$emit('click', v);
           });
+          // NOTE: 여기서부터 외부에서 주입된 overlay들을 처리
           if (this.bound) {
             this.naverMap.fitBounds(this.bound);
           }
-          if (this.overlays && this.overlays.length > 0) {
+          if (utils.isValidArray(this.overlays)) {
             this.naverMap.addOverlays(this.overlays);
           }
+          // NOTE: BaseNaverMap을 사용하는 외부에 이벤트(naver map 로딩 완료)를 전달
+          this.$emit('ready');
         },
         onError: (error) => {
           // eslint-disable-next-line no-console
