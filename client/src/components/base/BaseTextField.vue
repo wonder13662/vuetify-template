@@ -120,25 +120,35 @@ export default {
   methods: {
     onChange(v) {
       if (this.typeNumber && (!v || Number.isNaN(v))) {
-        this.$emit('change', 0);
+        this.emitChange(0);
         return;
       }
       const safeStr = !v ? '' : v;
-      this.$emit('change', safeStr);
+      this.emitChange(safeStr);
+    },
+    emitChange(v) {
+      this.$emit('change', v);
     },
     onInput(v) {
+      if (this.typeNumber && (!v || Number.isNaN(v))) {
+        this.emitInput(0);
+        return;
+      }
       const safeStr = !v ? '' : v;
       if (this.typeEmail) {
         const trimAndLowercaseStr = safeStr.split(' ').join('').toLowerCase();
-        this.$emit('input', trimAndLowercaseStr);
+        this.emitInput(trimAndLowercaseStr);
         return;
       }
       if (this.typePassword) {
         const trimStr = safeStr.split(' ').join('');
-        this.$emit('input', trimStr);
+        this.emitInput(trimStr);
         return;
       }
-      this.$emit('input', safeStr);
+      this.emitInput(safeStr);
+    },
+    emitInput(v) {
+      this.$emit('input', v);
     },
     onAppendIconClick() {
       this.showPassword = !this.showPassword;
