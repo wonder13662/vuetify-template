@@ -3,7 +3,7 @@
     block
     depressed
     :disabled="disabled"
-    color="primary"
+    :color="color"
     @click="onClick"
   >
     {{ text }}
@@ -20,6 +20,17 @@ export default {
     text: {
       type: String,
       default: 'Submit',
+    },
+    typeError: {
+      type: Boolean,
+    },
+  },
+  computed: {
+    color() {
+      if (this.typeError) {
+        return 'error';
+      }
+      return 'primary';
     },
   },
   methods: {
