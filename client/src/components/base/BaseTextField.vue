@@ -20,6 +20,7 @@
     @change="onChange"
     @input="onInput"
     @click:append="onAppendIconClick"
+    @click:clear="onClear"
     @keydown.space="spaceHandler"
   />
 </template>
@@ -67,7 +68,7 @@ export default {
     prefix: {
       type: String,
       default: null,
-    },    
+    },
     suffix: {
       type: String,
       default: null,
@@ -118,6 +119,15 @@ export default {
     },
   },
   methods: {
+    onClear() {
+      if (this.typeNumber) {
+        this.emitChange(null);
+        this.emitInput(null);
+        return;
+      }
+      this.emitChange('');
+      this.emitInput('');
+    },
     onChange(v) {
       if (this.typeNumber && (!v || Number.isNaN(v))) {
         this.emitChange(0);
