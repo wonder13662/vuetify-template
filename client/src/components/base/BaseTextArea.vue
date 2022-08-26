@@ -57,20 +57,20 @@ export default {
   watch: {
     allowEmpty: {
       handler(v) {
-        if (this.disabled) {
-          this.rules = [];
-          return;
-        }
         this.rules = this.getRules(v);
       },
       immediate: true,
     },
+    // NOTE: disabled 상태이면 스크롤이 불가능합니다.
     disabled: {
-      handler(v) {
-        if (v) {
-          this.rules = [];
-          return;
-        }
+      handler() {
+        this.rules = this.getRules(this.allowEmpty);
+      },
+      immediate: true,
+    },
+    // NOTE: readonly 상태이면 스크롤이 가능합니다.
+    readonly: {
+      handler() {
         this.rules = this.getRules(this.allowEmpty);
       },
       immediate: true,
