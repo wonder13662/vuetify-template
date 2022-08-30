@@ -21,8 +21,11 @@
       hide-default-footer
       @click:row="onClickRow"
     >
-      <template v-slot:item.actions="{ item }">
-        <slot :item="item" />
+      <template v-slot:item.actions="{ item, header }">
+        <slot
+          :item="item"
+          :header="header"
+        />
       </template>
     </v-data-table>
     <div class="text-center pt-2 pb-2">
