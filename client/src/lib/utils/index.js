@@ -436,6 +436,19 @@ const convertQueryToArray = (value) => {
   return result;
 };
 /**
+ * Query String에 있는 값을 양의 숫자값(정수)로 만드는 함수. 0 제외.
+ *
+ * @param {string} value - 양의 숫자값을 표시하는 문자열
+ *
+ * @return {number} 양의 정수형 숫자값
+ */
+const convertQueryToPositiveInteger = (value, defaultValue = 0) => {
+  if (!isPositiveInteger(value)) {
+    return defaultValue;
+  }
+  return parseInt(value, 10);
+};
+/**
  * 두 개의 object에 대해 깊은 비교(deep comparison)를 진행해서 동일한지 여부를 알려줍니다.
  * Object, Array, String, Number 사용 가능합니다.
  * lodash의 isMatch 사용
@@ -483,6 +496,31 @@ const branchAddRemove = (origin, modified) => ({
   remove: lodash.difference(origin, modified),
 });
 
+/**
+ * 파라미터로 받은 obj의 속성(property)의 값이 유효하지 않으면 속성을 제외해서 새로운 객체로 돌려줍니다.
+ *
+ * ex) { a: null, b: '', c: 0, d: 'someValue' }을 받으면 { c: 0, d: 'someValue' }을 돌려줍니다.
+ *
+ * @param {object} obj - 대상 object
+ *
+ * @return {object} 유효하지 않은 속성이 제외된 object
+ */
+const omitNotValidProperties = (obj) => {
+  if (!obj) {
+    return {};
+  }
+  return Object.keys(obj).reduce((acc, key) => {
+    const value = obj[key];
+    if (value === null || value === undefined || value === '') {
+      return acc;
+    }
+    return {
+      ...acc,
+      [key]: value,
+    };
+  }, {});
+};
+
 export default {
   isValidArray,
   isUUIDType,
@@ -528,9 +566,11 @@ export default {
   lodashWithout,
   camelCaseToCONSTANT_CASE,
   convertQueryToArray,
+  convertQueryToPositiveInteger,
   isMatch,
   is3HourUnit,
   makeStrKey,
   isSameKeys,
   branchAddRemove,
+  omitNotValidProperties,
 };
