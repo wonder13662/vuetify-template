@@ -70,6 +70,16 @@ const isSameInteger = (a, b) => {
   }
   return aInt === bInt;
 };
+const isValidMap = (aMap) => {
+  if (!aMap
+    || typeof aMap !== 'object'
+    || aMap.set === undefined
+    || aMap.size === undefined
+    || aMap.size === 0) {
+    return false;
+  }
+  return true;
+};
 const castStringToBoolean = (v) => {
   if (isValidString(v)) {
     return null;
@@ -531,6 +541,7 @@ export default {
   isPositiveInteger,
   isUnsignedInteger,
   isSameInteger,
+  isValidMap,
   castStringToBoolean,
   hasAnyProperty,
   convertObjToSet,
