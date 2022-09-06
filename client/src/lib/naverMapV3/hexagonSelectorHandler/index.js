@@ -1,8 +1,8 @@
-import customControlGroupHandler from '../customControlGroupHandler';
-import customControlBanner from '../customControlGroupHandler/customControlBanner';
+import customControlGroupHandler from './customControlGroupHandler';
+import customControlBanner from './customControlGroupHandler/customControlBanner';
 import hexagonPointSelector from './hexagonPointSelector';
 import hexagonPolygonSelector from './hexagonPolygonSelector';
-import polygonHandler from '../polygonHandler';
+import polygonHandler from '../lib/polygonHandler';
 import hexagonCalculator from '../lib/hexagonCalculator';
 
 const MODE = {
@@ -94,6 +94,7 @@ class HexagonSelector {
         this.#hexagonPolygonSelector.setH3Indexes(this.#h3Indexes);
       },
     });
+    this.#hexagonSelectorButtonGroup.setVisible(this.#visible);
     // 2. 지도 상단 중앙의 배너객체
     this.#banner = customControlBanner.createCustomControlBanner({
       meta,
@@ -176,6 +177,7 @@ class HexagonSelector {
         this.#mode = MODE.NONE;
       },
     });
+    this.#banner.setVisible(this.#visible);
     this.updateBannerNone();
     // 3. 실제 h3Index를 선택하게 도와주는 selector들
     // 3-1. 사용자 클릭에 h3Index를 하나씩 넣고 빼는 point selector
@@ -271,6 +273,23 @@ class HexagonSelector {
       return;
     }
     this.#map = map;
+
+    if (!this.#hexagonSelectorButtonGroup) {
+      throw new Error('this.#hexagonSelectorButtonGroup: 유효하지 않음');
+    }
+    if (!this.#banner) {
+      throw new Error('this.#banner: 유효하지 않음');
+    }
+    if (!this.#selectedPolygon) {
+      throw new Error('this.#selectedPolygon: 유효하지 않음');
+    }
+    if (!this.#hexagonPointSelector) {
+      throw new Error('this.#hexagonPointSelector: 유효하지 않음');
+    }
+    if (!this.#hexagonPolygonSelector) {
+      throw new Error('this.#hexagonPolygonSelector: 유효하지 않음');
+    }
+
     // NOTE: 네이버 맵 객체를 넘겨주는 순서대로 지도에 그려진다.
     // 가장 마지막에 지도에 그려진 객체가 최상위로 올라간다.
     // TODO z-index로 가장 상위에 있는 엘리먼트가 이벤트를 처리할 것이라 예상했지만 그렇게 동작하지는 않음.
@@ -401,6 +420,25 @@ class HexagonSelector {
     this.#hexagonPolygonSelector.clear();
     this.#h3Indexes = [];
     this.#selectedPolygon.setPaths([]);
+  }
+
+  /**
+   * 외부에서 좌표(Point)의 배열을 받아서 선택된 h3Index의 배열을 업데이트합니다.
+   *
+   * @depreacted point 배열이 아닌 paths를 받아야 복수의 폴리곤, 내부가 뚫린 형태를 표현할 수 있습니다.
+   *
+   * @param {array<Point>}
+   *
+   * @return {void} 리턴값 없음
+   */
+  setH3IndexesByPoints(points) {
+    if (!points || points.length === 0) {
+      return;
+    }
+    if (this.#mode !== MODE.NONE) {
+      return;
+    }
+    this.#h3Indexes = hexagonCalculator.convertPointsToH3Indexes(points);
   }
 
   /**
