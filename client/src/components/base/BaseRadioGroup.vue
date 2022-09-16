@@ -7,7 +7,6 @@
     hide-details="auto"
     :value="selectedValueData"
     :rules="rules"
-    :validate-on-blur="true"
     :disabled="disabled"
     @change="onChange"
   >
