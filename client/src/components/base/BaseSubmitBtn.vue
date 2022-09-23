@@ -1,6 +1,6 @@
 <template>
   <v-btn
-    block
+    :block="block"
     depressed
     :disabled="disabled"
     :color="color"
@@ -23,6 +23,11 @@ export default {
     },
     typeError: {
       type: Boolean,
+    },
+    block: {
+      type: Boolean,
+      // TODO 추후 일괄적으로 기본값은 false로 전환
+      default: true,
     },
   },
   computed: {
