@@ -2,22 +2,32 @@
   <v-card
     :elevation="0"
   >
-    <!-- eslint-disable max-len -->
-    <v-card-title
+    <BaseContentHorizontalLayout
       v-if="!hideTotalCnt"
+      col-width-left="200px"
     >
-      {{ `${$t('views.admin.common.total')} ${totalCnt} ${$t('views.admin.common.rowUnit')}` }}
-    </v-card-title>
+      <template v-slot:left>
+        <div class="pa-2">
+          <BaseHeading
+            :text="labelTotal"
+          />
+        </div>
+      </template>
+      <template v-slot:right>
+        <slot name="top-right-box" />
+      </template>
+    </BaseContentHorizontalLayout>
+    <v-divider />
     <v-data-table
       :headers="headers"
       :items="items"
       dense
       :page="currentPage"
       :items-per-page="itemCntPerPage"
-      :no-data-text="noDataText"
+      :no-data-text="textNoData"
       :server-items-length="totalCnt"
       :loading="loading"
-      loading-text="로딩중입니다. 잠시만 기다려주세요."
+      :loading-text="textLoading"
       hide-default-footer
       @click:row="onClickRow"
     >
@@ -32,6 +42,7 @@
       <v-pagination
         :value="currentPage"
         :length="pageCount"
+        :total-visible="totalVisible"
         @input="onChangePage"
       />
     </div>
@@ -39,9 +50,17 @@
 </template>
 
 <script>
+import BaseContentHorizontalLayout from '@/components/base/BaseContentHorizontalLayout';
+import BaseHeading from '@/components/base/BaseHeading';
+
 // https://v2.vuejs.org/v2/guide/components-slots.html#Scoped-Slots
+const TOTAL_VISIBLE_DEFAULT = 10;
 export default {
   name: 'BasePaginationTable',
+  components: {
+    BaseContentHorizontalLayout,
+    BaseHeading,
+  },
   props: {
     headers: {
       type: Array,
@@ -74,13 +93,24 @@ export default {
       type: Boolean,
     },
   },
+  data() {
+    return {
+      textTotal: this.$t('components.total'),
+      textRowUnit: this.$t('components.rowUnit'),
+      textNoData: this.$t('components.noData'),
+      textLoading: this.$t('components.loadingText'),
+    };
+  },
   computed: {
-    noDataText() {
-      return this.$t('views.admin.common.noData');
+    labelTotal() {
+      return `${this.textTotal} ${this.totalCnt}${this.textRowUnit}`;
     },
     pageCount() {
       const remainder = this.totalCnt % this.itemCntPerPage;
       return Math.floor(this.totalCnt / this.itemCntPerPage) + (remainder > 0 ? 1 : 0);
+    },
+    totalVisible() {
+      return TOTAL_VISIBLE_DEFAULT;
     },
   },
   methods: {
