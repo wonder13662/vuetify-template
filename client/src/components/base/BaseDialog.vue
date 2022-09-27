@@ -57,7 +57,7 @@
             x-small
             depressed
             color="primary"
-            :disabled="disabledSubmitBtn"
+            :disabled="disabledSubmitBtn || !isValidated"
             @click="onSubmit"
           >
             {{ submitBtnName }}
@@ -118,6 +118,7 @@ export default {
   data() {
     return {
       dialog: this.isShow,
+      isValidated: false,
     };
   },
   watch: {
@@ -172,6 +173,7 @@ export default {
       }
     },
     onChangeValidation(v) {
+      this.isValidated = v;
       this.$emit('change:validation', v);
     },
   },
