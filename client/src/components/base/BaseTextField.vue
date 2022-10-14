@@ -3,7 +3,7 @@
     :label="label"
     outlined
     dense
-    hide-details="auto"
+    :hide-details="hideDetails"
     :clearable="!readonly"
     :prepend-inner-icon="prependInnerIcon"
     :value="value"
@@ -26,12 +26,18 @@
 </template>
 
 <script>
+import utils from '@/lib/utils';
+
 export default {
   name: 'BaseTextField',
   props: {
     label: {
       type: String,
       default: '',
+    },
+    hideDetails: {
+      type: [Boolean, String],
+      default: 'auto',
     },
     value: {
       type: [String, Number],
@@ -121,30 +127,38 @@ export default {
   methods: {
     onClear() {
       if (this.typeNumber) {
-        this.emitChange(null);
-        this.emitInput(null);
+        this.emitChange(0);
+        this.emitInput(0);
         return;
       }
       this.emitChange('');
       this.emitInput('');
     },
     onChange(v) {
-      if (this.typeNumber && (!v || Number.isNaN(v))) {
-        this.emitChange(0);
+      const safeStr = !v ? '' : v;
+      if (this.typeNumber) {
+        if (utils.isNotNumber(safeStr)) {
+          this.emitChange(null);
+          return;
+        }
+        this.emitChange(Number(safeStr));
         return;
       }
-      const safeStr = !v ? '' : v;
       this.emitChange(safeStr);
     },
     emitChange(v) {
       this.$emit('change', v);
     },
     onInput(v) {
-      if (this.typeNumber && (!v || Number.isNaN(v))) {
-        this.emitInput(0);
+      const safeStr = !v ? '' : v;
+      if (this.typeNumber) {
+        if (utils.isNotNumber(safeStr)) {
+          this.emitInput(null);
+          return;
+        }
+        this.emitInput(Number(safeStr));
         return;
       }
-      const safeStr = !v ? '' : v;
       if (this.typeEmail) {
         const trimAndLowercaseStr = safeStr.split(' ').join('').toLowerCase();
         this.emitInput(trimAndLowercaseStr);
