@@ -36,6 +36,7 @@ const isValidEmail = (email) => { // REMOVE ME
   return rule.test(email);
 };
 const isBoolean = (v) => typeof v === 'boolean';
+const isSymbol = (v) => typeof v === 'symbol';
 const isValidString = (v, minLength = 0) => typeof v === 'string' && v.length > minLength;
 const isPositiveInteger = (v) => {
   const safeNumber = Number(v);
@@ -44,6 +45,18 @@ const isPositiveInteger = (v) => {
 const isUnsignedInteger = (v) => {
   const safeNumber = Number(v);
   return Number.isInteger(safeNumber) && safeNumber >= 0;
+};
+/**
+ * 받은 데이터를 number로 형변환 후 NaN인지 확인하는 로직.
+ * @param {any} v
+ * @returns {boolean} NaN인지 여부
+ */
+const isNotNumber = (v) => {
+  if (Array.isArray(v) || v === null || isBoolean(v) || isSymbol(v)) {
+    return true;
+  }
+  const vToNum = Number(v);
+  return Number.isNaN(vToNum);
 };
 /**
  * 두 개의 정수(숫자,문자열)를 비교해서 같은지 알려줍니다.
@@ -537,9 +550,11 @@ export default {
   isValidPhoneNumber,
   isValidEmail,
   isBoolean,
+  isSymbol,
   isValidString,
   isPositiveInteger,
   isUnsignedInteger,
+  isNotNumber,
   isSameInteger,
   isValidMap,
   castStringToBoolean,
