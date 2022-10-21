@@ -5,6 +5,9 @@
       :label="label"
       :value="value"
       :rules="rules"
+      :disabled="disabled"
+      :type-number="typeNumber"
+      :type-email="typeEmail"
       @input="onInput"
       @change="onChange"
     />
@@ -28,10 +31,10 @@ export default {
       // hideDetails: true, // REMOVE ME 사용하는 곳 없음. 확인 뒤 삭제 필요
       value: '손흥민',
       rules: ruleMap.getRule(RULE_KEY.PERSON_NAME),
-      // typeNumber // TODO 숫자만 입력받아야 함(별도 테스트 sandbox)
-      // typeEmail // TODO 이메일 주소만 입력받아야 함(별도 테스트 sandbox)
-      // readonly // TODO 입력이 불가능해야 함(별도 테스트 sandbox)
-      // disabled // TODO 입력이 불가능해야 함(별도 테스트 sandbox)
+      typeNumber: false,
+      typeEmail: false,
+      readonly: false,
+      disabled: false, // TODO 입력이 불가능해야 함(별도 테스트 sandbox)
     };
   },
   methods: {
