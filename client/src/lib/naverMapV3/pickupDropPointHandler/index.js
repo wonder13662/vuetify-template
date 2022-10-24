@@ -1,7 +1,7 @@
 import markerHandler from '../markerHandler';
 import distanceLineHandler from '../distanceLineHandler';
 import boundHandler from '../lib/boundHandler';
-import utils from '../lib/utils';
+import mapUtils from '../lib/utils';
 
 const createPickupPointMarker = (point) => (markerHandler.createBaseMarker({
   lat: point.lat,
@@ -24,10 +24,12 @@ const createDropPointMarker = (point) => (markerHandler.createBaseMarker({
 const createDistanceLine = ({
   start,
   end,
+  distanceInMeter,
   meta = {},
 }) => distanceLineHandler.createDistanceLine({
   start,
   end,
+  distanceInMeter,
   meta,
 });
 
@@ -57,7 +59,7 @@ class PickupDropPoints {
 
   #meta
 
-  constructor(pickupPoint, dropPoint, driverPoint, meta) {
+  constructor(pickupPoint, dropPoint, driverPoint, distanceInMeter, meta) {
     this.#pickupPoint = { ...pickupPoint };
     this.#pickupPointMarker = createPickupPointMarker(this.#pickupPoint);
     this.#dropPoint = { ...dropPoint };
@@ -65,6 +67,7 @@ class PickupDropPoints {
     this.#distanceLine = createDistanceLine({
       start: this.#pickupPoint,
       end: this.#dropPoint,
+      distanceInMeter,
       meta: { ...meta },
     });
     this.#driverPoint = driverPoint ? { ...driverPoint } : null;
@@ -108,10 +111,10 @@ class PickupDropPoints {
    * @return {void} 반환값 없음
    */
   setPickupPointLatLng({ lat, lng }) {
-    if (!utils.isLatitude(lat)) {
+    if (!mapUtils.isLatitude(lat)) {
       throw new Error(`lat:${lat} / 유효하지 않습니다.`);
     }
-    if (!utils.isLongitude(lng)) {
+    if (!mapUtils.isLongitude(lng)) {
       throw new Error(`lng:${lng} / 유효하지 않습니다.`);
     }
     if (!this.#pickupPointMarker) {
@@ -136,10 +139,10 @@ class PickupDropPoints {
    * @return {void} 반환값 없음
    */
   setDropPointLatLng({ lat, lng }) {
-    if (!utils.isLatitude(lat)) {
+    if (!mapUtils.isLatitude(lat)) {
       throw new Error(`lat:${lat} / 유효하지 않습니다.`);
     }
-    if (!utils.isLongitude(lng)) {
+    if (!mapUtils.isLongitude(lng)) {
       throw new Error(`lng:${lng} / 유효하지 않습니다.`);
     }
     if (!this.#dropPointMarker) {
@@ -164,10 +167,10 @@ class PickupDropPoints {
    * @return {void} 반환값 없음
    */
   setDriverPointLatLng({ lat, lng }) {
-    if (!utils.isLatitude(lat)) {
+    if (!mapUtils.isLatitude(lat)) {
       throw new Error(`lat:${lat} / 유효하지 않습니다.`);
     }
-    if (!utils.isLongitude(lng)) {
+    if (!mapUtils.isLongitude(lng)) {
       throw new Error(`lng:${lng} / 유효하지 않습니다.`);
     }
     if (!this.#driverPointMarker) {
@@ -267,7 +270,7 @@ class PickupDropPoints {
   }
 
   /**
-   * 지도에서 pickupDropPointHandler를 가립니다.
+   * 지도에서 pickupDropPoint를 가립니다.
    *
    * @return {void} 반환값 없음
    */
@@ -281,7 +284,7 @@ class PickupDropPoints {
   }
 
   /**
-   * 지도에서 pickupDropPointHandler를 보이게 합니다.
+   * 지도에서 pickupDropPoint를 보이게 합니다.
    *
    * @return {void} 반환값 없음
    */
@@ -322,29 +325,36 @@ export default {
     pickupPoint,
     dropPoint,
     driverPoint,
+    distanceInMeter,
     meta = {},
   }) {
-    if (!utils.isLatitude(pickupPoint.lat)) {
+    if (!mapUtils.isLatitude(pickupPoint.lat)) {
       throw new Error(`pickupPoint.lat:${pickupPoint.lat} / 유효하지 않습니다.`);
     }
-    if (!utils.isLongitude(pickupPoint.lng)) {
+    if (!mapUtils.isLongitude(pickupPoint.lng)) {
       throw new Error(`pickupPoint.lng:${pickupPoint.lng} / 유효하지 않습니다.`);
     }
-    if (!utils.isLatitude(dropPoint.lat)) {
+    if (!mapUtils.isLatitude(dropPoint.lat)) {
       throw new Error(`dropPoint.lat:${dropPoint.lat} / 유효하지 않습니다.`);
     }
-    if (!utils.isLongitude(dropPoint.lng)) {
+    if (!mapUtils.isLongitude(dropPoint.lng)) {
       throw new Error(`dropPoint.lng:${dropPoint.lng} / 유효하지 않습니다.`);
     }
     if (driverPoint) {
-      if (!utils.isLatitude(driverPoint.lat)) {
+      if (!mapUtils.isLatitude(driverPoint.lat)) {
         throw new Error(`driverPoint.lat:${dropPoint.lat} / 유효하지 않습니다.`);
       }
-      if (!utils.isLongitude(driverPoint.lng)) {
+      if (!mapUtils.isLongitude(driverPoint.lng)) {
         throw new Error(`driverPoint.lng:${dropPoint.lng} / 유효하지 않습니다.`);
       }
     }
 
-    return new PickupDropPoints(pickupPoint, dropPoint, driverPoint, meta);
+    return new PickupDropPoints(
+      pickupPoint,
+      dropPoint,
+      driverPoint,
+      distanceInMeter,
+      meta,
+    );
   },
 };

@@ -9,6 +9,7 @@ import polygonHandler from './polygonHandler';
 export { default as mapUtils } from './lib/utils';
 export { default as boundHandler } from './lib/boundHandler';
 export { default as hexagonCalculator } from './lib/hexagonCalculator';
+export { default as distanceCalculator } from './lib/distanceCalculator';
 export const constants = mapConstants;
 
 // 네이버 지도 공식 문서
@@ -256,11 +257,13 @@ export default {
     start,
     end,
     strokeStyle,
+    distanceInMeter,
     meta = {},
   }) => (distanceLineHandler.createDistanceLine({
     start,
     end,
     strokeStyle,
+    distanceInMeter,
     meta,
   })),
   createPolygon: ({
@@ -284,11 +287,13 @@ export default {
     pickupPoint,
     dropPoint,
     driverPoint,
+    distanceInMeter,
     meta = {},
   }) => (pickupDropPointHandler.create({
     pickupPoint,
     dropPoint,
     driverPoint,
+    distanceInMeter,
     meta,
   })),
   createHexagonSelector: ({
