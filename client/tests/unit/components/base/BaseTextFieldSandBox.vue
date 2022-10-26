@@ -10,6 +10,7 @@
       :type-email="typeEmail"
       @input="onInput"
       @change="onChange"
+      @update:error="onUpdateError"
     />
   </div>
 </template>
@@ -35,6 +36,7 @@ export default {
       typeEmail: false,
       readonly: false,
       disabled: false, // TODO 입력이 불가능해야 함(별도 테스트 sandbox)
+      hasError: false,
     };
   },
   methods: {
@@ -43,6 +45,9 @@ export default {
     },
     onChange(v) {
       this.value = v;
+    },
+    onUpdateError(v) {
+      this.hasError = v;
     },
   },
 };
